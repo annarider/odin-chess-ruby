@@ -40,6 +40,9 @@ Instance Method:
 
 ## Board class
 Purpose: Manages game rules, delegates to helpers
+Instance variable:
+- 2D array chess board
+Instance methods:
 - Move validation
 - Move execution (store result of move)
 - Updating board
@@ -52,7 +55,7 @@ Purpose: Controls IO and delegates to helpers
 Instance methods:
 - Request player name
 - Get's player move input
-- Displays board after every move
+- Displays board
 - Displays win & game over announcements
 
 ### BoardArtist
