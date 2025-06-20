@@ -23,8 +23,8 @@ module Chess
     end
 
     def set_up_pieces
-      grid[SECOND_RANK].map! { |file| file = 'DP' }
-      grid[SEVENTH_RANK].map! { |file| file = 'LP' }
+      grid[SECOND_RANK].map! { 'DP' }
+      grid[SEVENTH_RANK].map! { 'LP' }
     end
   end
 end
