@@ -26,10 +26,10 @@ module Chess
     end
 
     def set_up_pieces
-      grid[SECOND_RANK].map! { 'DP' }
-      grid[SEVENTH_RANK].map! { 'LP' }
-      grid[FIRST_RANK][FIRST_FILE] = 'DR'
-      grid[FIRST_RANK][LAST_FILE] = 'DR'
+      grid[SECOND_RANK].map! { 'LP' }
+      grid[SEVENTH_RANK].map! { 'DP' }
+      grid[FIRST_RANK][FIRST_FILE] = 'LR'
+      grid[FIRST_RANK][LAST_FILE] = 'LR'
     end
   end
 end

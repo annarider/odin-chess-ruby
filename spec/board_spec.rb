@@ -13,20 +13,20 @@ describe Chess::Board do
   let(:new_game) { described_class.new }
   describe '#set_up_pieces' do
     context 'when the board is created' do
-      it 'adds dark pawns to the second rank (row)' do
+      it 'adds light pawns to the second rank (row)' do
         expect { new_game.set_up_pieces }.to change {
           new_game.grid[second_rank][first_file]
-      }.from(nil).to('DP')
+      }.from(nil).to('LP')
       end
-      it 'adds dark rooks' do
+      it 'adds light rooks' do
         expect{ new_game.set_up_pieces }
-        .to change { new_game.grid[first_rank][first_file] }.from(nil).to('DR')
-        .and change { new_game.grid[first_rank][last_file]}
+        .to change { new_game.grid[first_rank][first_file] }.from(nil).to('LR')
+        .and change { new_game.grid[first_rank][last_file] }.from(nil).to('LR')
       end
 
-      it 'adds light pawns to the 7th rank (row)' do
+      it 'adds dark pawns to the 7th rank (row)' do
         expect { new_game.set_up_pieces }
-        .to change { new_game.grid[seventh_rank][first_file] }.from(nil).to('LP')
+        .to change { new_game.grid[seventh_rank][first_file] }.from(nil).to('DP')
       end
     end
   end
