@@ -12,13 +12,7 @@ require_relative 'config'
 # board = Board.new
 #
 module Chess
-  class Board
-    FIRST_RANK = 7
-    SECOND_RANK = 6
-    SEVENTH_RANK = 1
-    FIRST_FILE = 0
-    LAST_FILE = 7
-  
+  class Board  
     attr_accessor :grid
 
     def initialize
