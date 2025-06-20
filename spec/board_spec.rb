@@ -18,28 +18,28 @@ describe Chess::Board do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
         expect { new_game.set_up_pieces }
-          .to change { new_game.grid[second_rank][a_file] }.from(nil).to('LP')
+          .to change { new_game.grid[second_rank][a_file] }.from(nil).to('WP')
       end
       it 'adds white rooks' do
         expect { new_game.set_up_pieces }
-          .to change { new_game.grid[first_rank][a_file] }.from(nil).to('LR')
-          .and change { new_game.grid[first_rank][h_file] }.from(nil).to('LR')
+          .to change { new_game.grid[first_rank][a_file] }.from(nil).to('WR')
+          .and change { new_game.grid[first_rank][h_file] }.from(nil).to('WR')
       end
       it 'adds white king' do
         expect { new_game.set_up_pieces }
-          .to change { new_game.grid[first_rank][e_file]}.from(nil).to('LK')
+          .to change { new_game.grid[first_rank][e_file]}.from(nil).to('WK')
       end
       it 'adds black pawns to the 7th rank (row)' do
         expect { new_game.set_up_pieces }
-        .to change { new_game.grid[seventh_rank][a_file] }.from(nil).to('DP')
+        .to change { new_game.grid[seventh_rank][a_file] }.from(nil).to('BP')
       end
       it 'adds black king' do
         expect { new_game.set_up_pieces }
-          .to change { new_game.grid[eighth_rank][e_file]}.from(nil).to('DK')
+          .to change { new_game.grid[eighth_rank][e_file]}.from(nil).to('BK')
       end
       it 'adds a black bishop' do
         expect { new_game.set_up_pieces }
-          .to change { new_game.grid[eighth_rank][c_file]}.from(nil).to('DB')
+          .to change { new_game.grid[eighth_rank][c_file]}.from(nil).to('BB')
       end
     end
   end
