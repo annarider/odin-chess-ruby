@@ -26,10 +26,9 @@ module Chess
     end
 
     def set_up_pieces
-      grid[SECOND_RANK].map! { 'LP' }
-      grid[SEVENTH_RANK].map! { 'DP' }
-      grid[FIRST_RANK][FIRST_FILE] = 'LR'
-      grid[FIRST_RANK][LAST_FILE] = 'LR'
+      Config::INITIAL_POSITIONS.each do |(rank, file), piece|
+        @grid[rank][file] = piece
+      end
     end
   end
 end
