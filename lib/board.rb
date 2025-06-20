@@ -14,6 +14,7 @@ require_relative 'config'
 module Chess
   class Board
     SECOND_RANK = 6
+    SEVENTH_RANK = 1
   
     attr_accessor :grid
 
@@ -22,7 +23,8 @@ module Chess
     end
 
     def set_up_pieces
-      grid[SECOND_RANK].map! { |file| file = 'P' }
+      grid[SECOND_RANK].map! { |file| file = 'DP' }
+      grid[SEVENTH_RANK].map! { |file| file = 'LP' }
     end
   end
 end
