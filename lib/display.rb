@@ -12,7 +12,9 @@
 # board = Board.new
 #
 module Chess
-  module Display
+  class Display
+    attr_reader :board
+
     PIECE_SYMBOLS = {
         'WK' => '♔', 'BK' => '♚',
         'WQ' => '♕', 'BQ' => '♛',
@@ -21,8 +23,16 @@ module Chess
         'WN' => '♘', 'BN' => '♞',
         'WP' => '♙', 'BP' => '♟'
       }
+
+    def initialize(board)
+      @board = board
+    end
     
-    def self.map_piece_symbol(code)
+    def build_board_for_display
+      
+    end
+
+    def map_piece_symbol(code)
       PIECE_SYMBOLS[code]
     end
   end
