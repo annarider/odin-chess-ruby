@@ -13,18 +13,17 @@
 #
 module Chess
   module Display
+    PIECE_SYMBOLS = {
+        'WK' => '♔', 'BK' => '♚',
+        'WQ' => '♕', 'BQ' => '♛',
+        'WR' => '♖', 'BR' => '♜',
+        'WB' => '♗', 'BB' => '♝',
+        'WN' => '♘', 'BN' => '♞',
+        'WP' => '♙', 'BP' => '♟'
+      }
     
-    def self.map_piece_symbol(piece)
-      case piece
-      when 'BR'
-        '♜'
-      when 'b'
-        '🔵'
-      when 'y'
-        '🟡'
-      else
-        '🟣'
-      end
+    def self.map_piece_symbol(code)
+      PIECE_SYMBOLS[code]
     end
   end
 end
