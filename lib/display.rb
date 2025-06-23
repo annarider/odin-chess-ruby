@@ -14,7 +14,7 @@
 module Chess
   module Display
     
-    def self.map_pieces_symbols(piece)
+    def self.map_piece_symbol(piece)
       case piece
       when 'BR'
         '♜'
