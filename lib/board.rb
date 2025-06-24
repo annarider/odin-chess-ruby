@@ -16,11 +16,11 @@ module Chess
     attr_accessor :grid
 
     def initialize
-      @grid = Array.new(Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
+      @grid = Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
     end
 
     def set_up_pieces
-      Config::INITIAL_POSITIONS.each do |(rank, file), piece|
+      Chess::Config::INITIAL_POSITIONS.each do |(rank, file), piece|
         @grid[rank][file] = piece
       end
     end
