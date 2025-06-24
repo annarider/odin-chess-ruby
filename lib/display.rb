@@ -23,7 +23,7 @@ module Chess
     end
 
     def map_piece_symbol(code)
-      PIECE_SYMBOLS[code]
+      Chess::Config::PIECE_SYMBOLS[code]
     end
 
     def format_checkered_grid

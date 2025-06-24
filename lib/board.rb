@@ -15,9 +15,12 @@ module Chess
   class Board  
     attr_accessor :grid
 
-    def initialize
+    def initialize(add_pieces: true)
       @grid = Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
+      set_up_pieces if add_pieces
     end
+
+    private
 
     def set_up_pieces
       Chess::Config::INITIAL_POSITIONS.each do |(rank, file), piece|
