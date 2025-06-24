@@ -50,16 +50,21 @@ class Display
 
     format_board_display.each_with_index do |rank, rank_index|
       # rank.fg_color(:slate) if index.even?
-      rank.each_with_index do |file, file_index|
+      rank.map.with_index do |file, file_index|
         combined_indices = rank_index + file_index
-        if combined_indices.even?
-          puts "#{file.color(:slate, ground: 'back')}"
-        else
-          puts "#{file.color(:gray, ground: 'back')}"
-        end
-      end 
+        print format_checkered_color(combined_indices, file)
+      end
+      print "\n"
     end
-  end  
+  end
+  
+  def format_checkered_color(index, file)
+    if index.even?
+      file.color(:slate, ground: 'back')
+    else
+      file.color(:gray, ground: 'back')
+    end
+  end
 end
 
 board = Chess::Board.new
