@@ -15,7 +15,7 @@ module ColoredString
     yellow: '255;206;84',
     amber: '209;139;71',
     gray: '232;235;239',
-    slate: '125;135;150'
+    slate: '35;65;75'
   }
 
   refine String do
@@ -59,10 +59,10 @@ class Display
   end
   
   def format_checkered_color(index, file)
-    if index.even?
-      file.color(:slate, ground: 'back')
-    else
+    if index.even? # "white on the right"
       file.color(:gray, ground: 'back')
+    else
+      file.color(:slate, ground: 'back')
     end
   end
 end
