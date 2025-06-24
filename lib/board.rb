@@ -20,6 +20,18 @@ module Chess
       set_up_pieces if add_pieces
     end
 
+    def extract_grid_and_pieces
+      grid.map do |rank|
+        rank.map do |file|
+          if file.nil?
+            '  '
+          else
+            " #{file} "
+          end
+        end
+      end
+    end
+
     private
 
     def set_up_pieces
