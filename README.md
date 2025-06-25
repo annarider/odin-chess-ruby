@@ -4,8 +4,8 @@ The Odin Project's capstone Chess project
 Let's plan and outline the project before writing code.
 
 Chess has many layers: 
-1. setting up a board, placing pieces
-2. displaying the board and different colors
+1. setting up a board, placing pieces - DONE
+2. displaying the board and different colors - DONE
 3. basic movement for one piece
 - generating all possible moves
 - validating the moves

@@ -2,18 +2,18 @@
 
 require_relative 'colored_string'
 
-# Display defines how to display
-# the game board in Chess.
-#
-# It manages displaying the board,
-# the pieces, and colors. It
-# doesn't include the IO
-# functionality in the game.
-#
-# @example Create a new Board
-# board = Board.new
-#
 module Chess
+  # Display defines how to display
+  # the game board in Chess.
+  #
+  # It manages displaying the board,
+  # the pieces, and colors. It
+  # doesn't include the IO
+  # functionality in the game.
+  #
+  # @example Create a new Board
+  # board = Board.new
+  #
   class Display
     using Chess::ColoredString
     attr_reader :board

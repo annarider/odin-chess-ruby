@@ -38,7 +38,7 @@ describe Chess::Board do
     end
   end
 
-  describe '#extract_grid_pieces_for_display' do 
+  describe '#extract_grid_pieces_for_display' do
     context 'when board needs to extract game board for public consumption' do
       it 'returns a string with the number of lines as the grid board' do
         result = new_game.extract_grid_and_pieces

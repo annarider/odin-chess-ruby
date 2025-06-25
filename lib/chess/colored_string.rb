@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-# ColoredString configures Terminal
-# output color settings
-# Credit: Josh Smith
-# https://dev.to/joshdevhub/terminal-colors-using-ruby-410p
 module Chess
+  # ColoredString configures Terminal
+  # output color settings
+  # Credit: Josh Smith
+  # https://dev.to/joshdevhub/terminal-colors-using-ruby-410p
   module ColoredString
     refine String do
       def output_color(color_name, ground: fore)

@@ -5,13 +5,13 @@ module Chess
   module Config
     GRID_LENGTH = 8
     PIECE_SYMBOLS = {
-    'WK' => '♔', 'BK' => '♚',
-    'WQ' => '♕', 'BQ' => '♛',
-    'WR' => '♖', 'BR' => '♜',
-    'WB' => '♗', 'BB' => '♝',
-    'WN' => '♘', 'BN' => '♞',
-    'WP' => '♙', 'BP' => '♟'
-    }
+      'WK' => '♔', 'BK' => '♚',
+      'WQ' => '♕', 'BQ' => '♛',
+      'WR' => '♖', 'BR' => '♜',
+      'WB' => '♗', 'BB' => '♝',
+      'WN' => '♘', 'BN' => '♞',
+      'WP' => '♙', 'BP' => '♟'
+    }.freeze
     INITIAL_POSITIONS = {
       [0, 0] => 'BR',
       [0, 1] => 'BN',
@@ -45,10 +45,10 @@ module Chess
       [7, 5] => 'WB',
       [7, 6] => 'WN',
       [7, 7] => 'WR'
-    }
+    }.freeze
     RGB_COLOR_MAP = {
       white: '232;235;239',
       black: '35;65;75'
-    }
+    }.freeze
   end
 end

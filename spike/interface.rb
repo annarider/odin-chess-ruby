@@ -35,9 +35,9 @@ class Display
     board.grid.each do |rank|
       puts '\033[47m' if rank.nil?
     end
-    green_rgb = "0;128;0"
+    green_rgb = '0;128;0'
     puts "\e[38;2;#{green_rgb}mhello\e[0m world"
-  
+
     format_board_display = board.grid.map do |rank|
       rank.map do |file|
         if file.nil?
@@ -57,7 +57,7 @@ class Display
       print "\n"
     end
   end
-  
+
   def format_checkered_color(index, file)
     if index.even? # "white on the right"
       file.color(:gray, ground: 'back')

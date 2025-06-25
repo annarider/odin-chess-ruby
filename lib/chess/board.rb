@@ -2,17 +2,17 @@
 
 require_relative 'config'
 
-# Board represents a chess board.
-#
-# It contains the game board
-# and manages the rules of
-# the game.
-#
-# @example Create a new Board
-# board = Board.new
-#
 module Chess
-  class Board  
+  # Board represents a chess board.
+  #
+  # It contains the game board
+  # and manages the rules of
+  # the game.
+  #
+  # @example Create a new Board
+  # board = Board.new
+  #
+  class Board
     attr_accessor :grid
 
     def initialize(add_pieces: true)
@@ -26,7 +26,7 @@ module Chess
           if file.nil?
             ''
           else
-            "#{file}"
+            file.to_s
           end
         end
       end
