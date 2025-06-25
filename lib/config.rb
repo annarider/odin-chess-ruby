@@ -47,8 +47,8 @@ module Chess
       [7, 7] => 'WR'
     }
     RGB_COLOR_MAP = {
-      gray: '232;235;239',
-      slate: '35;65;75'
+      white: '232;235;239',
+      black: '35;65;75'
     }
   end
 end

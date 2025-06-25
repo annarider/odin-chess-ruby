@@ -24,9 +24,9 @@ module Chess
       grid.map do |rank|
         rank.map do |file|
           if file.nil?
-            '  '
+            ''
           else
-            " #{file} "
+            "#{file}"
           end
         end
       end

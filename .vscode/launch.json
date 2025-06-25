@@ -22,8 +22,8 @@
     "type": "rdbg",
     "name": "Debug RSpec",
     "request": "launch",
-    "command": "rspec",
-    "script": "${workspaceFolder}/spec/board_spec.rb",
+    "command": "bundle exec rspec",
+    "script": "${workspaceFolder}/spec/display_spec.rb",
     "args": [],
     "askParameters": false
   }

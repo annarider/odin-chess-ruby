@@ -26,37 +26,45 @@ module Chess
       Chess::Config::PIECE_SYMBOLS[code]
     end
 
-    def format_checkered_grid
-      grid = extract_grid_with_pieces
-      grid.each_with_index do |rank, rank_index|
-        rank.map.with_index do |file, file_index|
-          combined_indices = rank_index + file_index
-          print calculate_checkered_color(combined_indices, file)
-        end
-        print "\n"
-      end
+    def build_board_for_display
+      grid = board.extract_grid_and_pieces
+      format_board(grid)
     end
 
     private
 
-    def extract_grid_with_pieces
-      board.grid.map do |rank|
-        rank.map do |file|
-          if file.nil?
-            ' a '
-          else
-            ' ♟ '
-          end
-        end
-      end
+    def format_board(grid)
+      grid.map.with_index do |rank, rank_index|
+        format_rank(rank, rank_index)
+      end.join("\n")
     end
 
-    def calculate_checkered_color(index, file)
-      if index.even? # "white on the right"
-        file.output_color(:gray, ground: 'back')
-      else
-        file.output_color(:slate, ground: 'back')
-      end
+    def format_rank(rank, rank_index)
+      rank.map.with_index do |piece_code, file_index|
+        format_square(piece_code, rank_index, file_index)
+      end.join('')
+    end
+
+    def format_square(piece_code, rank_index, file_index)
+      combined_indices = rank_index + file_index
+      apply_style_rules(combined_indices, piece_code)
+    end
+
+    def apply_style_rules(index, piece_code)
+      content = apply_whitespace_style(piece_code)
+      apply_background_color(index, content)
+    end
+
+    def apply_whitespace_style(piece_code)
+      return '   ' if piece_code == ''
+
+      " #{map_piece_symbol(piece_code)} "
+    end
+
+    def apply_background_color(index, content)
+      # "white on the right"
+      color = index.even? ? :white : :black
+      content.output_color(color, ground: 'back')
     end
   end
 end
