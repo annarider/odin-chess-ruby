@@ -20,7 +20,7 @@ module Chess
       [0, 4] => 'BK',
       [0, 5] => 'BB',
       [0, 6] => 'BN',
-      [0, 7] => 'BK',
+      [0, 7] => 'BR',
       [1, 0] => 'BP',
       [1, 1] => 'BP',
       [1, 2] => 'BP',
@@ -50,5 +50,7 @@ module Chess
       white: '232;235;239',
       black: '35;65;75'
     }.freeze
+    EMPTY_SQUARE_PADDING = '   '
+    PIECE_PADDING = ' '
   end
 end

@@ -10,8 +10,12 @@ Chess has many layers:
 - generating all possible moves
 - validating the moves
 4. expanding to all pieces and movements for all pieces
-5. adding check and checkmate (includes win & game over)
-6. adding exotic moves, e.g. castling
+5. game state management 
+- switching turns
+- adding check and checkmate (includes win & game over)
+6. saving game state
+- export & load game state 
+7. adding exotic moves, e.g. castling
 
 # Composed Systems 
 

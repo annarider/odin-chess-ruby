@@ -56,9 +56,9 @@ module Chess
     end
 
     def apply_whitespace_style(piece_code)
-      return '   ' if piece_code == ''
+      return Chess::Config::EMPTY_SQUARE_PADDING if piece_code.empty?
 
-      " #{map_piece_symbol(piece_code)} "
+      "#{Chess::Config::PIECE_PADDING}#{map_piece_symbol(piece_code)}#{Chess::Config::PIECE_PADDING}"
     end
 
     def apply_background_color(index, content)
