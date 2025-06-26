@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../lib/board'
+require_relative '../lib/chess'
 
 # Tests for the Chess Board class
 
@@ -13,7 +13,7 @@ describe Chess::Board do
   let(:c_file) { 2 }
   let(:e_file) { 4 }
   let(:h_file) { 7 }
-  subject(:new_game) { described_class.new }
+  subject(:new_game) { described_class.default }
   describe '#initialize' do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
