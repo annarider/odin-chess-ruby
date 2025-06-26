@@ -11,5 +11,19 @@
 #
 module Chess
   class Piece
+    attr_accessor :moved
+
+    def initialize(moved: false)
+      @moved = moved
+    end
+
+    def moved?
+      moved
+    end
+
+    def mark_as_moved!
+      @moved = true
+    end
+
   end
 end
