@@ -4,6 +4,7 @@
 module Chess
   module Config
     GRID_LENGTH = 8
+    ALLOWED_COLORS = [ :white, :black]
     PIECE_SYMBOLS = {
       'WK' => '♔', 'BK' => '♚',
       'WQ' => '♕', 'BQ' => '♛',

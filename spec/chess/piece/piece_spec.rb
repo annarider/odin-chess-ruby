@@ -2,10 +2,26 @@
 
 require_relative '../../../lib/chess'
 
-# Tests for the Connect Four Piece class
+# Tests for the Chess Piece class
 
 describe Chess::Piece do
-  let(:new_piece) { described_class.new }
+  let(:new_piece) { described_class.new(:white) }
+  describe '#color' do 
+    context 'when initializing to an allowed color' do
+      it 'allows creating a new white piece' do
+        expect(new_piece).to be_a(described_class)
+        expect(new_piece.color).to eq(:white)
+      end
+      it 'allows creating a new black piece' do
+        black_piece = described_class.new(:black)
+        expect(black_piece).to be_a(described_class)
+        expect(black_piece.color).to eq(:black)
+      end
+      it 'fails to create a green piece' do
+        expect { described_class.new(:green) }.to raise_error(ArgumentError)
+      end
+    end
+  end
   describe '#moved' do
     context 'when the game starts and the piece has not moved' do
       it 'returns false' do
