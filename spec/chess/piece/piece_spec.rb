@@ -6,7 +6,7 @@ require_relative '../../../lib/chess'
 
 describe Chess::Piece do
   let(:new_piece) { described_class.new(:white) }
-  describe '#color' do 
+  describe '#color' do
     context 'when initializing to an allowed color' do
       it 'allows creating a new white piece' do
         expect(new_piece).to be_a(described_class)
@@ -34,8 +34,8 @@ describe Chess::Piece do
     context 'after a piece has moved' do
       it 'changes the moved flag from false to true' do
         expect { new_piece.mark_as_moved! }
-        .to change { new_piece.moved? }
-        .from(false).to(true)
+          .to change { new_piece.moved? }
+          .from(false).to(true)
       end
     end
   end

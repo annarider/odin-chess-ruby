@@ -1,15 +1,14 @@
 # frozen_string_literal: true
 
-# Piece is a super class which
-# defines behavior for pieces in Chess.
-#
-# It manages manages general piece
-# functionality in the game. Subclasses,
-# such as rook and pawn, will inherit
-# methods from this Piece superclass.
-#
-#
 module Chess
+  # Piece is a super class which
+  # defines behavior for pieces in Chess.
+  #
+  # It manages manages general piece
+  # functionality in the game. Subclasses,
+  # such as rook and pawn, will inherit
+  # methods from this Piece superclass.
+  #
   class Piece
     attr_accessor :moved
     attr_reader :color
@@ -22,7 +21,7 @@ module Chess
     def moved?
       moved
     end
-    
+
     def mark_as_moved!
       @moved = true
     end
@@ -33,8 +32,8 @@ module Chess
       unless Chess::Config::ALLOWED_COLORS.include?(new_color)
         raise ArgumentError, "Invalid color: #{new_color}. Allowed colors: #{Config::ALLOWED_COLORS}"
       end
+
       @color = new_color
     end
-  
   end
 end
