@@ -2,7 +2,7 @@
 
 # Position defines a position on
 # the chess game board.
-# 
+#
 # It contains the data about a
 # position on the grid.
 #
@@ -11,8 +11,8 @@
 #
 module Chess
   class Position
-    attr :row, :column
-    
+    attr_reader :row, :column
+
     def self.from_numeric(row_number, column_number)
       [row_number, column_number]
     end
@@ -46,10 +46,19 @@ module Chess
       row == other.row && column == other.column
     end
 
-    def up(row_number, column_number)
-      # return a position one rank "up" from the perspective
-      # of this method's receiver
-      
+    def in_bound?(row_number = row, column_number = column)
+      return false if row_number.negative? ||
+                      row_number > Chess::Config::GRID_LENGTH ||
+                      column_number.negative? ||
+                      column_number > Chess::Config::GRID_LENGTH
+
+      true
+    end
+
+    def transform_coordinates(row_delta, column_delta)
+      transformed_row = row + row_delta
+      transformed_column = column + column_delta
+      [transformed_row, transformed_column] if in_bound?(transformed_row, transformed_column)
     end
   end
 end
