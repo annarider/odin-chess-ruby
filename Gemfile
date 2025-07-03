@@ -5,3 +5,7 @@ source "https://rubygems.org"
 # gem "rails"
 gem 'rspec'
 gem 'rubocop'
+
+group :development, :test do
+  gem 'debug'
+end

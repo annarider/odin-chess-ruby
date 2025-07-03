@@ -19,13 +19,13 @@
       "request": "attach"
     },
     {
-    "type": "rdbg",
-    "name": "Debug using RSpec",
-    "request": "launch",
-    "command": "bundle exec rspec",
-    "script": "${workspaceFolder}/spec/pawn_spec.rb",
-    "args": [],
-    "askParameters": false
-  }
+      "type": "rdbg",
+      "name": "Debug Current RSpec File",
+      "request": "launch",
+      "command": "bundle exec rspec",
+      "script": "${file}",
+      "args": [],
+      "askParameters": false
+    }
   ]
 }

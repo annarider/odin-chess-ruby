@@ -46,19 +46,19 @@ module Chess
       row == other.row && column == other.column
     end
 
-    def in_bound?(row_number = row, column_number = column)
-      return false if row_number.negative? ||
-                      row_number >= Chess::Config::GRID_LENGTH ||
-                      column_number.negative? ||
-                      column_number >= Chess::Config::GRID_LENGTH
+    def in_bound?
+      return false if row.negative? ||
+                      row >= Chess::Config::GRID_LENGTH ||
+                      column.negative? ||
+                      column >= Chess::Config::GRID_LENGTH
 
       true
     end
 
-    def transform_coordinates(row_delta, column_delta)
-      transformed_row = row + row_delta
-      transformed_column = column + column_delta
-      [transformed_row, transformed_column] if in_bound?(transformed_row, transformed_column)
+    def transform_coordinates(position_delta)
+      new_position = Position.new(
+        position_delta.row + row, position_delta.column + column)
+      new_position if new_position.in_bound?
     end
   end
 end
