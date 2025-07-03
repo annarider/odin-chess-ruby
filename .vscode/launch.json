@@ -22,9 +22,9 @@
       "type": "rdbg",
       "name": "Debug Current RSpec File",
       "request": "launch",
-      "command": "bundle exec rspec",
-      "script": "${file}",
-      "args": [],
+      "useBundler": true,
+      "script": "./bin/rspec",
+      "args": ["${file}"],
       "askParameters": false
     }
   ]
