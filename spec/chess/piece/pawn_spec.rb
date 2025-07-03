@@ -45,5 +45,13 @@ describe Chess::Pawn do
         expect(black_pawn.position).to eq(new_position)
       end
     end
+
+    context 'when starting a new game and pawn moves 2 squares up' do
+      it 'returns the new position after middle white pawn moved' do
+        new_position = white_pawn.move(2)
+        expect(new_position).to eq(Chess::Position.new(4, 0))
+        expect(white_pawn.move(2)).to eq(new_position)
+      end
+    end
   end
 end

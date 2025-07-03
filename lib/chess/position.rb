@@ -48,9 +48,9 @@ module Chess
 
     def in_bound?(row_number = row, column_number = column)
       return false if row_number.negative? ||
-                      row_number > Chess::Config::GRID_LENGTH ||
+                      row_number >= Chess::Config::GRID_LENGTH ||
                       column_number.negative? ||
-                      column_number > Chess::Config::GRID_LENGTH
+                      column_number >= Chess::Config::GRID_LENGTH
 
       true
     end
