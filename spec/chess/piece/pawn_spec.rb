@@ -8,11 +8,17 @@ describe Chess::Pawn do
   let(:leftmost_white_pawn) { 
     described_class.new(Chess::Position.new(6, 0))
   }
-  let(:rightmost_black_pawn) { 
+  let(:leftmost_black_pawn) {
+    described_class.new(Chess::Position.new(1, 0), color: :black)
+  }
+  let(:rightmost_black_pawn) {
     described_class.new(Chess::Position.new(1, 7), color: :black)
   }
   let(:middle_black_pawn) {
     described_class.new(Chess::Position.new(1, 3), color: :black)
+  }
+  let(:already_moved_pawn) {
+    described_class.new(Chess::Position.new(2, 1), color: :black, moved: true)
   }
   describe '#moved?' do
     context 'when starting a new game and pawn has not moved' do
@@ -41,7 +47,6 @@ describe Chess::Pawn do
           expect(leftmost_white_pawn.position).to eq(new_position)
         end
         it 'returns the new position after the leftmost black pawn moved' do
-          leftmost_black_pawn = described_class.new(Chess::Position.new(1, 0), color: :black)
           new_position = leftmost_black_pawn.move(:forward_one)
           expect(new_position).to eq(Chess::Position.new(2, 0))
           expect(leftmost_black_pawn.position).to eq(new_position)
@@ -88,6 +93,11 @@ describe Chess::Pawn do
     context 'when the rightmost black pawn moves diagonally to capture' do
       it 'returns an error when rightmost black pawn moves diagonally left' do
         expect { rightmost_black_pawn.move(:diagonal_left) }.to raise_error(Chess::OutOfBoundsError)
+      end
+    end
+    context 'when the pawn has already moved and tries to advance 2 squares' do
+      it 'returns an error' do
+        expect { already_moved_pawn.move(:forward_two) }.to raise_error(Chess::Pawn::InvalidMove)
       end
     end
   end

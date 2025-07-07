@@ -14,6 +14,15 @@ module Chess
   # @example Create a new Pawn
   # pawn1 = Pawn.new
   class Pawn < Piece
+    # Custom error class for
+    # handling invalid pawn moves 
+    class InvalidMove < StandardError
+      def initialize(message = nil)
+        message ||= 'Invalid move for pawn.'
+        super(message)
+      end
+    end
+
     PAWN_MOVE_SQUARES = {
       forward_one: [1, 0],
       forward_two: [2, 0],
@@ -34,6 +43,12 @@ module Chess
     end
 
     private
+
+    def block_forward_two(direction)
+      if direction == :forward_two && moved == true
+        raise InvalidMove, 'Pawn has already moved and can only advance 1 square'
+      end
+    end
 
     def unpack_move_deltas(direction)
       PAWN_MOVE_SQUARES[direction].map do |delta|
