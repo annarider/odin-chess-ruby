@@ -50,8 +50,7 @@ module Chess
     end
 
     def raise_out_of_bounds_error(position)
-      raise Chess::OutOfBoundsError.new(position)
+      raise Chess::OutOfBoundsError.new(position), "Position #{position} is off the board"
     end
-
   end
 end

@@ -15,11 +15,11 @@ module Chess
   # pawn1 = Pawn.new
   class Pawn < Piece
     # Custom error class for
-    # handling invalid pawn moves 
+    # handling invalid pawn moves
     class InvalidMove < StandardError
       def initialize(message = nil)
         message ||= 'Invalid move for pawn.'
-        super(message)
+        super
       end
     end
 
@@ -28,7 +28,7 @@ module Chess
       forward_two: [2, 0],
       diagonal_left: [1, 1],
       diagonal_right: [1, -1]
-    }
+    }.freeze
 
     def initialize(position, color: :white, moved: false)
       super
@@ -45,9 +45,9 @@ module Chess
     private
 
     def block_forward_two(direction)
-      if direction == :forward_two && moved == true
-        raise InvalidMove, 'Pawn has already moved and can only advance 1 square'
-      end
+      return unless direction == :forward_two && moved == true
+
+      raise InvalidMove, 'Pawn has already moved and can only advance 1 square'
     end
 
     def unpack_move_deltas(direction)
@@ -65,6 +65,5 @@ module Chess
       column_delta = coordinates[1]
       position.transform_coordinates(Position.new(row_delta, column_delta))
     end
-
   end
 end

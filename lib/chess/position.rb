@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-# Position defines a position on
-# the chess game board.
-#
-# It contains the data about a
-# position on the grid.
-#
-# @example Create a new Position
-# position = Position.new(row, column)
-#
 module Chess
+  # Position defines a position on
+  # the chess game board.
+  #
+  # It contains the data about a
+  # position on the grid.
+  #
+  # @example Create a new Position
+  # position = Position.new(row, column)
+  #
   class Position
     attr_reader :row, :column
 
@@ -55,9 +55,11 @@ module Chess
       true
     end
 
+    # Parameter takes in a new position object with delta coordinates
     def transform_coordinates(position_delta)
       new_position = Position.new(
-        position_delta.row + row, position_delta.column + column)
+        position_delta.row + row, position_delta.column + column
+      )
       new_position if new_position.in_bound?
     end
   end

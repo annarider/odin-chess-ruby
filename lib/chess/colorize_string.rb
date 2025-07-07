@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module Chess
-  # ColoredString configures Terminal
+  # ColorizeString configures Terminal
   # output color settings
   # Credit: Josh Smith
   # https://dev.to/joshdevhub/terminal-colors-using-ruby-410p
-  module ColoredString
+  module ColorizeString
     refine String do
       def output_color(color_name, ground: fore)
         rgb_value = Chess::Config::RGB_COLOR_MAP[color_name]

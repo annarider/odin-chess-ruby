@@ -3,7 +3,7 @@ require_relative '../lib/board'
 # Terminal color configs
 # Credit: Josh Smith
 # https://dev.to/joshdevhub/terminal-colors-using-ruby-410p
-module ColoredString
+module ColorizeString
   RGB_COLOR_MAP = {
     cyan: '139;233;253',
     green: '80;250;123',
@@ -26,8 +26,8 @@ module ColoredString
   end
 end
 
-class Display
-  using ColoredString
+class Display 
+  using ColorizeString
 
   def display_board(board)
     puts 'New game: starting board'.color(:cyan, ground: 'fore')

@@ -4,7 +4,7 @@
 module Chess
   module Config
     GRID_LENGTH = 8
-    ALLOWED_COLORS = [ :white, :black]
+    ALLOWED_COLORS = %i[white black].freeze
     PIECE_SYMBOLS = {
       'WK' => '♔', 'BK' => '♚',
       'WQ' => '♕', 'BQ' => '♛',

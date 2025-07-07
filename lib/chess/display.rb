@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative 'colored_string'
+require_relative 'colorize_string'
 
 module Chess
   # Display defines how to display
@@ -15,7 +15,7 @@ module Chess
   # board = Board.new
   #
   class Display
-    using Chess::ColoredString
+    using Chess::ColorizeString
     attr_reader :board
 
     def initialize(board)
@@ -42,7 +42,7 @@ module Chess
     def format_rank(rank, rank_index)
       rank.map.with_index do |piece_code, file_index|
         format_square(piece_code, rank_index, file_index)
-      end.join('')
+      end.join
     end
 
     def format_square(piece_code, rank_index, file_index)
