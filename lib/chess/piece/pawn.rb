@@ -51,6 +51,10 @@ module Chess
     end
 
     def unpack_move_deltas(direction)
+      unless PAWN_MOVE_SQUARES.include?(direction)
+        raise ArgumentError, "Invalid direction: #{direction}. Allowed are: #{PAWN_MOVE_SQUARES}"
+      end
+
       PAWN_MOVE_SQUARES[direction].map do |delta|
         adjust_direction_using_color(delta)
       end

@@ -38,7 +38,7 @@ describe Chess::Piece do
   end
 
   describe '#mark_as_moved!' do
-    context 'after a piece has moved' do
+    context 'when a piece has moved' do
       it 'changes the moved flag from false to true' do
         expect { new_piece.mark_as_moved! }
           .to change(new_piece, :moved?)
