@@ -14,8 +14,6 @@ module Chess
   # @example Create a new Pawn
   # pawn1 = Pawn.new
   class Pawn < Piece
-    attr_accessor :position
-
     PAWN_MOVE_SQUARES = {
       forward_one: [1, 0],
       forward_two: [2, 0],
@@ -24,18 +22,14 @@ module Chess
     }
 
     def initialize(position, color: :white, moved: false)
-      @position = position
-      validate_and_set_color(color)
-      @moved = false
+      super
     end
 
     def move(direction)
-      adjusted_row_delta, adjusted_column_delta = unpack_move_deltas(direction)
-      new_coordinates = calculate_new_coordinates(adjusted_row_delta, adjusted_column_delta)
-      p new_coordinates
-      raise ArgumentError, "Out-of-bounds: position #{new_coordinates} is off game board" if new_coordinates.nil?
-
-      new_position = create_new_position(new_coordinates) if new_coordinates
+      block_forward_two(direction) if moved == true
+      coordinates = unpack_move_deltas(direction)
+      new_position = create_new_position(coordinates)
+      raise_out_of_bounds_error(new_position) if new_position.nil?
       @position = new_position
     end
 
@@ -51,14 +45,11 @@ module Chess
       color == :white ? (-1 * squares) : squares
     end
 
-    def calculate_new_coordinates(row_delta, column_delta)
-      position.transform_coordinates(row_delta, column_delta)
+    def create_new_position(coordinates)
+      row_delta = coordinates[0]
+      column_delta = coordinates[1]
+      position.transform_coordinates(Position.new(row_delta, column_delta))
     end
 
-    def create_new_position(coordinates)
-      row = coordinates[0]
-      column = coordinates[1]
-      Position.new(row, column)
-    end
   end
 end

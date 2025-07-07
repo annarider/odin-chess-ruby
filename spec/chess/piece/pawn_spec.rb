@@ -71,7 +71,7 @@ describe Chess::Pawn do
     context 'when the pawn is moving diagonally to capture' do
       context 'when the white pawn moves 1 up diagonal left square' do
         it 'returns an error when the leftmost white pawn tries to move' do
-          expect { leftmost_white_pawn.move(:diagonal_left) }.to raise_error(ArgumentError)
+          expect { leftmost_white_pawn.move(:diagonal_left) }.to raise_error(Chess::OutOfBoundsError)
         end
         it 'returns the new position when the leftmost white moves diagonally right' do
           new_position = leftmost_white_pawn.move(:diagonal_right)
@@ -87,7 +87,7 @@ describe Chess::Pawn do
     end
     context 'when the rightmost black pawn moves diagonally to capture' do
       it 'returns an error when rightmost black pawn moves diagonally left' do
-        expect { rightmost_black_pawn.move(:diagonal_left) }.to raise_error(ArgumentError)
+        expect { rightmost_black_pawn.move(:diagonal_left) }.to raise_error(Chess::OutOfBoundsError)
       end
     end
   end
