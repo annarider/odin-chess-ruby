@@ -18,18 +18,11 @@ module Chess
     def initialize(grid)
       @grid = grid
     end
-
-    def self.default(add_pieces: true)
+    
+    def self.initial_start(add_pieces: true)
       default_grid = Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
       setup_pieces(default_grid) if add_pieces
       new(default_grid)
-    end
-
-    def self.setup_pieces(grid)
-      Chess::Config::INITIAL_POSITIONS.each do |(rank, file), piece|
-        grid[rank][file] = piece
-      end
-      grid
     end
 
     def extract_grid_and_pieces
@@ -42,6 +35,19 @@ module Chess
           end
         end
       end
+    end
+
+    def at(rank, file)
+      grid[rank][file]
+    end
+
+    private
+
+    def self.setup_pieces(grid)
+      Chess::Config::INITIAL_POSITIONS.each do |(rank, file), piece|
+        grid[rank][file] = piece
+      end
+      grid
     end
   end
 end
