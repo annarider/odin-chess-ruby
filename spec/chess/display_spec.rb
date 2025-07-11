@@ -23,14 +23,14 @@ describe Chess::Display do
     context 'when starting a new game' do
       before do
         mock_board_data = [
-          ['BR', 'BN', 'BB', 'BQ', 'BK', 'BB', 'BN', 'BK'],
-          ['BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP', 'BP'],
+          ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+          ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
           ['', '', '', '', '', '', '', ''],
           ['', '', '', '', '', '', '', ''],
           ['', '', '', '', '', '', '', ''],
           ['', '', '', '', '', '', '', ''],
-          ['WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP', 'WP'],
-          ['WR', 'WN', 'WB', 'WQ', 'WK', 'WB', 'WN', 'WR']
+          ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+          ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
         ]
         allow(new_board_double).to receive(:extract_grid_and_pieces).and_return(mock_board_data)
       end
@@ -41,18 +41,26 @@ describe Chess::Display do
         expect(result).to be_a(String)
       end
 
+      it 'returns a string to print to the console' do
+        result = display.build_board_for_display
+        expect(result).to be_a(String)
+      end
+
       it 'returns a string representation of the board' do
         white_king = '♔'
         white_knight = '♘'
         black_queen = '♛'
         black_pawn = '♟'
         result = display.build_board_for_display
-        expect(result).to be_a(String)
-        expect(result.lines.count).to eq(Chess::Config::GRID_LENGTH)
         expect(result).to include(white_king).once
         expect(result).to include(white_knight).twice
         expect(result).to include(black_queen).once
         expect(result).to include(black_pawn).exactly(8).times
+      end
+
+      it 'returns the correct number of squares wide' do
+        result = display.build_board_for_display
+        expect(result.lines.count).to eq(Chess::Config::GRID_LENGTH)
       end
     end
   end

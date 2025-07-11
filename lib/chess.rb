@@ -3,7 +3,6 @@
 require_relative 'chess/config'
 require_relative 'chess/colorize_string'
 require_relative 'chess/board'
-require_relative 'chess/board_setup'
 require_relative 'chess/position'
 require_relative 'chess/piece'
 require_relative 'chess/piece/pawn'
