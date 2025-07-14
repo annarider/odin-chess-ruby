@@ -17,7 +17,7 @@ module Chess
     end
 
     def convert_num_to_rank_file(column_index, row_index)
-      convert_to_file(column_index).to_s + convert_to_rank(row_index).to_s
+      convert_num_to_file(column_index).to_s + convert_num_to_rank(row_index).to_s
     end
 
     def convert_rank_to_num(rank)

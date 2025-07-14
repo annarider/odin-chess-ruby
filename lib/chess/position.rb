@@ -11,14 +11,17 @@ module Chess
   # position = Position.new(row, column)
   #
   class Position
+    include Chess::ChessNotation
     attr_reader :row, :column
 
     def self.from_numeric(row_number, column_number)
-      [row_number, column_number]
+      new(row_number, column_number)
     end
 
+    # a2, d1, f8, g7, etc.
     def self.from_rank_file(string)
-      # TODO
+      row, column = convert_rank_file_to_num(string)
+      new(row, column)
     end
 
     def initialize(row_number, column_number)
@@ -27,15 +30,15 @@ module Chess
     end
 
     def rank
-      # TODO
+      convert_num_to_rank(row)
     end
 
     def file
-      # TODO
+      convert_num_to_file(column)
     end
 
-    def rank_and_file
-      # TODO
+    def square
+      convert_num_to_rank_file(row, column)
     end
 
     def +(other)
