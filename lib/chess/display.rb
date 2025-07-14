@@ -23,7 +23,7 @@ module Chess
     end
 
     def map_piece_symbol(code)
-      Chess::Config::PIECE_SYMBOLS[code]
+      Chess::Piece::PIECE_SYMBOLS[code]
     end
 
     def build_board_for_display

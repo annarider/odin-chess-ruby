@@ -11,7 +11,7 @@ describe Chess::Display do
 
   describe '#map_piece_symbol' do
     context 'when taking the raw pieces data as input' do
-      Chess::Config::PIECE_SYMBOLS.map do |code, symbol|
+      Chess::Piece::PIECE_SYMBOLS.map do |code, symbol|
         it "shows the piece #{code} maps to the #{symbol}" do
           expect(display.map_piece_symbol(code)).to eq(symbol)
         end

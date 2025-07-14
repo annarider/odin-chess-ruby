@@ -29,7 +29,7 @@ module Chess
       private
 
       def setup_pieces(grid)
-        Chess::Config::INITIAL_POSITIONS.each do |(rank, file), piece|
+        Piece::INITIAL_POSITIONS.each do |(rank, file), piece|
           grid[rank][file] = piece
         end
         grid
