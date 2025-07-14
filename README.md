@@ -74,8 +74,10 @@ Purpose: Helps Display board and pieces
 
 ### ChessNotation
 
-## PathFinder
-TODO
+## MoveFinder
+Purpose: Find all possible moves, including
+validating en passant, castling, and promotion
+possibilities for every player's turn
 
 # Value Objects
 
@@ -95,12 +97,17 @@ beginning Positions. No Piece has yet made any Moves.
 ## Player makes a move
 When a player wants to make a move, Interface asks &
 accepts the player's move request. Game tells 
-Board to make the move. Board tells MoveValidator to 
-check if the move is valid. If valid,
-Board asks State to update the game state. The 
-State make sure the Piece is now moved to the
-new Position. State saves the game state. Game 
+Board to make the move. Board tells MoveFinder to discover
+all possible moves. Board tells MoveValidator to 
+validate if the move is legal. If legal,
+Game tells Board to update its state. Board clears the
+"from" position and updates the "to" position with the 
+moved Piece. Board updates relevant flags.
+Game saves the game state. Game 
 asks Interface to display the updated Game.
 Game needs to check for check or checkmate. If
 the game isn't over, Game switches which 
 player's turn it is. 
+
+If illegal, Game tells Interface to ask Player to
+provide another move.
