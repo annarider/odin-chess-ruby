@@ -26,6 +26,19 @@ describe Chess::Position do
         end
       end
     end
+    describe '.from_algrebraic' do
+      context 'when creating a position from chess notation' do
+        it 'returns the position of e4' do
+          result = described_class.from_algebraic('e4')
+          expect(result.coordinates).to eq([4, 4])
+        end
+
+        it 'returns the position of h8' do
+          result = described_class.from_algebraic('h8')
+          expect(result).to eq(top_right_position)
+        end
+      end
+    end
   end
 
   describe 'instance methods' do
