@@ -1,0 +1,33 @@
+module Chess
+  # Directions Data saves the data
+  # for the directional vectors for 
+  # easier move calculation. This 
+  # avoids having to remember the 
+  # delta numbers, especially which 
+  # direction is negative.
+  # 
+  # It also stores the piece
+  # movement vectors
+  module Directions
+    WHITE = {
+      forward: [-1, 0],
+      backward: [1, 0],
+      left: [0, -1],
+      right: [0, 1],
+      diagonal_forward_left: [-1, -1],
+      diagonal_forward_right: [-1, 1],
+      diagonal_backward_left: [1, -1],
+      diagonal_backward_right: [1, 1]
+    }.freeze
+    BLACK = {
+      forward: [1, 0],
+      backward: [-1, 0],
+      left: [0, 1],
+      right: [0, -1],
+      diagonal_forward_left: [1, 1],
+      diagonal_forward_right: [1, -1],
+      diagonal_backward_left: [-1, 1],
+      diagonal_backward_right: [-1, -1]
+    }.freeze
+  end
+end

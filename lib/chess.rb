@@ -3,9 +3,10 @@
 require_relative 'chess/config'
 require_relative 'chess/colorize_string'
 require_relative 'chess/chess_notation'
+require_relative 'chess/directions_data'
+require_relative 'chess/piece_data'
 require_relative 'chess/board'
 require_relative 'chess/position'
-require_relative 'chess/piece'
 require_relative 'chess/display'
 
 # top-level namespace for organization
