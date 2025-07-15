@@ -27,6 +27,12 @@ module Chess
       new(row, column)
     end
 
+    def self.from_directional_vector(array)
+      row = array.first
+      column = array.last
+      new(row, column)
+    end
+
     def initialize(row, column)
       @row = row
       @column = column

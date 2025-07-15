@@ -141,15 +141,15 @@ describe Chess::Position do
       context 'when the white pawn is at starting position' do
         it 'returns the position 1 square up' do
           start_position = described_class.from_coordinates(6, 0)
-          delta_1_up = described_class.from_coordinates(-1, 0)
-          result = start_position.transform_coordinates(delta_1_up)
+          destination = described_class.from_directional_vector(Chess::Directions::WHITE[:forward])
+          result = start_position.transform_coordinates(destination)
           expect(result).to eq(described_class.from_coordinates(5, 0))
         end
 
         it 'returns the position 2 squares up' do
           start_position = described_class.from_coordinates(6, 1)
-          delta_2_up = described_class.from_coordinates(-2, 0)
-          result = start_position.transform_coordinates(delta_2_up)
+          destination = described_class.from_directional_vector([-2, 0])
+          result = start_position.transform_coordinates(destination)
           expect(result).to eq(described_class.from_coordinates(4, 1))
         end
       end
