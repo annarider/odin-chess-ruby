@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Chess
-  # Piece provides the different
+  # Piece Data provides the different
   # chess pieces's data and
   # initial positions.
   module Piece
