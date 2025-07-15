@@ -12,33 +12,46 @@ module Chess
   #
   class Position
     include Chess::ChessNotation
+    extend Chess::ChessNotation
     attr_reader :row, :column
 
-    def self.from_numeric(row_number, column_number)
-      new(row_number, column_number)
+    def self.from_coordinates(row_index, column_index)
+      new(row_index, column_index)
     end
 
     # a2, d1, f8, g7, etc.
-    def self.from_rank_file(string)
-      row, column = convert_rank_file_to_num(string)
+    def self.from_algebraic(algebraic_notation)
+      rank, file = split_square_to_rank_file(algebraic_notation)
+      row = rank_to_row(rank)
+      column = file_to_col(file)
       new(row, column)
     end
 
-    def initialize(row_number, column_number)
-      @row = row_number
-      @column = column_number
+    def initialize(row, column)
+      @row = row
+      @column = column
     end
 
     def rank
-      convert_num_to_rank(row)
+      return nil unless in_bound?
+
+      row_to_rank(row)
     end
 
     def file
-      convert_num_to_file(column)
+      return nil unless in_bound?
+
+      col_to_file(column)
     end
 
     def square
-      convert_num_to_rank_file(row, column)
+      return nil unless in_bound?
+
+      "#{col_to_file(column)}#{row_to_rank(row)}"
+    end
+
+    def coordinates
+      [row, column]
     end
 
     def +(other)
@@ -50,12 +63,10 @@ module Chess
     end
 
     def in_bound?
-      return false if row.negative? ||
-                      row >= Chess::Config::GRID_LENGTH ||
-                      column.negative? ||
-                      column >= Chess::Config::GRID_LENGTH
+      return true if row.between?(0, Chess::Config::GRID_LENGTH - 1) &&
+        column.between?(0, Chess::Config::GRID_LENGTH - 1)
 
-      true
+      false
     end
 
     # Parameter takes in a new position object with delta coordinates

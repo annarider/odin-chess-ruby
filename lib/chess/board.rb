@@ -49,7 +49,7 @@ module Chess
     end
 
     def at(position)
-      rank = position.rank
+      rank = position.row
       file = position.file
       grid[rank][file]
     end
