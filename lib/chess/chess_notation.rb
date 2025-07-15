@@ -4,7 +4,7 @@ module Chess
   # Helper methods to use Chess
   # Notation in Chess game
   module ChessNotation
-    FILES = %w[a b c d e f g h]
+    FILES = %w[a b c d e f g h].freeze
 
     def col_to_file(column_index)
       FILES.fetch(column_index)

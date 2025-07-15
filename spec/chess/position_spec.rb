@@ -26,7 +26,8 @@ describe Chess::Position do
         end
       end
     end
-    describe '.from_algrebraic' do
+
+    describe '.from_algebraic' do
       context 'when creating a position from chess notation' do
         it 'returns the position of e4' do
           result = described_class.from_algebraic('e4')
@@ -46,36 +47,44 @@ describe Chess::Position do
       it 'returns 8 for a8, top left square, when the row is 0 index' do
         expect(top_left_position.rank).to eq('8')
       end
+
       it 'returns 1 for h1, bottom right square, when the row is 7 index' do
         expect(bottom_right_position.rank).to eq('1')
       end
     end
+
     describe '#file' do
       it 'returns a for a8, top left square, when the column is 0 index' do
         expect(top_left_position.file).to eq('a')
       end
+
       it 'returns h for h8, top right square, when the column is 7 index' do
         expect(top_right_position.file).to eq('h')
       end
     end
+
     describe 'square' do
       it 'returns a1, bottom left square, when coordinates are [0, 7]' do
         expect(bottom_left_position.square).to eq('a1')
       end
+
       it 'returns h1, bottom right square, when coordinates are [7, 7]' do
         expect(bottom_right_position.square).to eq('h1')
       end
     end
+
     describe 'coordinates' do
       it 'returns [0, 3] on square d8' do
         middle_position = described_class.from_algebraic('d8')
         expect(middle_position.coordinates).to eq([0, 3])
       end
+
       it 'returns [6, 7] on square h2' do
         end_position = described_class.from_algebraic('h2')
         expect(end_position.coordinates).to eq([6, 7])
       end
     end
+
     describe '#==' do
       it 'returns true when the positions are the same' do
         test_position = described_class.from_coordinates(0, 0)
@@ -132,16 +141,28 @@ describe Chess::Position do
       context 'when the white pawn is at starting position' do
         it 'returns the position 1 square up' do
           start_position = described_class.from_coordinates(6, 0)
-          delta_position = described_class.from_coordinates(-1, 0)
-          result = start_position.transform_coordinates(delta_position)
+          delta_1_up = described_class.from_coordinates(-1, 0)
+          result = start_position.transform_coordinates(delta_1_up)
           expect(result).to eq(described_class.from_coordinates(5, 0))
         end
 
         it 'returns the position 2 squares up' do
           start_position = described_class.from_coordinates(6, 1)
-          delta_position = described_class.from_coordinates(-2, 0)
-          result = start_position.transform_coordinates(delta_position)
+          delta_2_up = described_class.from_coordinates(-2, 0)
+          result = start_position.transform_coordinates(delta_2_up)
           expect(result).to eq(described_class.from_coordinates(4, 1))
+        end
+      end
+    end
+
+    describe '#+' do
+      context 'when using algebraic notation' do
+        it 'returns the position 1 square down' do
+          start_position = described_class.from_algebraic('a8')
+          delta_1_down = described_class.from_coordinates(1, 0)
+          result = start_position + delta_1_down
+          puts Chess::Position.instance_methods.include?(:+)
+          expect(result).to eq(described_class.from_algebraic('a7'))
         end
       end
     end

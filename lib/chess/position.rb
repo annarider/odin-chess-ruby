@@ -54,17 +54,13 @@ module Chess
       [row, column]
     end
 
-    def +(other)
-      # TODO
-    end
-
     def ==(other)
       row == other.row && column == other.column
     end
 
     def in_bound?
       return true if row.between?(0, Chess::Config::GRID_LENGTH - 1) &&
-        column.between?(0, Chess::Config::GRID_LENGTH - 1)
+                     column.between?(0, Chess::Config::GRID_LENGTH - 1)
 
       false
     end
@@ -75,6 +71,10 @@ module Chess
         position_delta.row + row, position_delta.column + column
       )
       new_position if new_position.in_bound?
+    end
+
+    def +(other)
+      transform_coordinates(other)
     end
   end
 end
