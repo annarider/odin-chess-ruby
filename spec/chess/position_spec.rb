@@ -42,6 +42,40 @@ describe Chess::Position do
   end
 
   describe 'instance methods' do
+    describe '#rank' do
+      it 'returns 8 for a8, top left square, when the row is 0 index' do
+        expect(top_left_position.rank).to eq('8')
+      end
+      it 'returns 1 for h1, bottom right square, when the row is 7 index' do
+        expect(bottom_right_position.rank).to eq('1')
+      end
+    end
+    describe '#file' do
+      it 'returns a for a8, top left square, when the column is 0 index' do
+        expect(top_left_position.file).to eq('a')
+      end
+      it 'returns h for h8, top right square, when the column is 7 index' do
+        expect(top_right_position.file).to eq('h')
+      end
+    end
+    describe 'square' do
+      it 'returns a1, bottom left square, when coordinates are [0, 7]' do
+        expect(bottom_left_position.square).to eq('a1')
+      end
+      it 'returns h1, bottom right square, when coordinates are [7, 7]' do
+        expect(bottom_right_position.square).to eq('h1')
+      end
+    end
+    describe 'coordinates' do
+      it 'returns [0, 3] on square d8' do
+        middle_position = described_class.from_algebraic('d8')
+        expect(middle_position.coordinates).to eq([0, 3])
+      end
+      it 'returns [6, 7] on square h2' do
+        end_position = described_class.from_algebraic('h2')
+        expect(end_position.coordinates).to eq([6, 7])
+      end
+    end
     describe '#==' do
       it 'returns true when the positions are the same' do
         test_position = described_class.from_coordinates(0, 0)
