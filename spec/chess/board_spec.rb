@@ -19,28 +19,35 @@ describe Chess::Board do
   describe '.initial_start' do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
-        expect(start_board.at(second_rank, a_file)).to eq('P')
+        initial_position = Chess::Position.from_algebraic('a2')
+        expect(start_board.at(initial_position)).to eq('P')
       end
 
       it 'adds white rooks' do
-        expect(start_board.at(first_rank, a_file)).to eq('R')
-        expect(start_board.at(first_rank, h_file)).to eq('R')
+        initial_pos_queenside = Chess::Position.from_coordinates(first_rank, a_file)
+        initial_pos_kingside = Chess::Position.from_coordinates(first_rank, h_file)
+        expect(start_board.at(initial_pos_queenside)).to eq('R')
+        expect(start_board.at(initial_pos_kingside)).to eq('R')
       end
 
       it 'adds white king' do
-        expect(start_board.at(first_rank, e_file)).to eq('K')
+        initial_position = Chess::Position.from_coordinates(first_rank, e_file)
+        expect(start_board.at(initial_position)).to eq('K')
       end
 
       it 'adds black pawns to the 7th rank (row)' do
-        expect(start_board.at(seventh_rank, a_file)).to eq('p')
+        initial_position = Chess::Position.from_algebraic('a7')
+        expect(start_board.at(initial_position)).to eq('p')
       end
 
       it 'adds black king' do
-        expect(start_board.at(eighth_rank, e_file)).to eq('k')
+        initial_position = Chess::Position.from_coordinates(eighth_rank, e_file)
+        expect(start_board.at(initial_position)).to eq('k')
       end
 
       it 'adds a black bishop' do
-        expect(start_board.at(eighth_rank, c_file)).to eq('b')
+        initial_position = Chess::Position.from_coordinates(eighth_rank, c_file)
+        expect(start_board.at(initial_position)).to eq('b')
       end
     end
   end
