@@ -57,6 +57,8 @@ module Chess
     end
 
     def coordinates
+      return nil unless in_bound?
+
       [row, column]
     end
 

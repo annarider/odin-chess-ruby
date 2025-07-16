@@ -1,11 +1,11 @@
 module Chess
   # Directions Data saves the data
-  # for the directional vectors for 
-  # easier move calculation. This 
-  # avoids having to remember the 
-  # delta numbers, especially which 
+  # for the directional vectors for
+  # easier move calculation. This
+  # avoids having to remember the
+  # delta numbers, especially which
   # direction is negative.
-  # 
+  #
   # It also stores the piece
   # movement vectors
   module Directions
