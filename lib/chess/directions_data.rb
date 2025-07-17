@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # Directions Data saves the data
   # for the directional vectors for

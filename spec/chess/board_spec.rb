@@ -19,6 +19,7 @@ describe Chess::Board do
   describe '.initial_start' do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
+        p start_board
         initial_position = Chess::Position.from_algebraic('a2')
         expect(start_board.piece_at(initial_position)).to eq('P')
       end
@@ -49,6 +50,11 @@ describe Chess::Board do
         initial_position = Chess::Position.from_coordinates(eighth_rank, c_file)
         expect(start_board.piece_at(initial_position)).to eq('b')
       end
+
+      it 'returns white as the active player color' do
+        current_player = start_board.active_color
+        expect(current_player).to eq('w')
+      end
     end
   end
 
@@ -61,11 +67,12 @@ describe Chess::Board do
       end
     end
   end
+
   describe '#to_fen' do
     context 'when starting a new game' do
       it 'returns the fen piece placement data in the correct order' do
         result = start_board.to_fen
-        expect(result).to eq('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
+        expect(result).to eq('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w')
       end
     end
   end

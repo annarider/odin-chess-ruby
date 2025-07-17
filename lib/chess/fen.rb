@@ -8,7 +8,10 @@ module Chess
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
     def create_fen(board)
-      build_piece_placement(board.grid)
+      fen_string = ''
+      fen_string += "#{build_piece_placement(board.grid)} "
+      fen_string += "#{board.active_color} "
+      fen_string
     end
 
     private
@@ -30,7 +33,7 @@ module Chess
     end
 
     def any_nils?(array)
-      array.any? { |element| element.nil? }
+      array.any?(&:nil?)
     end
 
     def count_nils(array)
