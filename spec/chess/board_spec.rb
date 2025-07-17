@@ -53,11 +53,19 @@ describe Chess::Board do
   end
 
   describe '#to_display' do
-    context 'when board needs to extract game board for public consumption' do
-      it 'returns a string with the number of lines as the grid board' do
+    context 'when starting a new game' do
+      it 'returns a display string with the same number of lines as the grid board' do
         result = start_board.to_display
         expect(result).to be_an(Array)
         expect(result.size).to eq(Chess::Config::GRID_LENGTH)
+      end
+    end
+  end
+  describe '#to_fen' do
+    context 'when starting a new game' do
+      it 'returns the fen piece placement data in the correct order' do
+        result = start_board.to_fen
+        expect(result).to eq('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR')
       end
     end
   end

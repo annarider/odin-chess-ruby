@@ -14,20 +14,27 @@ module Chess
     private
 
     def build_piece_placement(grid)
-      grid.map { |rank| build_rank(rank) }
+      fen_placement_string = ''
+      grid.each_with_index do |rank, index|
+        fen_placement_string += build_rank(rank)
+        fen_placement_string.concat('/') if index < Chess::Config::GRID_LENGTH - 1
+      end
+      fen_placement_string
     end
 
     def build_rank(rank)
       grouped_squares = rank.slice_when { |left, right| left.nil? != right.nil? }.to_a
-      if nested_array?(grouped_squares)
-        parse_squares(grouped_squares)
-      else
-        grouped_squares.join
-      end
+      # p grouped_squares
+      grouped_squares = count_nils(grouped_squares) if any_nils?(grouped_squares.flatten)
+      grouped_squares.join
     end
 
-    def nested_array?(array)
-      array.any? { |element| element.is_a?(Array) }
+    def any_nils?(array)
+      array.any? { |element| element.nil? }
+    end
+
+    def count_nils(array)
+      array.map { |element| element.count(nil) }
     end
   end
 end
