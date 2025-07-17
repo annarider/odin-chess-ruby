@@ -11,7 +11,7 @@ module Chess
       fen_string = ''
       fen_string += "#{build_piece_placement(board.grid)} "
       fen_string += "#{board.active_color} "
-      fen_string
+      fen_string += "#{build_castling_rights(board)} "
     end
 
     private
@@ -38,6 +38,11 @@ module Chess
 
     def count_nils(array)
       array.map { |element| element.count(nil) }
+    end
+
+    def build_castling_rights(board)
+      "#{board.white_castle_kingside}#{board.white_castle_queenside}"\
+      "#{board.black_castle_kingside}#{board.black_castle_queenside}"
     end
   end
 end
