@@ -72,7 +72,7 @@ describe Chess::Board do
     context 'when starting a new game' do
       it 'returns the fen piece placement data in the correct order' do
         result = start_board.to_fen
-        starting_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq '
+        starting_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
         expect(result).to eq(starting_fen)
       end
     end

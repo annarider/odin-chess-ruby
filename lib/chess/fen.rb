@@ -12,6 +12,9 @@ module Chess
       fen_string += "#{build_piece_placement(board.grid)} "
       fen_string += "#{board.active_color} "
       fen_string += "#{build_castling_rights(board)} "
+      fen_string += "#{build_en_passant(board.en_passant_square)} "
+      fen_string += "#{board.half_move_clock} "
+      fen_string + board.full_move_number.to_s
     end
 
     private
@@ -41,8 +44,14 @@ module Chess
     end
 
     def build_castling_rights(board)
-      "#{board.white_castle_kingside}#{board.white_castle_queenside}"\
-      "#{board.black_castle_kingside}#{board.black_castle_queenside}"
+      "#{board.white_castle_kingside}#{board.white_castle_queenside}" \
+        "#{board.black_castle_kingside}#{board.black_castle_queenside}"
+    end
+
+    def build_en_passant(square)
+      return '-' if square.nil?
+
+      square
     end
   end
 end
