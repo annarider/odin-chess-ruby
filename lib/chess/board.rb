@@ -13,9 +13,18 @@ module Chess
   # board = Board.new
   #
   class Board
-    attr_accessor :grid
+    include Chess::FEN
+    extend Chess::ChessNotation
+    attr_accessor :grid, :active_color, :white_castle_kingside,
+      :white_castle_queenside, :black_castle_kingside,
+      :black_castle_queenside, :en_passant_square, :half_move_clock,
+      :full_move_number
 
-    def initialize(grid)
+    def initialize(grid, active_color:, white_castle_kingside:, 
+      white_castle_queenside:, black_castle_kingside:,
+      black_castle_queenside:, en_passant_square:, half_move_clock:,
+      full_move_number:   
+    )
       @grid = grid
     end
 
@@ -23,7 +32,13 @@ module Chess
       def initial_start(add_pieces: true)
         default_grid = Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
         setup_pieces(default_grid) if add_pieces
-        new(default_grid)
+        new(default_grid, active_color: Chess::ChessNotation::WHITE_PLAYER,
+          white_castle_kingside: ChessNotation::WHITE_CASTLE_KINGSIDE,
+          white_castle_queenside: ChessNotation::WHITE_CASTLE_QUEENSIDE,
+          black_castle_kingside: ChessNotation::BLACK_CASTLE_KINGSIDE,
+          black_castle_queenside: ChessNotation::BLACK_CASTLE_QUEENSIDE,
+          en_passant_square: nil, half_move_clock: 0, full_move_number: 1
+          )
       end
 
       private
@@ -36,7 +51,7 @@ module Chess
       end
     end
 
-    def extract_grid_and_pieces
+    def to_display
       grid.map do |rank|
         rank.map do |file|
           if file.nil?
@@ -48,8 +63,14 @@ module Chess
       end
     end
 
-    def at(position)
+    def to_fen
+      create_fen(self)
+    end
+
+    def piece_at(position)
       grid[position.row][position.column]
     end
+
+    private
   end
 end

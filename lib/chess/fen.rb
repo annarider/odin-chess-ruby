@@ -5,11 +5,10 @@ module Chess
   # game state to Forsyth–Edwards
   # Notation in Chess game
   module FEN
-
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-    def create_fen(grid)
-      build_piece_placement(grid)
+    def create_fen(board)
+      build_piece_placement(board.grid)
     end
 
     private

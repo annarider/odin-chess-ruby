@@ -32,7 +32,7 @@ describe Chess::Display do
           ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
           ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
         ]
-        allow(new_board_double).to receive(:extract_grid_and_pieces).and_return(mock_board_data)
+        allow(new_board_double).to receive(:to_display).and_return(mock_board_data)
       end
 
       it 'DEBUG: shows the board visually', :debug do

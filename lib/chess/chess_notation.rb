@@ -5,6 +5,13 @@ module Chess
   # Notation in Chess game
   module ChessNotation
     FILES = %w[a b c d e f g h].freeze
+    WHITE_PLAYER = 'w'
+    BLACK_PLAYER = 'b'
+    NEITHER_CASTLE_RIGHTS = '-'
+    WHITE_CASTLE_KINGSIDE = 'K'
+    WHITE_CASTLE_QUEENSIDE = 'Q'
+    BLACK_CASTLE_KINGSIDE = 'k'
+    BLACK_CASTLE_QUEENSIDE = 'q'
 
     def col_to_file(column_index)
       FILES.fetch(column_index)

@@ -20,42 +20,42 @@ describe Chess::Board do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
         initial_position = Chess::Position.from_algebraic('a2')
-        expect(start_board.at(initial_position)).to eq('P')
+        expect(start_board.piece_at(initial_position)).to eq('P')
       end
 
       it 'adds white rooks' do
         initial_pos_queenside = Chess::Position.from_coordinates(first_rank, a_file)
         initial_pos_kingside = Chess::Position.from_coordinates(first_rank, h_file)
-        expect(start_board.at(initial_pos_queenside)).to eq('R')
-        expect(start_board.at(initial_pos_kingside)).to eq('R')
+        expect(start_board.piece_at(initial_pos_queenside)).to eq('R')
+        expect(start_board.piece_at(initial_pos_kingside)).to eq('R')
       end
 
       it 'adds white king' do
         initial_position = Chess::Position.from_coordinates(first_rank, e_file)
-        expect(start_board.at(initial_position)).to eq('K')
+        expect(start_board.piece_at(initial_position)).to eq('K')
       end
 
       it 'adds black pawns to the 7th rank (row)' do
         initial_position = Chess::Position.from_algebraic('a7')
-        expect(start_board.at(initial_position)).to eq('p')
+        expect(start_board.piece_at(initial_position)).to eq('p')
       end
 
       it 'adds black king' do
         initial_position = Chess::Position.from_coordinates(eighth_rank, e_file)
-        expect(start_board.at(initial_position)).to eq('k')
+        expect(start_board.piece_at(initial_position)).to eq('k')
       end
 
       it 'adds a black bishop' do
         initial_position = Chess::Position.from_coordinates(eighth_rank, c_file)
-        expect(start_board.at(initial_position)).to eq('b')
+        expect(start_board.piece_at(initial_position)).to eq('b')
       end
     end
   end
 
-  describe '#extract_grid_pieces_for_display' do
+  describe '#to_display' do
     context 'when board needs to extract game board for public consumption' do
       it 'returns a string with the number of lines as the grid board' do
-        result = start_board.extract_grid_and_pieces
+        result = start_board.to_display
         expect(result).to be_an(Array)
         expect(result.size).to eq(Chess::Config::GRID_LENGTH)
       end

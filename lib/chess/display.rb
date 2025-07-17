@@ -27,7 +27,7 @@ module Chess
     end
 
     def build_board_for_display
-      grid = board.extract_grid_and_pieces
+      grid = board.to_display
       format_board(grid)
     end
 
