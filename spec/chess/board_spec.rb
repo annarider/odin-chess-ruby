@@ -15,6 +15,7 @@ describe Chess::Board do
   let(:c_file) { 2 }
   let(:e_file) { 4 }
   let(:h_file) { 7 }
+  let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
 
   describe '.initial_start' do
     context 'when the board is created' do
@@ -54,6 +55,10 @@ describe Chess::Board do
         current_player = start_board.active_color
         expect(current_player).to eq('w')
       end
+      it 'returns starting position fen string' do
+        result = start_board.to_fen
+        expect(result).to eq(starting_fen)
+      end
     end
   end
 
@@ -75,6 +80,21 @@ describe Chess::Board do
       it 'returns white move' do
         result = starting_board.active_color
         expect(result).to eq('w')
+      end
+      it 'returns all pieces have castling rights' do
+        expect(starting_board.white_castle_kingside).to be true
+        expect(starting_board.white_castle_queenside).to be true
+        expect(starting_board.black_castle_kingside).to be true
+        expect(starting_board.black_castle_queenside).to be true
+      end
+      it 'returns - for en passant square' do
+        expect(starting_board.en_passant_square).to eq('-')
+      end
+      it 'returns 0 for half move clock' do
+        expect(starting_board.half_move_clock).to eq(0)
+      end
+      it 'returns 1 for full move number' do
+        expect(starting_board.full_move_number).to eq(1)
       end
 
     end
