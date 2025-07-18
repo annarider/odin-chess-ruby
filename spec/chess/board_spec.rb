@@ -19,7 +19,6 @@ describe Chess::Board do
   describe '.initial_start' do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
-        p start_board
         initial_position = Chess::Position.from_algebraic('a2')
         expect(start_board.piece_at(initial_position)).to eq('P')
       end
@@ -54,6 +53,17 @@ describe Chess::Board do
       it 'returns white as the active player color' do
         current_player = start_board.active_color
         expect(current_player).to eq('w')
+      end
+    end
+  end
+
+  describe '.from_fen' do
+    context 'when creating a new board from a fen string' do
+      it 'returns a white pawn at a2' do
+        starting_fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        starting_board = described_class.from_fen(starting_fen)
+        white_pawn_pos = Chess::Position.from_algebraic('a2')
+        expect(starting_board.piece_at(white_pawn_pos)).to eq('P')
       end
     end
   end
