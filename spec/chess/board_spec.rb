@@ -59,12 +59,15 @@ describe Chess::Board do
 
   describe '.from_fen' do
     context 'when creating a new board from a fen string' do
-        let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
-        subject(:starting_board) { described_class.from_fen(starting_fen) } 
+      subject(:starting_board) { described_class.from_fen(starting_fen) }
+
+      let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
+
       it 'returns a white pawn at a2' do
         white_pawn_pos = Chess::Position.from_algebraic('a2')
         expect(starting_board.piece_at(white_pawn_pos)).to eq('P')
       end
+
       it 'returns a black king at e8' do
         black_king_pos = Chess::Position.from_algebraic('e8')
         expect(starting_board.piece_at(black_king_pos)).to eq('k')

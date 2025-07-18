@@ -51,7 +51,7 @@ module Chess
       flat_grid.map do |rank|
         if is_numeric?(rank)
           count = rank.to_i
-          rank = Array.new(count, nil)
+          Array.new(count, nil)
         else
           rank
         end
@@ -63,9 +63,9 @@ module Chess
         if rank.is_a?(String)
           rank.chars
         else
-          rank 
+          rank
         end
-      end 
+      end
     end
 
     def can_castle?(castling_symbol, castle_type)
