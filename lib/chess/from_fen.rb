@@ -8,11 +8,7 @@ module Chess
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
     def parse_fen(fen_string)
-      fen_fields = split_fen_string(fen_string)
-      flat_grid = split_board_grid(fen_fields[:grid])
-      board_grid = counts_to_nil!(flat_grid) if flat_grid.any? { |rank| is_numeric?(rank) }
-      fen_fields[:grid] = string_pieces_to_array(board_grid) if board_grid.any? { |rank| rank.is_a?(String) }
-      fen_fields
+      split_fen_string(fen_string)
     end
 
     private
@@ -22,14 +18,25 @@ module Chess
       fen_fields = fen_string.split
       return nil unless fen_fields.length == 6
 
+      castling_rights = fen_fields[2]
+
       {
-        grid: fen_fields[0],
+        grid: parse_piece_placement(fen_fields[0]),
         active_color: fen_fields[1],
-        castling_rights: fen_fields[2],
+        white_castle_kingside: can_castle?(castling_rights, Chess::ChessNotation::WHITE_CASTLE_KINGSIDE),
+        white_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::WHITE_CASTLE_QUEENSIDE),
+        black_castle_kingside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_KINGSIDE),
+        black_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::BLACK_CASTLE_QUEENSIDE),
         en_passant_square: fen_fields[3],
         half_move_clock: fen_fields[4].to_i,
         full_move_number: fen_fields[5].to_i
       }
+    end
+
+    def parse_piece_placement(grid_data)
+      flat_grid = split_board_grid(grid_data)
+      board_grid = counts_to_nil!(flat_grid) if flat_grid.any? { |rank| is_numeric?(rank) }
+      string_pieces_to_array(board_grid) if board_grid.any? { |rank| rank.is_a?(String) }
     end
 
     def split_board_grid(fen_placement_string)
@@ -61,10 +68,8 @@ module Chess
       end 
     end
 
-    def split_castling_rights(castling_symbol)
-      if castling_symbol.include?(Chess::ChessNotation::NEITHER_CASTLE_RIGHTS)
-        @white_castle_kingside
-      end
+    def can_castle?(castling_symbol, castle_type)
+      castling_symbol.include?(castle_type)
     end
   end
 end
