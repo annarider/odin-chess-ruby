@@ -27,7 +27,7 @@ module Chess
         white_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::WHITE_CASTLE_QUEENSIDE),
         black_castle_kingside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_KINGSIDE),
         black_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::BLACK_CASTLE_QUEENSIDE),
-        en_passant_square: fen_fields[3],
+        en_passant_square: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
         full_move_number: fen_fields[5].to_i
       }
@@ -87,6 +87,12 @@ module Chess
     def counts_to_nil(rank)
       count = rank.to_i
       Array.new(count, nil)
+    end
+
+    def en_passant_to_position(field)
+      return field if field == '-'
+
+      Chess::Position.from_algebraic(field)
     end
   end
 end

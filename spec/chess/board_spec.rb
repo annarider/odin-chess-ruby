@@ -124,6 +124,8 @@ describe Chess::Board do
         mid_game_board = described_class.from_fen(after_move_fen)
         white_pawn_pos = Chess::Position.from_algebraic('e4')
         expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
+        en_passant_pos = Chess::Position.from_algebraic('e3')
+        expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
       end
     end
   end
