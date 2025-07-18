@@ -72,6 +72,11 @@ describe Chess::Board do
         black_king_pos = Chess::Position.from_algebraic('e8')
         expect(starting_board.piece_at(black_king_pos)).to eq('k')
       end
+      it 'returns white move' do
+        result = starting_board.active_color
+        expect(result).to eq('w')
+      end
+
     end
   end
 

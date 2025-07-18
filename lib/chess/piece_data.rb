@@ -5,7 +5,7 @@ module Chess
   # chess pieces's data and
   # initial positions.
   module Piece
-    ALLOWED_COLORS = %i[white black].freeze
+    ALLOWED_COLORS = %i[w b].freeze
     PIECE_SYMBOLS = {
       'K' => '♔', 'k' => '♚',
       'Q' => '♕', 'q' => '♛',
