@@ -35,7 +35,7 @@ module Chess
 
     def parse_piece_placement(grid_data)
       flat_grid = split_board_grid(grid_data)
-      board_grid = counts_to_nil!(flat_grid) if flat_grid.any? { |rank| is_numeric?(rank) }
+      board_grid = convert_numeric_nils!(flat_grid) if flat_grid.any? { |rank| numeric?(rank) }
       string_pieces_to_array(board_grid) if board_grid.any? { |rank| rank.is_a?(String) }
     end
 
@@ -43,15 +43,16 @@ module Chess
       fen_placement_string.split('/')
     end
 
-    def is_numeric?(string)
-      string.scan(/\D/).empty?
+    def numeric?(string)
+      string.scan(/\d/).any?
     end
 
-    def counts_to_nil!(flat_grid)
+    def convert_numeric_nils!(flat_grid)
       flat_grid.map do |rank|
-        if is_numeric?(rank)
-          count = rank.to_i
-          Array.new(count, nil)
+        if rank == '8'
+          counts_to_nil(rank)
+        elsif numeric?(rank) && rank.length > 1
+          parse_rank_nils(rank).flatten
         else
           rank
         end
@@ -70,6 +71,22 @@ module Chess
 
     def can_castle?(castling_symbol, castle_type)
       castling_symbol.include?(castle_type)
+    end
+
+    def parse_rank_nils(rank)
+      split_rank = rank.chars
+      split_rank.map do |square| 
+        if numeric?(square)
+          counts_to_nil(square)
+        else
+          square
+        end 
+      end
+    end
+    
+    def counts_to_nil(rank)
+      count = rank.to_i
+      Array.new(count, nil)
     end
   end
 end

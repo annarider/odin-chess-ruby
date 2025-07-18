@@ -118,5 +118,13 @@ describe Chess::Board do
         expect(result).to eq(starting_fen)
       end
     end
+    context 'when starting a midway game from fen' do
+      it 'returns a white pawn at e4' do
+        after_move_fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        mid_game_board = described_class.from_fen(after_move_fen)
+        white_pawn_pos = Chess::Position.from_algebraic('e4')
+        expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
+      end
+    end
   end
 end
