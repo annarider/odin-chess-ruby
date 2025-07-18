@@ -13,8 +13,10 @@ module Chess
   # board = Board.new
   #
   class Board
-    include Chess::FEN
-    extend Chess::FEN
+    include Chess::FromFEN
+    include Chess::ToFEN
+    extend Chess::FromFEN
+    extend Chess::ToFEN
     extend Chess::ChessNotation
     attr_accessor :grid, :active_color, :white_castle_kingside,
                   :white_castle_queenside, :black_castle_kingside,
