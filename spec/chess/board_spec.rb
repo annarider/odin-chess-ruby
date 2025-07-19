@@ -96,7 +96,36 @@ describe Chess::Board do
       it 'returns 1 for full move number' do
         expect(starting_board.full_move_number).to eq(1)
       end
+    end
+    context 'when starting a midway game from fen' do
+        let(:after_move_fen) { 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1' }
+        subject(:mid_game_board) { described_class.from_fen(after_move_fen) }
+      it 'returns a white pawn at e4' do
+        white_pawn_pos = Chess::Position.from_algebraic('e4')
+        expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
+      end  
 
+      it 'returns active player color is black' do
+        expect(mid_game_board.active_color).to eq('b')
+      end
+
+      it 'returns true for all 4 castling rights' do
+        expect(mid_game_board.white_castle_kingside).to be true
+        expect(mid_game_board.white_castle_queenside).to be true
+        expect(mid_game_board.black_castle_kingside).to be true
+        expect(mid_game_board.black_castle_queenside).to be true        
+      end
+      it 'returns e3 for en passant square' do
+        en_passant_pos = Chess::Position.from_algebraic('e3')
+        expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
+      end
+
+      it 'returns 0 for half move clock' do
+        expect(mid_game_board.half_move_clock).to eq(0)
+      end
+      it 'returns 1 for full move number' do
+        expect(mid_game_board.full_move_number).to eq(1)
+      end
     end
   end
 
@@ -118,14 +147,9 @@ describe Chess::Board do
         expect(result).to eq(starting_fen)
       end
     end
-    context 'when starting a midway game from fen' do
-      it 'returns a white pawn at e4' do
-        after_move_fen = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
-        mid_game_board = described_class.from_fen(after_move_fen)
-        white_pawn_pos = Chess::Position.from_algebraic('e4')
-        expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
-        en_passant_pos = Chess::Position.from_algebraic('e3')
-        expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
+    context 'when creating FEN from a midway game' do
+      it 'returns ' do
+        
       end
     end
   end
