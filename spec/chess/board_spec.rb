@@ -185,5 +185,21 @@ describe Chess::Board do
         expect(result).to eq(mid_game_fen)
       end
     end
+    context 'when creating FEN from end game' do
+      subject(:end_game_board) { described_class.from_fen(end_game_fen) }
+      let(:end_game_fen) { '3b2k1/1p3p2/p1p5/2P4p/1P2P1p1/5p2/5P2/4RK2 w - - 0 0' }
+      it 'returns the same FEN as loaded in' do
+        result = end_game_board.to_fen
+        expect(result).to eq(end_game_fen)
+      end
+    end
+    context 'when creating FEN from Fischer vs Byrne, 1956 game after queen sacrifice' do
+      subject(:game_of_the_century_board) { described_class.from_fen(game_of_the_century_fen) }
+      let(:game_of_the_century_fen) { 'r3r1k1/pp3ppp/1qn2n2/3p1b2/3P1B2/2N2N2/PP2QPPP/2RR2K1 b - - 0 18' }
+      it 'results in same FEN as loaded in' do
+        result = game_of_the_century_board.to_fen
+        expect(result).to eq(game_of_the_century_fen)
+      end
+    end
   end
 end

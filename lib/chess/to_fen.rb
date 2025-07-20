@@ -21,27 +21,24 @@ module Chess
 
     # create fen string helper methods
     def build_piece_placement(grid)
-      fen_placement_string = ''
-      grid.each_with_index do |rank, index|
-        fen_placement_string += build_rank(rank)
-        fen_placement_string.concat('/') if index < Chess::Config::GRID_LENGTH - 1
-      end
-      fen_placement_string
+      grid.map.with_index do |rank, index|
+        build_rank(rank)
+      end.join('/')
     end
 
     def build_rank(rank)
       grouped_squares = rank.slice_when { |left, right| left.nil? != right.nil? }.to_a
-      # p grouped_squares
-      grouped_squares = count_nils(grouped_squares) if any_nils?(grouped_squares.flatten)
-      grouped_squares.join
+      count_if_nils(grouped_squares).join
     end
 
-    def any_nils?(array)
-      array.any?(&:nil?)
-    end
-
-    def count_nils(array)
-      array.map { |element| element.count(nil) }
+    def count_if_nils(grouped_squares)
+      grouped_squares.map do |group|
+        if group.first.nil?
+          group.length.to_s # convert nil count to string
+        else
+          group.join # join piece data without count
+        end
+      end
     end
 
     def build_castling_rights(board)
