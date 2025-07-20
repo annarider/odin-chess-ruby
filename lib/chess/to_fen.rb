@@ -45,8 +45,12 @@ module Chess
     end
 
     def build_castling_rights(board)
-      "#{board.white_castle_kingside}#{board.white_castle_queenside}" \
-        "#{board.black_castle_kingside}#{board.black_castle_queenside}"
+      rights = ''
+      rights += 'K' if board.white_castle_kingside
+      rights += 'Q' if board.white_castle_queenside
+      rights += 'k' if board.black_castle_kingside
+      rights += 'q' if board.black_castle_queenside
+      rights.empty? ? '-' : rights
     end
 
     def build_en_passant(square)

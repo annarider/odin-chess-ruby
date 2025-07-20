@@ -178,8 +178,11 @@ describe Chess::Board do
       end
     end
     context 'when creating FEN from a midway game' do
-      it 'returns ' do
-        
+      subject(:mid_game_board) { described_class.from_fen(mid_game_fen) }
+      let(:mid_game_fen) { 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2' }
+      it 'returns the same FEN as loaded in' do
+        result = mid_game_board.to_fen
+        expect(result).to eq(mid_game_fen)
       end
     end
   end
