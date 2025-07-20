@@ -55,6 +55,7 @@ describe Chess::Board do
         current_player = start_board.active_color
         expect(current_player).to eq('w')
       end
+
       it 'returns starting position fen string' do
         result = start_board.to_fen
         expect(result).to eq(starting_fen)
@@ -77,33 +78,41 @@ describe Chess::Board do
         black_king_pos = Chess::Position.from_algebraic('e8')
         expect(starting_board.piece_at(black_king_pos)).to eq('k')
       end
+
       it 'returns white move' do
         result = starting_board.active_color
         expect(result).to eq('w')
       end
+
       it 'returns all pieces have castling rights' do
         expect(starting_board.white_castle_kingside).to be true
         expect(starting_board.white_castle_queenside).to be true
         expect(starting_board.black_castle_kingside).to be true
         expect(starting_board.black_castle_queenside).to be true
       end
+
       it 'returns nil for en passant square' do
         expect(starting_board.en_passant_square).to be_nil
       end
+
       it 'returns 0 for half move clock' do
         expect(starting_board.half_move_clock).to eq(0)
       end
+
       it 'returns 1 for full move number' do
         expect(starting_board.full_move_number).to eq(1)
       end
     end
+
     context 'when starting a midway game from fen' do
-        let(:after_move_fen) { 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1' }
-        subject(:mid_game_board) { described_class.from_fen(after_move_fen) }
+      subject(:mid_game_board) { described_class.from_fen(after_move_fen) }
+
+      let(:after_move_fen) { 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1' }
+
       it 'returns a white pawn at e4' do
         white_pawn_pos = Chess::Position.from_algebraic('e4')
         expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
-      end  
+      end
 
       it 'returns active player color is black' do
         expect(mid_game_board.active_color).to eq('b')
@@ -113,8 +122,9 @@ describe Chess::Board do
         expect(mid_game_board.white_castle_kingside).to be true
         expect(mid_game_board.white_castle_queenside).to be true
         expect(mid_game_board.black_castle_kingside).to be true
-        expect(mid_game_board.black_castle_queenside).to be true        
+        expect(mid_game_board.black_castle_queenside).to be true
       end
+
       it 'returns e3 for en passant square' do
         en_passant_pos = Chess::Position.from_algebraic('e3')
         expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
@@ -123,18 +133,21 @@ describe Chess::Board do
       it 'returns 0 for half move clock' do
         expect(mid_game_board.half_move_clock).to eq(0)
       end
+
       it 'returns 1 for full move number' do
         expect(mid_game_board.full_move_number).to eq(1)
       end
     end
+
     context 'when writing an end game to fen' do
-      let(:end_game_fen) { '3B4/K7/2k1b1p1/1p2Pp1p/3P3P/2P3P1/8/8 w - - 0 74'}
       subject(:game_over_board) { described_class.from_fen(end_game_fen) }
+
+      let(:end_game_fen) { '3B4/K7/2k1b1p1/1p2Pp1p/3P3P/2P3P1/8/8 w - - 0 74' }
+
       it 'returns a white king at a7' do
         white_king_pos = Chess::Position.from_algebraic('a7')
         expect(game_over_board.piece_at(white_king_pos)).to eq('K')
-      end  
-
+      end
 
       it 'returns active player color is white' do
         expect(game_over_board.active_color).to eq('w')
@@ -144,8 +157,9 @@ describe Chess::Board do
         expect(game_over_board.white_castle_kingside).to be false
         expect(game_over_board.white_castle_queenside).to be false
         expect(game_over_board.black_castle_kingside).to be false
-        expect(game_over_board.black_castle_queenside).to be false        
+        expect(game_over_board.black_castle_queenside).to be false
       end
+
       it 'returns nil for en passant square' do
         expect(game_over_board.en_passant_square).to be_nil
       end
@@ -153,6 +167,7 @@ describe Chess::Board do
       it 'returns 0 for half move clock' do
         expect(game_over_board.half_move_clock).to eq(0)
       end
+
       it 'returns 74 for full move number' do
         expect(game_over_board.full_move_number).to eq(74)
       end
@@ -177,25 +192,34 @@ describe Chess::Board do
         expect(result).to eq(starting_fen)
       end
     end
+
     context 'when creating FEN from a midway game' do
       subject(:mid_game_board) { described_class.from_fen(mid_game_fen) }
+
       let(:mid_game_fen) { 'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2' }
+
       it 'returns the same FEN as loaded in' do
         result = mid_game_board.to_fen
         expect(result).to eq(mid_game_fen)
       end
     end
+
     context 'when creating FEN from end game' do
       subject(:end_game_board) { described_class.from_fen(end_game_fen) }
+
       let(:end_game_fen) { '3b2k1/1p3p2/p1p5/2P4p/1P2P1p1/5p2/5P2/4RK2 w - - 0 0' }
+
       it 'returns the same FEN as loaded in' do
         result = end_game_board.to_fen
         expect(result).to eq(end_game_fen)
       end
     end
+
     context 'when creating FEN from Fischer vs Byrne, 1956 game after queen sacrifice' do
       subject(:game_of_the_century_board) { described_class.from_fen(game_of_the_century_fen) }
+
       let(:game_of_the_century_fen) { 'r3r1k1/pp3ppp/1qn2n2/3p1b2/3P1B2/2N2N2/PP2QPPP/2RR2K1 b - - 0 18' }
+
       it 'results in same FEN as loaded in' do
         result = game_of_the_century_board.to_fen
         expect(result).to eq(game_of_the_century_fen)

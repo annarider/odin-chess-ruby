@@ -21,7 +21,7 @@ module Chess
 
     # create fen string helper methods
     def build_piece_placement(grid)
-      grid.map.with_index do |rank, index|
+      grid.map.with_index do |rank, _index|
         build_rank(rank)
       end.join('/')
     end

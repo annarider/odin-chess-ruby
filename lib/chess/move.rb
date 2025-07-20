@@ -5,22 +5,22 @@ module Chess
   # to record important properties
   # about a move. This is useful
   # for building a move history
-  # and later for calculating 
+  # and later for calculating
   # threefold repetition.
   class Move
     attr_accessor :from_position, :to_position, :piece, :captured_piece,
-      :castling, :en_passant_target, :promotion, :double_pawn_move
+                  :castling, :en_passant_target, :promotion, :double_pawn_move
 
-      def initialize(
-      from_position: , 
-      to_position: , 
-      piece: , 
+    def initialize(
+      from_position:,
+      to_position:,
+      piece:,
       captured_piece: nil,
       castling: nil,
       en_passant_target: nil,
       promotion: nil,
       double_pawn_move: nil
-      )
+    )
       @from_position = from_position
       @to_position = to_position
       @piece = piece
