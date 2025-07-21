@@ -8,7 +8,8 @@ module Chess
   # and later for calculating
   # threefold repetition.
   class Move
-    attr_accessor :from_position, :to_position, :piece, :captured_piece,
+    include Chess::MoveCalculator
+    attr_reader :from_position, :to_position, :piece, :captured_piece,
                   :castling, :en_passant_target, :promotion, :double_pawn_move
 
     def initialize(
@@ -29,6 +30,10 @@ module Chess
       @en_passant_target = en_passant_target
       @promotion = promotion
       @double_pawn_move = double_pawn_move
+    end
+
+    def possible_moves
+      generate_possible_moves(from_position, piece)
     end
   end
 end
