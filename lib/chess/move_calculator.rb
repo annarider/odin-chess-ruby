@@ -34,10 +34,9 @@ module Chess
     private
 
     def knight_moves(position)
-      all_moves = Chess::Directions::KNIGHT.map do |vector|
-                    position + Chess::Position.from_directional_vector(vector)
-                  end
-      all_moves.reject { |end_position| end_position.nil? }
+      Chess::Directions::KNIGHT.map do |vector|
+        position + Chess::Position.from_directional_vector(vector)
+      end
     end
   end
 end

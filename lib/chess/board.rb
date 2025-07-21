@@ -15,6 +15,7 @@ module Chess
   class Board
     include Chess::FromFEN
     include Chess::ToFEN
+    include Chess::MoveCalculator
     extend Chess::FromFEN
     extend Chess::ToFEN
     extend Chess::ChessNotation
@@ -86,6 +87,23 @@ module Chess
 
     def piece_at(position)
       grid[position.row][position.column]
+    end
+
+    # 4 steps to a move: 
+    # 1. check move is valid
+    # 2. create new position
+    # 3. update game state (grid, flags, etc.)
+    # 4. return status 
+    def try_move(move)
+      return false unless valid_move?(self, move)
+
+      status = play_move(move)
+    end
+
+    private
+
+    def possible_moves(position)
+      generate_possible_moves(from_position, piece)
     end
   end
 end

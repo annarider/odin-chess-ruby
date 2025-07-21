@@ -10,7 +10,7 @@ module Chess
   # specialty validations, such as
   # check.
   module MoveValidator
-    def empty_square?(board)
+    def valid_move?(board, move)
       
     end
   end
