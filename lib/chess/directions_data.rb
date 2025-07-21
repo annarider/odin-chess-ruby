@@ -31,5 +31,9 @@ module Chess
       diagonal_backward_left: [-1, 1],
       diagonal_backward_right: [-1, -1]
     }.freeze
+    KNIGHT = [
+      [-1, 2], [1, 2], [2, 1], [2, -1],
+      [1, -2], [-1, -2], [-2, -1], [-2, 1]
+    ].freeze
   end
 end
