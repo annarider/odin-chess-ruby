@@ -226,4 +226,21 @@ describe Chess::Board do
       end
     end
   end
+
+  describe '#piece_at' do
+    context 'when the white rook is at h1' do
+      let(:rook_position) { Chess::Position.from_algebraic('h1') }
+      it 'returns R, the symbol for white rook' do
+        result = start_board.piece_at(rook_position)
+        expect(result).to eq('R')
+      end
+    end
+    context 'when there is an empty square at d4' do
+      let(:empty_square) { Chess::Position.from_algebraic('d4') }
+      it 'returns nil' do
+        result = start_board.piece_at(empty_square)
+        expect(result).to be_nil
+      end
+    end
+  end
 end
