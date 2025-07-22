@@ -45,6 +45,10 @@ module Chess
       calculate_sliding_moves(position, ROOK).compact
     end
 
+    def bishop_moves(position)
+      calculate_sliding_moves(position, BISHOP).compact
+    end
+
     def calculate_sliding_moves(position, directional_vectors, max_distance = 7)
       moves = []
       directional_vectors.each do |vector|
