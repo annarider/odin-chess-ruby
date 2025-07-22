@@ -135,8 +135,8 @@ describe Chess::Board do
     context 'when there is no piece at b5' do
       let(:start_pos) { Chess::Position.from_algebraic('b5') }
 
-      it 'returns nil' do
-        expect(start_board.possible_moves(start_pos)).to be_nil
+      it 'returns no piece symbol' do
+        expect(start_board.possible_moves(start_pos)).to eq(:no_piece)
       end
     end
   end

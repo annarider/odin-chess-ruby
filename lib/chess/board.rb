@@ -95,16 +95,16 @@ module Chess
     # 3. update game state (grid, flags, etc.)
     # 4. return status
     def try_move(move)
+      return :no_piece if piece_at(move.from_position).nil?
       return false unless valid_move?(self, move)
 
       play_move(move)
     end
 
     def possible_moves(position)
-      piece = piece_at(position)
-      return nil if piece.nil?
+      return :no_piece if piece_at(position).nil?
 
-      generate_possible_moves(position, piece)
+      generate_possible_moves(position, piece_at(position))
     end
   end
 end
