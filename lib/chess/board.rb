@@ -101,7 +101,10 @@ module Chess
     end
 
     def possible_moves(position)
-      generate_possible_moves(position, piece_at(position))
+      piece = piece_at(position)
+      return nil if piece.nil?
+
+      generate_possible_moves(position, piece)
     end
     private
 

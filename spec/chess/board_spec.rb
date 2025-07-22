@@ -244,7 +244,7 @@ describe Chess::Board do
     end
   end
   describe '#possible_moves' do
-  context 'when white knight from b1 moves from starting game positions' do
+    context 'when white knight from b1 moves from starting game positions' do
     let(:start_pos) { Chess::Position.from_algebraic('b1') }
     let(:destination) { Chess::Position.from_algebraic('c3') }
       it 'returns an array with 3 moves' do
@@ -258,10 +258,9 @@ describe Chess::Board do
         expect(start_board.possible_moves(start_pos)).to include(alt_destination)
       end
     end
-  end
-  context 'when black knight from g8 moves from starting game positions' do
-    let(:start_pos) { Chess::Position.from_algebraic('g8') }
-    it 'returns an array with 3 moves' do
+    context 'when black knight from g8 moves from starting game positions' do
+      let(:start_pos) { Chess::Position.from_algebraic('g8') }
+      it 'returns an array with 3 moves' do
       expect(start_board.possible_moves(start_pos).length).to eq(3)
     end
     it 'returns the destination move of f6' do
@@ -276,7 +275,7 @@ describe Chess::Board do
     end
     it 'returns the destination move of a6' do
       destination = Chess::Position.from_algebraic('a6')
-      expect(start_board.possible_moves(destination)).to include(destination)
+      expect(start_board.possible_moves(start_pos)).to include(destination)
     end
   end
   context 'when there is no piece at b5' do
@@ -286,4 +285,5 @@ describe Chess::Board do
       expect(start_board.possible_moves(start_pos)).to be_nil
     end
   end
+end
 end

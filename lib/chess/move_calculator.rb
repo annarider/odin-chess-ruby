@@ -10,8 +10,8 @@ module Chess
   # 
   # It does NOT make the moves. 
   module MoveCalculator
+    include Directions    
     def generate_possible_moves(position, piece)
-      moves = []
       # move direction of pawn depends on color
       return pawn_moves(pawn) if piece == 'p' || piece == 'P'
 
@@ -34,9 +34,28 @@ module Chess
     private
 
     def knight_moves(position)
-      Chess::Directions::KNIGHT.map do |vector|
+      KNIGHT.map do |vector|
         position + Chess::Position.from_directional_vector(vector)
       end.compact
+    end
+
+    def rook_moves(position)
+      calculate_sliding_moves(position, ROOK).compact
+    end
+
+    private
+
+    def calculate_sliding_moves(position, directional_vectors, max_distance = 7)
+      moves = []
+      directional_vectors.each do |vector|
+        (1..max_distance).each do |distance|
+          row_delta = vector.first * distance
+          column_delta = vector.last * distance
+          delta_position = Chess::Position.from_coordinates(row_delta, column_delta)
+          moves << (position + delta_position)
+        end
+      end
+      moves
     end
   end
 end
