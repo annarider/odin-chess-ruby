@@ -3,6 +3,3 @@
 require_relative '../../lib/chess'
 
 # Tests for the Move class
-
-describe Chess::Move do
-end

@@ -9,7 +9,7 @@ module Chess
   # threefold repetition.
   class Move
     attr_reader :from_position, :to_position, :piece, :captured_piece,
-                  :castling, :en_passant_target, :promotion, :double_pawn_move
+                :castling, :en_passant_target, :promotion, :double_pawn_move
 
     def initialize(
       from_position:,

@@ -89,15 +89,15 @@ module Chess
       grid[position.row][position.column]
     end
 
-    # 4 steps to a move: 
+    # 4 steps to a move:
     # 1. check move is valid
     # 2. create new position
     # 3. update game state (grid, flags, etc.)
-    # 4. return status 
+    # 4. return status
     def try_move(move)
       return false unless valid_move?(self, move)
 
-      status = play_move(move)
+      play_move(move)
     end
 
     def possible_moves(position)
@@ -106,7 +106,5 @@ module Chess
 
       generate_possible_moves(position, piece)
     end
-    private
-
   end
 end

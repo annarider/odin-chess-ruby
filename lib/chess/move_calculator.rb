@@ -1,19 +1,21 @@
+# frozen_string_literal: true
+
 module Chess
-  # Move Calculator generates the 
+  # Move Calculator generates the
   # possible moves each piece can
-  # make. 
-  # 
+  # make.
+  #
   # It does NOT validate
   # the moves. Validation happens
   # in Move Validator with the help
   # of specialty validation modules.
-  # 
-  # It does NOT make the moves. 
+  #
+  # It does NOT make the moves.
   module MoveCalculator
-    include Directions    
+    include Directions
     def generate_possible_moves(position, piece)
       # move direction of pawn depends on color
-      return pawn_moves(pawn) if piece == 'p' || piece == 'P'
+      return pawn_moves(pawn) if %w[p P].include?(piece)
 
       case piece.downcase
       when 'k'
@@ -42,8 +44,6 @@ module Chess
     def rook_moves(position)
       calculate_sliding_moves(position, ROOK).compact
     end
-
-    private
 
     def calculate_sliding_moves(position, directional_vectors, max_distance = 7)
       moves = []
