@@ -24,7 +24,7 @@ module Chess
                   :black_castle_queenside, :en_passant_square, :half_move_clock,
                   :full_move_number
 
-    def initialize(grid: default_grid,
+    def initialize(grid: self.class.empty_grid,
                    active_color: Chess::ChessNotation::WHITE_PLAYER,
                    white_castle_kingside: ChessNotation::WHITE_CASTLE_KINGSIDE,
                    white_castle_queenside: ChessNotation::WHITE_CASTLE_QUEENSIDE,
@@ -46,7 +46,7 @@ module Chess
 
     class << self
       def initial_start(add_pieces: true)
-        setup_starting_grid = setup_pieces(default_grid) if add_pieces
+        setup_starting_grid = add_pieces ? setup_pieces(empty_grid) : empty_grid
         new(grid: setup_starting_grid)
       end
 
@@ -55,11 +55,11 @@ module Chess
         new(**parsed_data)
       end
 
-      private
-
-      def default_grid
+      def empty_grid
         Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
       end
+
+      private
 
       def setup_pieces(grid)
         Chess::Piece::INITIAL_POSITIONS.each do |(rank, file), piece|
@@ -105,6 +105,10 @@ module Chess
       return :no_piece if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
+    end
+
+    def place_piece(position, piece)
+      @grid[position.row][position.column] = piece
     end
   end
 end

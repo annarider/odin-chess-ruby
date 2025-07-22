@@ -12,6 +12,18 @@ module Chess
   # specialty validations, such as
   # check.
   module MoveValidator
-    def valid_move?(board, move); end
+    def valid_move?(board, move)
+      return false unless possible_move?(board, move)
+
+      true
+    end
+
+    private
+
+    def possible_move?(board, move)
+      all_moves = board.possible_moves(move.from_position)
+      all_moves.include?(move.to_position)
+    end
+
   end
 end
