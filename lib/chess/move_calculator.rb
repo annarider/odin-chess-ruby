@@ -15,7 +15,7 @@ module Chess
     include Directions
     def generate_possible_moves(position, piece)
       # move direction of pawn depends on color
-      return pawn_moves(pawn) if %w[p P].include?(piece)
+      return pawn_moves(position, piece) if %w[p P].include?(piece)
 
       case piece.downcase
       when 'k'
@@ -56,6 +56,11 @@ module Chess
 
     def king_moves(position)
       vectors = ROOK + BISHOP
+      calculate_sliding_moves(position, vectors, 1)
+    end
+
+    def pawn_moves(position, piece)
+      vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
       calculate_sliding_moves(position, vectors, 1)
     end
 

@@ -11,26 +11,18 @@ module Chess
   # It also stores the piece
   # movement vectors
   module Directions
-    WHITE = {
-      forward: [-1, 0],
-      backward: [1, 0],
-      left: [0, -1],
-      right: [0, 1],
-      diagonal_forward_left: [-1, -1],
-      diagonal_forward_right: [-1, 1],
-      diagonal_backward_left: [1, -1],
-      diagonal_backward_right: [1, 1]
-    }.freeze
-    BLACK = {
-      forward: [1, 0],
-      backward: [-1, 0],
-      left: [0, 1],
-      right: [0, -1],
-      diagonal_forward_left: [1, 1],
-      diagonal_forward_right: [1, -1],
-      diagonal_backward_left: [-1, 1],
-      diagonal_backward_right: [-1, -1]
-    }.freeze
+    PAWN_WHITE = [
+      [-1, 0],  # white forward
+      [-2, 0],  # 2 forward
+      [-1, -1], # diagonal_forward_left
+      [-1, 1]   # diagonal_forward_right
+    ].freeze
+    PAWN_BLACK = [
+      [1, 0],   # black forward
+      [2, 0],   # 2 forward
+      [1, 1],   # diagonal_forward_left
+      [1, -1]   # diagonal_forward_right
+    ].freeze
     KNIGHT = [
       [-1, 2], [1, 2], [2, 1], [2, -1],
       [1, -2], [-1, -2], [-2, -1], [-2, 1]
