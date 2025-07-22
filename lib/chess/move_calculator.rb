@@ -42,29 +42,29 @@ module Chess
     end
 
     def rook_moves(position)
-      calculate_sliding_moves(position, ROOK)
+      calculate_moves(position, Directions::ROOK)
     end
 
     def bishop_moves(position)
-      calculate_sliding_moves(position, BISHOP)
+      calculate_moves(position, Directions::BISHOP)
     end
 
     def queen_moves(position)
-      vectors = ROOK + BISHOP
-      calculate_sliding_moves(position, vectors)
+      vectors = Directions::ROOK + Directions::BISHOP
+      calculate_moves(position, vectors)
     end
 
     def king_moves(position)
-      vectors = ROOK + BISHOP
-      calculate_sliding_moves(position, vectors, 1)
+      vectors = Directions::ROOK + Directions::BISHOP
+      calculate_moves(position, vectors, 1)
     end
 
     def pawn_moves(position, piece)
       vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
-      calculate_sliding_moves(position, vectors, 1)
+      calculate_moves(position, vectors, 1)
     end
 
-    def calculate_sliding_moves(position, directional_vectors, max_distance = 7)
+    def calculate_moves(position, directional_vectors, max_distance = 7)
       moves = []
       directional_vectors.each do |vector|
         (1..max_distance).each do |distance|
