@@ -36,7 +36,7 @@ module Chess
     def knight_moves(position)
       Chess::Directions::KNIGHT.map do |vector|
         position + Chess::Position.from_directional_vector(vector)
-      end
+      end.compact
     end
   end
 end

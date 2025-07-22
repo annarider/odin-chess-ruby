@@ -100,10 +100,10 @@ module Chess
       status = play_move(move)
     end
 
+    def possible_moves(position)
+      generate_possible_moves(position, piece_at(position))
+    end
     private
 
-    def possible_moves(position)
-      generate_possible_moves(from_position, piece)
-    end
   end
 end
