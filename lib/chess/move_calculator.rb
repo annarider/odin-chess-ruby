@@ -30,7 +30,7 @@ module Chess
         rook_moves(position)
       else
         []
-      end
+      end.compact
     end
 
     private
@@ -42,16 +42,21 @@ module Chess
     end
 
     def rook_moves(position)
-      calculate_sliding_moves(position, ROOK).compact
+      calculate_sliding_moves(position, ROOK)
     end
 
     def bishop_moves(position)
-      calculate_sliding_moves(position, BISHOP).compact
+      calculate_sliding_moves(position, BISHOP)
     end
 
     def queen_moves(position)
       vectors = ROOK + BISHOP
-      calculate_sliding_moves(position, vectors).compact
+      calculate_sliding_moves(position, vectors)
+    end
+
+    def king_moves(position)
+      vectors = ROOK + BISHOP
+      calculate_sliding_moves(position, vectors, 1)
     end
 
     def calculate_sliding_moves(position, directional_vectors, max_distance = 7)
