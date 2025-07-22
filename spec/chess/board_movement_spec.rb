@@ -62,6 +62,18 @@ describe Chess::Board do
       end
     end
 
+    context 'when white queen from d1 moves from starting game positions' do
+      let(:start_pos) { Chess::Position.from_algebraic('d1') }
+      it 'returns an array with 21 positions' do
+        expect(start_board.possible_moves(start_pos).length).to eq(21)
+      end
+      it 'returns the destination move of f3' do
+        destination = Chess::Position.from_algebraic('f3')
+        expect(start_board.possible_moves(start_pos)).to include(destination)
+
+      end
+    end
+
     context 'when there is no piece at b5' do
       let(:start_pos) { Chess::Position.from_algebraic('b5') }
 
