@@ -12,7 +12,7 @@ module Chess
   # specialty validations, such as
   # check.
   module MoveValidator
-    def valid_move?(board, move)
+    def is_move_legal?(board, move)
       return false unless possible_move?(board, move)
 
       true
@@ -24,6 +24,5 @@ module Chess
       all_moves = board.possible_moves(move.from_position)
       all_moves.include?(move.to_position)
     end
-
   end
 end
