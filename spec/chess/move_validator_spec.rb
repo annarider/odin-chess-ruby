@@ -9,7 +9,7 @@ describe Chess::Board do
   let(:start_board) { described_class.initial_start }
 
   describe '#valid_move?' do
-    context 'when a knight in the middle of an empty board moves' do
+    context 'when a white knight in the middle of an empty board moves' do
       let(:knight_start) { Chess::Position.from_algebraic('d5') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
       let(:knight_move) do
@@ -33,13 +33,17 @@ describe Chess::Board do
         Chess::Move.new(
           from_position: rook_start,
           to_position: rook_end,
-          piece: 'N'
+          piece: 'r'
         )
       end
 
       it 'returns false' do
         expect(start_board.valid_move?(rook_move)).to be false
       end
+    end
+
+    context 'when a black knight captures a white pawn' do
+      
     end
   end
 end
