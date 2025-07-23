@@ -8,10 +8,26 @@ Chess has many layers:
 2. displaying the board and different colors - DONE
 - Chess Notation - DONE
 - FEN Notation - DONE
-3. basic movement for one piece
-- generating all possible moves
+3. basic movement for one piece - DONE
+- generating all possible moves - DONE
 - validating the moves
-4. expanding to all pieces and movements for all pieces
+  1. possible move? 
+  2. validate destination?
+  -- either empty square
+  -- or capturing enemy piece
+  3. castling_available?
+  -- have castle & rook moved?
+  -- empty squares in between?
+  -- king in check?
+  4. en_passant_allowed?
+  5. legal_pawn_moves?
+  -- 2 square forward if not moved
+  -- diagonal capture
+  -- en passant
+  -- promotion
+  6. check & checkmate - leave_king_in_check?
+4. expanding to all pieces and movements for all pieces - DONE
+4a. expanding validation checks to all pieces
 5. game state management 
 - switching turns
 - adding check and checkmate (includes win & game over)
