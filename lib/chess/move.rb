@@ -21,6 +21,9 @@ module Chess
       promotion: nil,
       double_pawn_move: nil
     )
+      validate_position(from_position)
+      validate_position(to_position)
+
       @from_position = from_position
       @to_position = to_position
       @piece = piece
@@ -29,6 +32,14 @@ module Chess
       @en_passant_target = en_passant_target
       @promotion = promotion
       @double_pawn_move = double_pawn_move
+    end
+
+    private
+
+    def validate_position(position)
+      raise ArgumentError, "#{position} must be a Position object" unless position.is_a?(Chess::Position)
+
+      raise ArgumentError, "#{position.coordinates} is out of bounds" unless position.in_bound?
     end
   end
 end
