@@ -29,6 +29,15 @@ describe Chess::Board do
     end
 
     context 'when a black knight captures a white pawn' do
+      it 'returns true' do
+        knight_start = Chess::Position.from_algebraic('f6')
+        knight_destination = Chess::Position.from_algebraic('e4')
+        move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'n')
+        board.place_piece(knight_start, 'n')
+        board.place_piece(knight_destination, 'P')
+        expect(board.valid_move?(move)).to be true
+
+      end
       
     end
   end

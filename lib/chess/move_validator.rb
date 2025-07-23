@@ -28,7 +28,6 @@ module Chess
 
     def valid_destination?(board, move)
       target_piece = board.piece_at(move.to_position)
-      p target_piece
 
       if target_piece.nil? # empty square
         true
