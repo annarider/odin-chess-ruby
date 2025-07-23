@@ -16,6 +16,7 @@ module Chess
     include Chess::FromFEN
     include Chess::ToFEN
     include Chess::MoveCalculator
+    include Chess::MoveValidator
     extend Chess::FromFEN
     extend Chess::ToFEN
     extend Chess::ChessNotation
@@ -89,26 +90,31 @@ module Chess
       grid[position.row][position.column]
     end
 
+    def place_piece(position, piece)
+      @grid[position.row][position.column] = piece
+    end
+
     # 4 steps to a move:
     # 1. check move is valid
     # 2. create new position
     # 3. update game state (grid, flags, etc.)
     # 4. return status
     def try_move(move)
-      return :no_piece if piece_at(move.from_position).nil?
-      return false unless valid_move?(self, move)
+      return :no_piece if possible_move.empty?
+      return :illegal_move unless valid_move?(move)
 
       play_move(move)
+      :success
     end
 
     def possible_moves(position)
-      return :no_piece if piece_at(position).nil?
+      return [] if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
     end
 
-    def place_piece(position, piece)
-      @grid[position.row][position.column] = piece
+    def valid_move?(move)
+      is_move_legal?(self, move)
     end
   end
 end

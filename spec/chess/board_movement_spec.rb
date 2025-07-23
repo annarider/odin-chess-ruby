@@ -136,18 +136,19 @@ describe Chess::Board do
       let(:empty_position) { Chess::Position.from_algebraic('b5') }
 
       it 'returns no piece symbol' do
-        expect(start_board.possible_moves(empty_position)).to eq(:no_piece)
+        expect(start_board.possible_moves(empty_position)).to eq([])
       end
     end
+
     context 'when a white knight is at d5' do
       let(:empty_board) { described_class.new }
       let(:knight_position) { Chess::Position.from_algebraic('d5') }
+
       it 'returns 8 possible positions' do
         empty_board.place_piece(knight_position, 'k')
         result = empty_board.possible_moves(knight_position)
         expect(result.length).to eq(8)
       end
-
     end
   end
 end
