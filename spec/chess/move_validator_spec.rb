@@ -2,43 +2,29 @@
 
 require_relative '../../lib/chess'
 
-# Tests for module Move Validator
+# Tests for class Move Validator
 
 describe Chess::Board do
-  let(:empty_board) { described_class.initial_start(add_pieces: false) }
-  let(:start_board) { described_class.initial_start }
-
-  describe '#valid_move?' do
+  subject(:board) { described_class.new }
+  describe '#is_move_legal?' do
     context 'when a white knight in the middle of an empty board moves' do
-      let(:knight_start) { Chess::Position.from_algebraic('d5') }
-      let(:knight_destination) { Chess::Position.from_algebraic('c3') }
-      let(:knight_move) do
-        Chess::Move.new(
-          from_position: knight_start,
-          to_position: knight_destination,
-          piece: 'N'
-        )
-      end
-
       it 'returns true' do
-        empty_board.place_piece(knight_start, 'N')
-        expect(empty_board.valid_move?(knight_move)).to be true
+        knight_start = Chess::Position.from_algebraic('d5')
+        knight_destination = Chess::Position.from_algebraic('c3')
+        move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N')
+        board.place_piece(knight_start, 'N')
+        result = board.valid_move?(move)
+        expect(result).to be true
       end
     end
 
     context 'when a black rook moves diagonally' do
-      let(:rook_start) { Chess::Position.from_algebraic('a8') }
-      let(:rook_end) { Chess::Position.from_algebraic('b7') }
-      let(:rook_move) do
-        Chess::Move.new(
-          from_position: rook_start,
-          to_position: rook_end,
-          piece: 'r'
-        )
-      end
-
       it 'returns false' do
-        expect(start_board.valid_move?(rook_move)).to be false
+        rook_start = Chess::Position.from_algebraic('a8')
+        rook_destination = Chess::Position.from_algebraic('f7')
+        move = Chess::Move.new(from_position: rook_start, to_position: rook_destination, piece: 'N')
+        board.place_piece(rook_start, 'N')
+        expect(board.valid_move?(move)).to be false
       end
     end
 

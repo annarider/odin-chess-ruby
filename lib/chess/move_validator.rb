@@ -11,50 +11,35 @@ module Chess
   # helper modules to perform
   # specialty validations, such as
   # check.
-  class MoveValidator
-    attr_reader :board, :move
-
-    def initialize(board, move)
-      @board = board
-      @move = move
-    end
-
-    def is_move_legal?
-      return false unless possible_move?
-      return false unless capture_enemy_piece?
-      # return false unless castling_available?
-      # return false unless en_passant_allowed?
-      # return false unless legal_pawn_moves? # (en passant, promotion, capture)
-      # return false unless leave_king_in_check?
+  module MoveValidator
+    def is_move_legal?(board, move)
+      return false unless possible_move?(board, move)
+      return false unless valid_destination?(board, move)
 
       true
     end
 
     private
 
-    def possible_move?
+    def possible_move?(board, move)
       all_moves = board.possible_moves(move.from_position)
       all_moves.include?(move.to_position)
     end
 
-    def capture_enemy_piece?
-      return false unless attempted_attack? # no capture happened
-
-      attack_piece = move.piece
+    def valid_destination?(board, move)
       target_piece = board.piece_at(move.to_position)
-      enemy_color?(attack_piece, target_piece)
-    end
+      p target_piece
 
-    def attempted_attack?
-      target_piece = board.piece_at(move.to_position)
-      return false if target_piece.nil? # no piece at target position
-
-      true
+      if target_piece.nil? # empty square
+        true
+      else
+        enemy_color?(move.piece, target_piece)
+      end
     end
 
     def enemy_color?(attack_piece, captured_piece)
-      (attack_piece.upcase && captured_piece.downcase) ||
-      (attack_piece.downcase && captured_piece.upcase )
+      (attack_piece.match?(/[A-Z]/) && captured_piece.match?(/[a-z]/)) ||
+        (attack_piece.match?(/[a-z]/) && captured_piece.match?(/[A-Z]/))
     end
   end
 end

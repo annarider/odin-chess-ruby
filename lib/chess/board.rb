@@ -15,6 +15,7 @@ module Chess
   class Board
     include Chess::FromFEN
     include Chess::ToFEN
+    include Chess::MoveCalculator
     include Chess::MoveValidator
     extend Chess::FromFEN
     extend Chess::ToFEN
@@ -113,8 +114,7 @@ module Chess
     end
 
     def valid_move?(move)
-      @move_validator = Chess::MoveValidator.new(self, move)
-      @move_validator.is_move_legal?
+      is_move_legal?(self, move)
     end
   end
 end
