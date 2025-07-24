@@ -33,6 +33,19 @@ module Chess
       end.compact
     end
 
+    def calculate_moves(position, directional_vectors, max_distance = 7)
+      moves = []
+      directional_vectors.each do |vector|
+        (1..max_distance).each do |distance|
+          row_delta = vector.first * distance
+          column_delta = vector.last * distance
+          delta_position = Chess::Position.from_coordinates(row_delta, column_delta)
+          moves << (position + delta_position)
+        end
+      end
+      moves
+    end
+
     private
 
     def knight_moves(position)
@@ -62,19 +75,6 @@ module Chess
     def pawn_moves(position, piece)
       vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
       calculate_moves(position, vectors, 1)
-    end
-
-    def calculate_moves(position, directional_vectors, max_distance = 7)
-      moves = []
-      directional_vectors.each do |vector|
-        (1..max_distance).each do |distance|
-          row_delta = vector.first * distance
-          column_delta = vector.last * distance
-          delta_position = Chess::Position.from_coordinates(row_delta, column_delta)
-          moves << (position + delta_position)
-        end
-      end
-      moves
     end
   end
 end
