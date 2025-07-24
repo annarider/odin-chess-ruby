@@ -71,15 +71,7 @@ module Chess
     end
 
     def to_display
-      grid.map do |rank|
-        rank.map do |file|
-          if file.nil?
-            ''
-          else
-            file.to_s
-          end
-        end
-      end
+      grid.map { |rank| rank.map { |file| file.nil? ? '' : file.to_s } }
     end
 
     def to_fen
