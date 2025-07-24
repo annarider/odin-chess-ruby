@@ -11,10 +11,11 @@ Chess has many layers:
 3. basic movement for one piece - DONE
 - generating all possible moves - DONE
 - validating the moves
-  1. possible move? 
-  2. validate destination?
-  -- either empty square
-  -- or capturing enemy piece
+  1. possible move? - DONE
+  2. validate destination? - DONE
+  -- either empty square - DONE
+  -- or capturing enemy piece - DONE
+  -- path is clear
   3. castling_available?
   -- have castle & rook moved?
   -- empty squares in between?
