@@ -11,6 +11,10 @@ module Chess
       split_fen_string(fen_string)
     end
 
+    def parse_fen_for_positions(fen_string)
+      first_four_fen_fields(fen_string)
+    end
+
     private
 
     # parse fen string helper methods
@@ -58,6 +62,12 @@ module Chess
       return nil if field == '-'
 
       Chess::Position.from_algebraic(field)
+    end
+
+    def first_four_fen_fields(fen_string)
+      fields = fen_string.split
+      fields.pop(2)
+      fields.join(' ')
     end
   end
 end
