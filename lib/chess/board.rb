@@ -13,13 +13,13 @@ module Chess
   # board = Board.new
   #
   class Board
-    include Chess::FromFEN
-    include Chess::ToFEN
-    include Chess::MoveCalculator
-    include Chess::MoveValidator
-    extend Chess::FromFEN
-    extend Chess::ToFEN
-    extend Chess::ChessNotation
+    include FromFEN
+    include ToFEN
+    include MoveCalculator
+    include MoveValidator
+    extend FromFEN
+    extend ToFEN
+    extend ChessNotation
     attr_accessor :grid, :active_color, :white_castle_kingside,
                   :white_castle_queenside, :black_castle_kingside,
                   :black_castle_queenside, :en_passant_square, :half_move_clock,
