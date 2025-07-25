@@ -53,7 +53,7 @@ describe Chess::Position do
       end
 
       it 'returns nil for an out-of-bounds position' do
-        negative_direction = described_class.from_directional_vector(Chess::Directions::WHITE[:forward])
+        negative_direction = described_class.from_directional_vector(Chess::Directions::PAWN_WHITE[0])
         expect(negative_direction.rank).to be_nil
       end
     end
@@ -68,7 +68,7 @@ describe Chess::Position do
       end
 
       it 'returns nil for an out-of-bounds position' do
-        described_class.from_directional_vector(Chess::Directions::BLACK[:backward])
+        described_class.from_directional_vector(Chess::Directions::PAWN_WHITE[0])
       end
     end
 
@@ -82,7 +82,7 @@ describe Chess::Position do
       end
 
       it 'returns nil for an out-of-bounds position' do
-        negative_direction = described_class.from_directional_vector(Chess::Directions::WHITE[:left])
+        negative_direction = described_class.from_directional_vector(Chess::Directions::KNIGHT[0])
         expect(negative_direction.square).to be_nil
       end
     end
@@ -99,7 +99,7 @@ describe Chess::Position do
       end
 
       it 'returns nil if out-of-bounds position' do
-        negative_direction = described_class.from_directional_vector(Chess::Directions::BLACK[:right])
+        negative_direction = described_class.from_directional_vector(Chess::Directions::ROOK[0])
         expect(negative_direction.coordinates).to be_nil
       end
     end
@@ -160,7 +160,7 @@ describe Chess::Position do
       context 'when the white pawn is at starting position' do
         it 'returns the position 1 square up' do
           start_position = described_class.from_coordinates(6, 0)
-          direction = described_class.from_directional_vector(Chess::Directions::WHITE[:forward])
+          direction = described_class.from_directional_vector(Chess::Directions::PAWN_WHITE[0])
           destination = start_position.transform_coordinates(direction)
           expect(destination).to eq(described_class.from_coordinates(5, 0))
         end
@@ -174,7 +174,7 @@ describe Chess::Position do
 
         it 'returns nil when new position is out of bounds' do
           start_position = described_class.from_algebraic('h6')
-          direction = described_class.from_directional_vector(Chess::Directions::BLACK[:diagonal_forward_left])
+          direction = described_class.from_directional_vector(Chess::Directions::PAWN_BLACK[2])
           destination = start_position.transform_coordinates(direction)
           expect(destination).to be_nil
         end
@@ -184,17 +184,17 @@ describe Chess::Position do
     describe '#+' do
       context 'when using algebraic notation as black rook' do
         it 'returns the position 1 forward square advance to a7' do
-          start_position = described_class.from_algebraic('a8')
-          direction = described_class.from_directional_vector(Chess::Directions::BLACK[:forward])
+          start_position = described_class.from_algebraic('a7')
+          direction = described_class.from_directional_vector(Chess::Directions::PAWN_BLACK[0])
           destination = start_position + direction
-          expect(destination).to eq(described_class.from_algebraic('a7'))
+          expect(destination).to eq(described_class.from_algebraic('a6'))
         end
 
         it 'returns the position 1 left square advance to b8' do
-          start_position = described_class.from_algebraic('a8')
-          direction = described_class.from_directional_vector(Chess::Directions::BLACK[:left])
+          start_position = described_class.from_algebraic('a7')
+          direction = described_class.from_directional_vector(Chess::Directions::PAWN_BLACK[2])
           destination = start_position + direction
-          expect(destination).to eq(described_class.from_algebraic('b8'))
+          expect(destination).to eq(described_class.from_algebraic('b6'))
         end
       end
     end

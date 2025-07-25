@@ -67,6 +67,6 @@ class Display
   end
 end
 
-board = Chess::Board.new
+board = Board.new
 display = Display.new
 display.display_board(board)

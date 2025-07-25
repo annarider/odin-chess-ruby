@@ -11,8 +11,8 @@ module Chess
   # position = Position.new(row, column)
   #
   class Position
-    include Chess::ChessNotation
-    extend Chess::ChessNotation
+    include ChessNotation
+    extend ChessNotation
     attr_reader :row, :column
 
     def self.from_coordinates(row_index, column_index)
@@ -67,8 +67,8 @@ module Chess
     end
 
     def in_bound?
-      return true if row.between?(0, Chess::Config::GRID_LENGTH - 1) &&
-                     column.between?(0, Chess::Config::GRID_LENGTH - 1)
+      return true if row.between?(0, Config::GRID_LENGTH - 1) &&
+                     column.between?(0, Config::GRID_LENGTH - 1)
 
       false
     end

@@ -27,10 +27,10 @@ module Chess
       {
         grid: parse_piece_placement(fen_fields[0]),
         active_color: fen_fields[1],
-        white_castle_kingside: can_castle?(castling_rights, Chess::ChessNotation::WHITE_CASTLE_KINGSIDE),
-        white_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::WHITE_CASTLE_QUEENSIDE),
+        white_castle_kingside: can_castle?(castling_rights, ChessNotation::WHITE_CASTLE_KINGSIDE),
+        white_castle_queenside: can_castle?(castling_rights, ChessNotation::WHITE_CASTLE_QUEENSIDE),
         black_castle_kingside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_KINGSIDE),
-        black_castle_queenside: can_castle?(castling_rights, Chess::ChessNotation::BLACK_CASTLE_QUEENSIDE),
+        black_castle_queenside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_QUEENSIDE),
         en_passant_square: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
         full_move_number: fen_fields[5].to_i
@@ -61,7 +61,7 @@ module Chess
     def en_passant_to_position(field)
       return nil if field == '-'
 
-      Chess::Position.from_algebraic(field)
+      Position.from_algebraic(field)
     end
 
     def first_four_fen_fields(fen_string)

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # Check rules for castling rights.
   # This module contains methods to
@@ -15,8 +17,6 @@ module Chess
 
     private
 
-    def king_moved?(board, move)
-      
-    end
+    def king_moved?(board, move); end
   end
 end

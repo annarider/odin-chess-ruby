@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 module Chess
   class MoveHistory
-    include Chess::FromFEN
+    include FromFEN
     attr_accessor :move_history, :past_positions
 
     def initialize(move_history = [], past_positions = [])
@@ -19,7 +21,7 @@ module Chess
 
     def threefold_repetition?
       return true if count_past_positions.values.any? { |count| count >= 3 }
-      
+
       false
     end
 
@@ -28,7 +30,7 @@ module Chess
     def count_past_positions
       count = {}
       past_positions.each { |position| count[position] += 1 }
-      count     
+      count
     end
 
     def fen_position(fen_string)

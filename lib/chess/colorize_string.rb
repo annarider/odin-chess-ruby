@@ -8,7 +8,7 @@ module Chess
   module ColorizeString
     refine String do
       def output_color(color_name, ground: fore)
-        rgb_value = Chess::Config::RGB_COLOR_MAP[color_name]
+        rgb_value = Config::RGB_COLOR_MAP[color_name]
         "\e[#{ground == 'fore' ? 38 : 48};2;#{rgb_value}m#{self}\e[0m"
       end
     end

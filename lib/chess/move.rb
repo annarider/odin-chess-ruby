@@ -34,13 +34,13 @@ module Chess
       @en_passant_target = en_passant_target
       @promotion = promotion
       @double_pawn_move = double_pawn_move,
-      @fen = fen
+                          @fen = fen
     end
 
     private
 
     def validate_position(position)
-      raise ArgumentError, "#{position} must be a Position object" unless position.is_a?(Chess::Position)
+      raise ArgumentError, "#{position} must be a Position object" unless position.is_a?(Position)
 
       raise ArgumentError, "#{position.coordinates} is out of bounds" unless position.in_bound?
     end

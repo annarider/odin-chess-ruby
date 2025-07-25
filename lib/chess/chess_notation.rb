@@ -18,7 +18,7 @@ module Chess
     end
 
     def row_to_rank(row_index)
-      return (Chess::Config::GRID_LENGTH - row_index).to_s if row_index.between?(0, Config::GRID_LENGTH - 1)
+      return (Config::GRID_LENGTH - row_index).to_s if row_index.between?(0, Config::GRID_LENGTH - 1)
 
       raise ArgumentError, "Invalid row index #{row_index}, must be 0 to 7."
     end
@@ -28,7 +28,7 @@ module Chess
     end
 
     def rank_to_row(rank)
-      return (Chess::Config::GRID_LENGTH - rank.to_i) if rank.to_i.between?(1, Chess::Config::GRID_LENGTH)
+      return (Config::GRID_LENGTH - rank.to_i) if rank.to_i.between?(1, Config::GRID_LENGTH)
 
       raise ArgumentError, "Invalid rank #{rank}, must be 1 to 8."
     end
@@ -49,7 +49,7 @@ module Chess
     end
 
     def valid_rank?(rank)
-      rank.to_i.positive? && rank.to_i.between?(1, Chess::Config::GRID_LENGTH)
+      rank.to_i.positive? && rank.to_i.between?(1, Config::GRID_LENGTH)
     end
 
     def valid_file?(file)

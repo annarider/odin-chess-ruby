@@ -39,7 +39,7 @@ module Chess
         (1..max_distance).each do |distance|
           row_delta = vector.first * distance
           column_delta = vector.last * distance
-          delta_position = Chess::Position.from_coordinates(row_delta, column_delta)
+          delta_position = Position.from_coordinates(row_delta, column_delta)
           moves << (position + delta_position)
         end
       end
@@ -50,7 +50,7 @@ module Chess
 
     def knight_moves(position)
       KNIGHT.map do |vector|
-        position + Chess::Position.from_directional_vector(vector)
+        position + Position.from_directional_vector(vector)
       end.compact
     end
 

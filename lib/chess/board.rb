@@ -26,7 +26,7 @@ module Chess
                   :full_move_number
 
     def initialize(grid: self.class.empty_grid,
-                   active_color: Chess::ChessNotation::WHITE_PLAYER,
+                   active_color: ChessNotation::WHITE_PLAYER,
                    white_castle_kingside: ChessNotation::WHITE_CASTLE_KINGSIDE,
                    white_castle_queenside: ChessNotation::WHITE_CASTLE_QUEENSIDE,
                    black_castle_kingside: ChessNotation::BLACK_CASTLE_KINGSIDE,
@@ -57,13 +57,13 @@ module Chess
       end
 
       def empty_grid
-        Array.new(Chess::Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
+        Array.new(Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
       end
 
       private
 
       def setup_pieces(grid)
-        Chess::Piece::INITIAL_POSITIONS.each do |(rank, file), piece|
+        Piece::INITIAL_POSITIONS.each do |(rank, file), piece|
           grid[rank][file] = piece
         end
         grid

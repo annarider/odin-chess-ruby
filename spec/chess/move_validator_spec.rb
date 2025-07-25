@@ -2,7 +2,7 @@
 
 require_relative '../../lib/chess'
 
-# Tests for module Move Validator via Board class
+# Tests for module Chess::Move Validator via Board class
 
 describe Chess::Board do
   subject(:board) { described_class.new }
