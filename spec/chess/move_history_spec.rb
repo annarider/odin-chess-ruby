@@ -11,14 +11,16 @@ describe Chess::MoveHistory do
     context 'when the first move completes' do
       let(:knight_start) { Chess::Position.from_algebraic('b1') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
-      let(:move) { Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
-
+      let(:fen) { 'rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1' }
+      let(:knight_move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N', fen: fen) }
       it 'increases the move count by 1' do
-        expect { history_from_start.add_move(move) }.to change(history_from_start, :move_count).by(1)
+        expect { history_from_start.add_move(knight_move) }.to change(history_from_start, :count_moves).by(1)
       end
 
-      it 'increase the position hash by 1' do
-        expect { history_from_start.add_move(move) }.to(change(history_from_start, :move))
+      it 'return false for threefold repetition?' do
+        history_from_start.add_move(knight_move)
+        result = history_from_start.threefold_repetition?
+        expect(result).to be false
       end
     end
   end
