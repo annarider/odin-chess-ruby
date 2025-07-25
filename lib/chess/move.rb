@@ -9,7 +9,8 @@ module Chess
   # threefold repetition.
   class Move
     attr_reader :from_position, :to_position, :piece, :captured_piece,
-                :castling, :en_passant_target, :promotion, :double_pawn_move
+                :castling, :en_passant_target, :promotion,
+                :double_pawn_move, :fen
 
     def initialize(
       from_position:,
@@ -19,7 +20,8 @@ module Chess
       castling: nil,
       en_passant_target: nil,
       promotion: nil,
-      double_pawn_move: nil
+      double_pawn_move: nil,
+      fen: nil
     )
       validate_position(from_position)
       validate_position(to_position)
@@ -31,7 +33,8 @@ module Chess
       @castling = castling
       @en_passant_target = en_passant_target
       @promotion = promotion
-      @double_pawn_move = double_pawn_move
+      @double_pawn_move = double_pawn_move,
+      @fen = fen
     end
 
     private
