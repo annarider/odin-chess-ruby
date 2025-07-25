@@ -13,6 +13,7 @@ require_relative 'chess/move_validator'
 require_relative 'chess/board'
 require_relative 'chess/position'
 require_relative 'chess/move'
+require_relative 'chess/move_history'
 
 # top-level namespace for organization
 # and contain the library files for
