@@ -14,7 +14,7 @@ module Chess
 
     def add_move(move)
       @move_history << move
-      @past_positions << hash_position(move) if move.fen
+      add_to_position(move.fen)
     end
 
     def count_moves
@@ -27,11 +27,15 @@ module Chess
       false
     end
 
+    def add_to_position(fen_string)
+      position = fen_position(fen_string)
+      @past_positions << hash_position(position) if position
+    end
+
     private
 
-    def hash_position(move)
-      partial_fen = fen_position(move.fen)
-      Digest::MD5.hexdigest(partial_fen)
+    def hash_position(partial_fen_string)
+      Digest::MD5.hexdigest(partial_fen_string)
     end
 
     def count_duplicate_positions

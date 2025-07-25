@@ -24,4 +24,7 @@ describe Chess::MoveHistory do
       end
     end
   end
+  describe 'threefold_repetition?' do
+    context 'when '
+  end
 end
