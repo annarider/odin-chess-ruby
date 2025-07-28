@@ -87,7 +87,7 @@ describe Chess::MoveCalculator do
     context 'when the black pawn at g7 moves' do
       it 'returns an array with 4 positions' do
         start_pos = Chess::Position.from_algebraic('g7')
-        expected_destinations = %w[g6 g6 h6 g5].map { Chess::Position.from_algebraic(it) }
+        expected_destinations = %w[f6 g6 h6 g5].map { Chess::Position.from_algebraic(it) }
         expect(described_class.generate_possible_moves(start_pos, 'p')).to contain_exactly(*expected_destinations)
       end
     end
@@ -103,9 +103,8 @@ describe Chess::MoveCalculator do
     context 'when a white knight is at d5' do
       it 'returns 8 expected destination positions' do
         start_pos = Chess::Position.from_algebraic('d5')
-        expected_destinations = %w[e7 g6 g4 f3 c3 b4 b6 c7].map { Chess::Position.from_algebraic(it) }
-        expect(start_board.generate_possible_moves(start_pos, 'N')).to contain_exactly(*expected_destinations)
-      end
+        expected_destinations = %w[e7 f6 f4 e3 c3 b4 b6 c7].map { Chess::Position.from_algebraic(it) }
+        expect(described_class.generate_possible_moves(start_pos, 'N')).to contain_exactly(*expected_destinations)
       end
     end
   end
