@@ -29,7 +29,7 @@ describe Chess::MoveValidator do
         rook_destination = Chess::Position.from_algebraic('f7')
         move = Chess::Move.new(from_position: rook_start, to_position: rook_destination, piece: 'N')
         board.place_piece(rook_start, 'N')
-        expect(board.valid_move?(move)).to be false
+        expect(described_class.is_move_legal?(board, move)).to be false
       end
     end
 
@@ -44,12 +44,12 @@ describe Chess::MoveValidator do
 
       it 'returns true for a white pawn' do
         board.place_piece(knight_destination, 'P')
-        expect(board.valid_move?(move)).to be true
+        expect(described_class.is_move_legal?(board, move)).to be true
       end
 
       it 'returns false for a black pawn' do
         board.place_piece(knight_destination, 'p')
-        expect(board.valid_move?(move)).to be false
+        expect(described_class.is_move_legal?(board, move)).to be false
       end
     end
 
@@ -60,14 +60,14 @@ describe Chess::MoveValidator do
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')
-        expect(start_board.valid_move?(move)).to be false
+        expect(described_class.is_move_legal?(board, move)).to be false
       end
 
       it 'returns true for white knight which can leap over pieces' do
         knight_start = Chess::Position.from_algebraic('b1')
         knight_destination = Chess::Position.from_algebraic('c3')
         move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N')
-        expect(start_board.valid_move?(move)).to be true
+        expect(described_class.is_move_legal?(board, move)).to be true
       end
     end
   end

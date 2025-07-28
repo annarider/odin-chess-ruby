@@ -52,6 +52,7 @@ module Chess
           row_delta = vector.first * distance
           column_delta = vector.last * distance
           delta_position = Position.from_coordinates(row_delta, column_delta)
+          p position
           moves << (position + delta_position)
         end
       end

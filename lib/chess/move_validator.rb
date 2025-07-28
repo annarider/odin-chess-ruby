@@ -65,7 +65,7 @@ module Chess
       total_column_delta = end_position.column - start_position.column
       direction_vector = [convert_direction(total_row_delta), convert_direction(total_column_delta)]
       steps = [total_row_delta.abs, total_column_delta.abs].max
-      calculate_moves(start_position, [direction_vector], steps)
+      request_moves(direction_vector, steps)
     end
 
     def empty_square_along_path?(path)
@@ -79,6 +79,11 @@ module Chess
       return 0 if delta.zero?
 
       delta.positive? ? 1 : -1
+    end
+
+    def request_moves(direction_vector, steps)
+      calculator = MoveCalculator.generate_possible_moves(board, move.piece)
+      calculator.calculate_moves([direction_vector], steps)
     end
   end
 end
