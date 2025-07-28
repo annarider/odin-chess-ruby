@@ -2,19 +2,23 @@
 
 require_relative '../../lib/chess'
 
-# Tests for module Chess::Move Validator via Board class
+# Tests for class Chess::Move Validator
 
-describe Chess::Board do
-  subject(:board) { described_class.new }
+describe Chess::MoveValidator do
+  subject(:validator) { described_class.new }
+  let(:board) { Chess::Board.new }
 
-  describe '#is_move_legal?' do
+  describe '.is_move_legal?' do
     context 'when a white knight in the middle of an empty board moves' do
-      it 'returns true' do
-        knight_start = Chess::Position.from_algebraic('d5')
-        knight_destination = Chess::Position.from_algebraic('c3')
-        move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N')
+      let(:knight_start) { Chess::Position.from_algebraic('d5') }
+      let(:knight_destination) { Chess::Position.from_algebraic('c3') }
+      let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
+      before do
         board.place_piece(knight_start, 'N')
-        result = board.valid_move?(move)
+      end
+
+      it 'returns true when the destination square is empty' do
+        result = described_class.is_move_legal?(board, move)
         expect(result).to be true
       end
     end
@@ -50,7 +54,7 @@ describe Chess::Board do
     end
 
     context 'when starting a new game' do
-      subject(:start_board) { described_class.initial_start(add_pieces: true) }
+      subject(:start_board) { Chess::Board.initial_start(add_pieces: true) }
 
       it 'returns false when white bishop path is blocked' do
         bishop_start = Chess::Position.from_algebraic('c1')

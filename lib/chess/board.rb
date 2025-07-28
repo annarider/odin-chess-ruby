@@ -16,7 +16,6 @@ module Chess
     include FromFEN
     include ToFEN
     include MoveCalculator
-    include MoveValidator
     extend FromFEN
     extend ToFEN
     extend ChessNotation
@@ -106,7 +105,7 @@ module Chess
     end
 
     def valid_move?(move)
-      is_move_legal?(self, move)
+      MoveValidator.is_move_legal?(self, move)
     end
   end
 end
