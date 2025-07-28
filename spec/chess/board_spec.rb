@@ -246,4 +246,14 @@ describe Chess::Board do
       end
     end
   end
+
+  describe '#valid_move?' do
+    let(:knight_start) { Chess::Position.from_algebraic('d5') }
+    let(:knight_destination) { Chess::Position.from_algebraic('c3') }
+    let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
+    it 'delegates to MoveValidator' do
+      expect(Chess::MoveValidator).to receive(:is_move_legal?).with(start_board, move)
+      start_board.valid_move?(move)
+    end
+  end
 end
