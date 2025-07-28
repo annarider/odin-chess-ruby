@@ -9,33 +9,17 @@ describe Chess::Board do
 
   describe '#possible_moves' do
     context 'when white knight from b1 moves from starting game positions' do
-      let(:white_knigiht) { Chess::Position.from_algebraic('b1') }
-      let(:destination) { Chess::Position.from_algebraic('c3') }
-
-      it 'returns an array with 3 moves' do
-        expect(start_board.possible_moves(white_knigiht).length).to eq(3)
-      end
-
-      it 'returns the destination move of c3' do
-        expect(start_board.possible_moves(white_knigiht)).to include(destination)
-      end
-
-      it 'returns the alternative destination of a3' do
-        alt_destination = Chess::Position.from_algebraic('a3')
-        expect(start_board.possible_moves(white_knigiht)).to include(alt_destination)
+      it 'returns an array with 3 expected destinations' do
+        start_pos = Chess::Position.from_algebraic('b1')
+        expected_destinations = %w[c3 a3 d2].map { Chess::Position.from_algebraic(it) }
+        expect(start_board.possible_moves(start_pos)).to contain_exactly(*expected_destinations)
       end
     end
-
     context 'when black knight from g8 moves from starting game positions' do
-      let(:black_knight) { Chess::Position.from_algebraic('g8') }
-
-      it 'returns an array with 3 moves' do
-        expect(start_board.possible_moves(black_knight).length).to eq(3)
-      end
-
-      it 'returns the destination move of f6' do
-        destination = Chess::Position.from_algebraic('f6')
-        expect(start_board.possible_moves(black_knight)).to include(destination)
+      it 'returns an array with 3 expected destinations' do  
+      start_pos = Chess::Position.from_algebraic('g8')
+        expected_destinations = %w[f6 h6 e7].map { Chess::Position.from_algebraic(it) }
+        expect(start_board.possible_moves(start_pos)).to contain_exactly(*expected_destinations)
       end
     end
 
