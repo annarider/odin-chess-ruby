@@ -12,7 +12,10 @@ describe Chess::MoveHistory do
       let(:knight_start) { Chess::Position.from_algebraic('b1') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
       let(:fen) { 'rnbqkbnr/pppppppp/8/8/8/2N5/PPPPPPPP/R1BQKBNR b KQkq - 1 1' }
-      let(:knight_move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N', fen: fen) }
+      let(:knight_move) do
+        Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N', fen: fen)
+      end
+
       it 'increases the move count by 1' do
         expect { history_from_start.add_move(knight_move) }.to change(history_from_start, :count_moves).by(1)
       end
@@ -24,7 +27,41 @@ describe Chess::MoveHistory do
       end
     end
   end
+
   describe 'threefold_repetition?' do
-    context 'when '
+    context 'when no position repeats three times' do
+      it 'returns false for normal game progression' do
+        normal_game_fens = [
+          'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+          'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1',
+          'rnbqkbnr/pp1ppppp/8/2p5/4P3/8/PPPP1PPP/RNBQKBNR w KQkq c6 0 2',
+          'rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2',
+          'r1bqkbnr/pp1ppppp/2n5/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3',
+          'r1bqkbnr/pp1ppppp/2n5/2p5/3PP3/5N2/PPP2PPP/RNBQKB1R b KQkq d3 0 3'
+        ]
+        normal_game_fens.each { |fen| history_from_start.add_to_position(fen) }
+        result = history_from_start.threefold_repetition?
+        expect(result).to be false
+      end
+    end
+    context 'when Polgar vs. Kasparov, 2002 led to perpetual check draw' do
+      it 'returns true for threefold repetition' do
+        threefold_game_fens = [
+          '2r3k1/5pp1/3p3p/3Pp3/1p2P1P1/1P2BP2/5P1P/4R1K1 w - - 0 30',
+          '2r3k1/5pp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 b - - 1 30',
+          '2r5/4kpp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 w - - 2 31',
+          '2r5/4kpp1/3p3p/3Pp2Q/1p2P1P1/1P2BP2/5P1P/4R1K1 b - - 3 31',
+          '2r3k1/5pp1/3p3p/3Pp2Q/1p2P1P1/1P2BP2/5P1P/4R1K1 w - - 4 32',
+          '2r3k1/5pp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 b - - 5 32',
+          '2r5/4kpp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 w - - 6 33',
+          '2r5/4kpp1/3p3p/3Pp2Q/1p2P1P1/1P2BP2/5P1P/4R1K1 b - - 7 33',
+          '2r3k1/5pp1/3p3p/3Pp2Q/1p2P1P1/1P2BP2/5P1P/4R1K1 w - - 8 34',
+          '2r3k1/5pp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 b - - 9 34',
+          '2r5/4kpp1/3p3p/3Pp3/1p2P1P1/1P2BP2/4QP1P/4R1K1 w - - 10 35',
+          '2r5/4kpp1/3p3p/3Pp2Q/1p2P1P1/1P2BP2/5P1P/4R1K1 b - - 11 35'
+        ]
+        threefold_game_fens.each {}
+      end
+    end
   end
 end
