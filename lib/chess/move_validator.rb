@@ -12,7 +12,6 @@ module Chess
   # specialty validations, such as
   # check.
   class MoveValidator
-    include MoveCalculator
     attr_reader :board, :move
 
     def self.is_move_legal?(...)
@@ -35,7 +34,7 @@ module Chess
     private
 
     def possible_move?
-      all_moves = generate_possible_moves(move.from_position, move.piece)
+      all_moves = MoveCalculator.generate_possible_moves(move.from_position, move.piece)
       all_moves.include?(move.to_position)
     end
 

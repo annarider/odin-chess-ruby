@@ -15,7 +15,6 @@ module Chess
   class Board
     include FromFEN
     include ToFEN
-    include MoveCalculator
     extend FromFEN
     extend ToFEN
     extend ChessNotation

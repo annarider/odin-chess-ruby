@@ -11,29 +11,41 @@ module Chess
   # of specialty validation modules.
   #
   # It does NOT make the moves.
-  module MoveCalculator
+  class MoveCalculator
     include Directions
-    def generate_possible_moves(position, piece)
+    attr_reader :position, :piece
+
+    def self.generate_possible_moves(...)
+      new(...).generate_possible_moves
+    end
+
+    def initialize(position, piece)
+      @position = position
+      @piece = piece
+    end
+
+    def generate_possible_moves
       # move direction of pawn depends on color
-      return pawn_moves(position, piece) if %w[p P].include?(piece)
+      return pawn_moves if %w[p P].include?(piece)
+      return [] if piece.nil?
 
       case piece.downcase
       when 'k'
-        king_moves(position)
+        king_moves
       when 'q'
-        queen_moves(position)
+        queen_moves
       when 'b'
-        bishop_moves(position)
+        bishop_moves
       when 'n'
-        knight_moves(position)
+        knight_moves
       when 'r'
-        rook_moves(position)
+        rook_moves
       else
         []
       end.compact
     end
 
-    def calculate_moves(position, directional_vectors, max_distance = 7)
+    def calculate_moves(directional_vectors, max_distance = 7)
       moves = []
       directional_vectors.each do |vector|
         (1..max_distance).each do |distance|
@@ -48,33 +60,33 @@ module Chess
 
     private
 
-    def knight_moves(position)
+    def knight_moves
       KNIGHT.map do |vector|
         position + Position.from_directional_vector(vector)
       end.compact
     end
 
-    def rook_moves(position)
-      calculate_moves(position, Directions::ROOK)
+    def rook_moves
+      calculate_moves(Directions::ROOK)
     end
 
-    def bishop_moves(position)
-      calculate_moves(position, Directions::BISHOP)
+    def bishop_moves
+      calculate_moves(Directions::BISHOP)
     end
 
-    def queen_moves(position)
+    def queen_moves
       vectors = Directions::ROOK + Directions::BISHOP
-      calculate_moves(position, vectors)
+      calculate_moves(vectors)
     end
 
-    def king_moves(position)
+    def king_moves
       vectors = Directions::ROOK + Directions::BISHOP
-      calculate_moves(position, vectors, 1)
+      calculate_moves(vectors, 1)
     end
 
-    def pawn_moves(position, piece)
+    def pawn_moves
       vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
-      calculate_moves(position, vectors, 1)
+      calculate_moves(vectors, 1)
     end
   end
 end
