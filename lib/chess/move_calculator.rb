@@ -27,6 +27,7 @@ module Chess
     def generate_possible_moves
       # move direction of pawn depends on color
       return pawn_moves if %w[p P].include?(piece)
+      # empty square
       return [] if piece.nil?
 
       case piece.downcase
@@ -42,7 +43,7 @@ module Chess
         rook_moves
       else
         []
-      end.compact
+      end.compact # compact handles out of bounds positions 
     end
 
     def calculate_moves(directional_vectors, max_distance = 7)
@@ -52,7 +53,6 @@ module Chess
           row_delta = vector.first * distance
           column_delta = vector.last * distance
           delta_position = Position.from_coordinates(row_delta, column_delta)
-          p position
           moves << (position + delta_position)
         end
       end
