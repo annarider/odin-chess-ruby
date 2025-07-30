@@ -6,6 +6,7 @@ require_relative '../../lib/chess'
 
 describe Chess::Display do
   subject(:display) { described_class.new(starting_board_double) }
+
   let(:starting_board_double) { instance_double(Chess::Board) }
 
   describe '#map_piece_symbol' do

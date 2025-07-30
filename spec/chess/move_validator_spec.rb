@@ -6,6 +6,7 @@ require_relative '../../lib/chess'
 
 describe Chess::MoveValidator do
   subject(:validator) { described_class.new }
+
   let(:board) { Chess::Board.new }
 
   describe '.is_move_legal?' do
@@ -13,6 +14,7 @@ describe Chess::MoveValidator do
       let(:knight_start) { Chess::Position.from_algebraic('d5') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
       let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
+
       before do
         board.place_piece(knight_start, 'N')
       end

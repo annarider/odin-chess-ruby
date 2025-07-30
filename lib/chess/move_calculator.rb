@@ -43,7 +43,7 @@ module Chess
         rook_moves
       else
         []
-      end.compact # compact handles out of bounds positions 
+      end.compact # compact handles out of bounds positions
     end
 
     def calculate_moves(directional_vectors, max_distance = 7)

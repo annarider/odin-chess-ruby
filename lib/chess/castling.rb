@@ -2,7 +2,7 @@
 
 module Chess
   # Check rules for castling rights.
-  # This module contains methods to
+  # This class contains methods to
   # ensure castling moves are allowed.
   module Castling
     def can_castle?(board, move)
