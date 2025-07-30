@@ -87,7 +87,7 @@ describe Chess::MoveHistory do
   end
 
   describe '#has_moved?' do
-    context 'when the game starts and no piece has moved' do
+    context 'when the game starts and no moves have been recorded' do
       let(:start_board) { Chess::Board.initial_start(add_pieces: true) }
       it 'returns false for white pawn' do
         start_pos = Chess::Position.from_algebraic('d2')
@@ -98,15 +98,73 @@ describe Chess::MoveHistory do
         expect(history_from_start.has_moved?(start_pos)).to be false
       end
     end
-    context 'when a white pawn has moved and no other pieces have moved' do
-      let(:mid_game_board) { Chess::Board.initial_start(add_pieces: true) }
+    context 'when moves have been recorded' do
+      let(:pawn_start) { Chess::Position.from_algebraic('e2') }
+      let(:pawn_destination) { Chess::Position.from_algebraic('e4') }
+      let(:pawn_move) do
+        Chess::Move.new(
+          from_position: pawn_start,
+          to_position: pawn_destination,
+          piece: 'P',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+        )
+      end
+      let(:knight_start) { Chess::Position.from_algebraic('g1') }
+      let(:knight_destination) { Chess::Position.from_algebraic('f3') }
+      let(:knight_move) do
+        Chess::Move.new(
+          from_position: knight_start,
+          to_position: knight_destination,
+          piece: 'N',
+          fen: 'rnbqkbnr/pppppppp/8/8/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 1'
+        )
+      end
       before do 
-        
+        history_from_start.add_move(pawn_move)
+        history_from_start.add_move(knight_move)
       end
-      it 'returns true for the white pawn' do
-        start_pos = Chess::Position.from_algebraic('d2')
+      it 'returns true for pawn that moved' do
+        expect(history_from_start.has_moved?(pawn_start)).to be true
+      end
+      it 'returns true for the knight that moved' do
+        expect(history_from_start.has_moved?(knight_start)).to be true
+      end
+      it 'returns false for a position that has not moved' do
+        unmoved_position = Chess::Position.from_algebraic('e1')
+        expect(history_from_start.has_moved?(unmoved_position)).to be false
+      end
+     end
+     context 'when the same rook has moved and moves back to its initial position' do
+       let(:rook_origin) { Chess::Position.from_algebraic('a8') }
+       let(:rook_moved_pos) { Chess::Position.from_algebraic('a7') }
 
-      end
-    end
+       let(:first_rook_move) do
+         Chess::Move.new(
+          from_position: rook_origin,
+          to_position: rook_moved_pos,
+          piece: 'r',
+          fen: '1rbqkbnr/rppppppp/p1n5/8/8/8/PPPPPPPP/RNBQKBNR w KQq - 1 4'
+         )
+
+        let(:second_rook_move) do
+          Chess::Move.new(
+            from_position: rook_moved_pos,
+            to_position: rook_origin,
+            piece: 'r',
+            fen: 'r1bqkbnr/1ppppppp/p1n5/8/8/8/PPPPPPPP/RNBQKBNR b KQq - 2 4'
+          )
+        end
+        before do
+          history_from_start.add_move(first_rook_move)
+          history_from_start.add_move(second_rook_move)
+        end
+        it 'returns true for the original starting position even after returning' do
+          expect(history_from_start.has_moved?(rook_origin)).to be true
+        end
+        it 'returns true for the intermediate position the rook moved to' do
+          expect(history_from_start.has_moved?(rook_moved_pos)).to be true
+        end
+       end
+     end
   end
 end
