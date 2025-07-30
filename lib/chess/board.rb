@@ -80,6 +80,13 @@ module Chess
       grid[position.row][position.column]
     end
 
+    # command to update grid state when piece moves
+    def update_position(start_pos, end_pos)
+      piece = piece_at(start_pos)
+      place_piece(end_pos, piece)
+      erase_origin_position(start_pos)
+    end
+
     def place_piece(position, piece)
       @grid[position.row][position.column] = piece
     end
@@ -97,14 +104,20 @@ module Chess
       :success
     end
 
+    def valid_move?(move)
+      MoveValidator.is_move_legal?(self, move)
+    end
+
+    private
+
     def possible_moves(position)
       return [] if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
     end
 
-    def valid_move?(move)
-      MoveValidator.is_move_legal?(self, move)
+    def erase_origin_position(start_pos)
+      @grid[start_pos.row][start_pos.column] = nil
     end
   end
 end

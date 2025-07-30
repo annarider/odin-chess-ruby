@@ -32,6 +32,10 @@ module Chess
       @past_positions << hash_position(position) if position
     end
 
+    def has_moved?(starting_position)
+      move_history.any? { |move| move.from_position == starting_position }
+    end
+
     private
 
     def hash_position(partial_fen_string)

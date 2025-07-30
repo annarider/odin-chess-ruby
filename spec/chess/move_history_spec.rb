@@ -28,7 +28,7 @@ describe Chess::MoveHistory do
     end
   end
 
-  describe 'threefold_repetition?' do
+  describe '#threefold_repetition?' do
     context 'when no position repeats three times' do
       it 'returns false for normal game progression' do
         normal_game_fens = [
@@ -82,6 +82,30 @@ describe Chess::MoveHistory do
         ]
         fens_knight_repetition.each { |fen| history_from_start.add_to_position(fen) }
         expect(history_from_start.threefold_repetition?).to be true
+      end
+    end
+  end
+
+  describe '#has_moved?' do
+    context 'when the game starts and no piece has moved' do
+      let(:start_board) { Chess::Board.initial_start(add_pieces: true) }
+      it 'returns false for white pawn' do
+        start_pos = Chess::Position.from_algebraic('d2')
+        expect(history_from_start.has_moved?(start_pos)).to be false
+      end
+      it 'returns false for black king' do
+        start_pos = Chess::Position.from_algebraic('e8')
+        expect(history_from_start.has_moved?(start_pos)).to be false
+      end
+    end
+    context 'when a white pawn has moved and no other pieces have moved' do
+      let(:mid_game_board) { Chess::Board.initial_start(add_pieces: true) }
+      before do 
+        
+      end
+      it 'returns true for the white pawn' do
+        start_pos = Chess::Position.from_algebraic('d2')
+
       end
     end
   end

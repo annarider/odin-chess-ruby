@@ -247,6 +247,31 @@ describe Chess::Board do
     end
   end
 
+  describe '#update_position' do
+    context 'when moving a white pawn to an empty square' do
+      let(:start_pos) { Chess::Position.from_algebraic('d2') }
+      let(:end_pos) { Chess::Position.from_algebraic('d3') }
+      it 'places the piece at the destination' do
+        original_piece = start_board.piece_at(start_pos)
+        start_board.update_position(start_pos, end_pos)
+        expect(start_board.piece_at(end_pos)).to eq(original_piece)
+      end
+      it 'removes the piece from the origin position' do
+        start_board.update_position(start_pos, end_pos)
+        expect(start_board.piece_at(start_pos)).to be_nil
+      end
+    end
+    context 'when capturing an opponent piece' do
+      let(:attacker_pos) { Chess::Position.new(1, 0) }
+      let(:target_pos) { Chess::Position.new(6, 0) }
+      it 'replaces the target piece with the attacking piece' do
+        attacking_piece = start_board.piece_at(attacker_pos)
+        start_board.update_position(attacker_pos, target_pos)
+        expect(start_board.piece_at(target_pos)).to eq(attacking_piece)
+      end
+    end
+  end
+
   describe '#valid_move?' do
     let(:knight_start) { Chess::Position.from_algebraic('d5') }
     let(:knight_destination) { Chess::Position.from_algebraic('c3') }
