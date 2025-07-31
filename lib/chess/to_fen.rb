@@ -4,17 +4,27 @@ module Chess
   # Helper methods to convert current
   # game state to Forsyth–Edwards
   # Notation in Chess game
-  module ToFEN
+  class ToFEN
+    attr_reader :fen_data
+
+    def self.create_fen(...)
+      new(...).create_fen
+    end
+
+    def initialize(fen_data)
+      @fen_data = fen_data
+    end
+
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-    def create_fen(board)
+    def create_fen
       fen_string = ''
-      fen_string += "#{build_piece_placement(board.grid)} "
-      fen_string += "#{board.active_color} "
-      fen_string += "#{build_castling_rights(board)} "
-      fen_string += "#{build_en_passant(board.en_passant_square)} "
-      fen_string += "#{board.half_move_clock} "
-      fen_string + board.full_move_number.to_s
+      fen_string += "#{build_piece_placement(fen_data.grid)} "
+      fen_string += "#{fen_data.active_color} "
+      fen_string += "#{build_castling_rights(fen_data.castling_rights)} "
+      fen_string += "#{build_en_passant(fen_data.en_passant_square)} "
+      fen_string += "#{fen_data.half_move_clock} "
+      fen_string + fen_data.full_move_number.to_s
     end
 
     private
@@ -41,12 +51,12 @@ module Chess
       end
     end
 
-    def build_castling_rights(board)
+    def build_castling_rights(castling_rights)
       rights = ''
-      rights += 'K' if board.white_castle_kingside
-      rights += 'Q' if board.white_castle_queenside
-      rights += 'k' if board.black_castle_kingside
-      rights += 'q' if board.black_castle_queenside
+      rights += 'K' if castling_rights[:white_castle_kingside]
+      rights += 'Q' if castling_rights[:white_castle_queenside]
+      rights += 'k' if castling_rights[:black_castle_kingside]
+      rights += 'q' if castling_rights[:black_castle_queenside]
       rights.empty? ? '-' : rights
     end
 
