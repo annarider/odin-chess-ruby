@@ -7,7 +7,7 @@ require_relative '../../lib/chess'
 describe Chess::MoveCalculator do
   subject(:calculator) { described_class.generate_possible_moves }
 
-  let(:start_board) { Chess::Board.initial_start(add_pieces: true) }
+  let(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
   describe '#generate_possible_moves' do
     context 'when white knight from b1 moves from starting game positions' do

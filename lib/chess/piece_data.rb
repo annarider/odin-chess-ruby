@@ -14,7 +14,7 @@ module Chess
       'N' => '♘', 'n' => '♞',
       'P' => '♙', 'p' => '♟'
     }.freeze
-    INITIAL_POSITIONS = {
+    START_POSITIONS = {
       [0, 0] => 'r',
       [0, 1] => 'n',
       [0, 2] => 'b',

@@ -56,10 +56,10 @@ describe Chess::MoveValidator do
     end
 
     context 'when starting a new game' do
-      subject(:start_board) { Chess::Board.initial_start(add_pieces: true) }
+      subject(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
       it 'returns false when white bishop path is blocked' do
-        starting_board = Chess::Board.initial_start(add_pieces: true)
+        starting_board = Chess::Board.start_positions(add_pieces: true)
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')

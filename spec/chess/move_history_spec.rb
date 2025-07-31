@@ -90,7 +90,7 @@ describe Chess::MoveHistory do
 
   describe '#has_moved?' do
     context 'when the game starts and no moves have been recorded' do
-      let(:start_board) { Chess::Board.initial_start(add_pieces: true) }
+      let(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
       it 'returns false for white pawn' do
         start_pos = Chess::Position.from_algebraic('d2')
