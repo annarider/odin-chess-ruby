@@ -64,6 +64,14 @@ module Chess
       grid.map { |rank| rank.map { |file| file.nil? ? '' : file.to_s } }
     end
 
+    def to_fen
+      {
+        grid: grid,
+        castling_rights: castling_rights,
+        en_passant_square: en_passant_square
+      }
+    end
+
     def piece_at(position)
       grid[position.row][position.column]
     end
