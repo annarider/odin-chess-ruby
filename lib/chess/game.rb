@@ -17,7 +17,7 @@ class Game
                   :full_move_number
 
   def initialize(active_color: ChessNotation::WHITE_PLAYER, 
-                  board: Board.initial_start,
+                  board: Board.start_positions,
                    half_move_clock: 0,
                    full_move_number: 1)
                    @active_color = active_color
@@ -26,6 +26,9 @@ class Game
 @full_move_number = full_move_number
   end
 
+    def to_fen
+      create_fen(self)
+    end
   def start
   end
 

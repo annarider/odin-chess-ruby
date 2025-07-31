@@ -5,7 +5,7 @@ require_relative '../../lib/chess'
 # Tests for the Chess Board class
 
 describe Chess::Board do
-  subject(:start_board) { described_class.initial_start }
+  subject(:start_board) { described_class.start_positions }
 
   let(:first_rank) { 7 }
   let(:second_rank) { 6 }
@@ -17,11 +17,11 @@ describe Chess::Board do
   let(:h_file) { 7 }
   let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
 
-  describe '.initial_start' do
+  describe '.start_positions' do
     context 'when the board is created' do
       it 'adds white pawns to the second rank (row)' do
-        initial_position = Chess::Position.from_algebraic('a2')
-        expect(start_board.piece_at(initial_position)).to eq('P')
+        start_pos = Chess::Position.from_algebraic('a2')
+        expect(start_board.piece_at(start_pos)).to eq('P')
       end
 
       it 'adds white rooks' do
@@ -32,23 +32,23 @@ describe Chess::Board do
       end
 
       it 'adds white king' do
-        initial_position = Chess::Position.from_coordinates(first_rank, e_file)
-        expect(start_board.piece_at(initial_position)).to eq('K')
+        start_pos = Chess::Position.from_coordinates(first_rank, e_file)
+        expect(start_board.piece_at(start_pos)).to eq('K')
       end
 
       it 'adds black pawns to the 7th rank (row)' do
-        initial_position = Chess::Position.from_algebraic('a7')
-        expect(start_board.piece_at(initial_position)).to eq('p')
+        start_pos = Chess::Position.from_algebraic('a7')
+        expect(start_board.piece_at(start_pos)).to eq('p')
       end
 
       it 'adds black king' do
-        initial_position = Chess::Position.from_coordinates(eighth_rank, e_file)
-        expect(start_board.piece_at(initial_position)).to eq('k')
+        start_pos = Chess::Position.from_coordinates(eighth_rank, e_file)
+        expect(start_board.piece_at(start_pos)).to eq('k')
       end
 
       it 'adds a black bishop' do
-        initial_position = Chess::Position.from_coordinates(eighth_rank, c_file)
-        expect(start_board.piece_at(initial_position)).to eq('b')
+        start_pos = Chess::Position.from_coordinates(eighth_rank, c_file)
+        expect(start_board.piece_at(start_pos)).to eq('b')
       end
 
       it 'returns white as the active player color' do

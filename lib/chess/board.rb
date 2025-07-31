@@ -13,44 +13,27 @@ module Chess
   # board = Board.new
   #
   class Board
-    include FromFEN
     include ToFEN
-    extend FromFEN
     extend ToFEN
     extend ChessNotation
-    attr_accessor :grid, :active_color, :white_castle_kingside,
-                  :white_castle_queenside, :black_castle_kingside,
-                  :black_castle_queenside, :en_passant_square, :half_move_clock,
-                  :full_move_number
+    attr_accessor :grid, :castling_rights, :en_passant_square
 
     def initialize(grid: self.class.empty_grid,
-                   active_color: ChessNotation::WHITE_PLAYER,
-                   white_castle_kingside: ChessNotation::WHITE_CASTLE_KINGSIDE,
-                   white_castle_queenside: ChessNotation::WHITE_CASTLE_QUEENSIDE,
-                   black_castle_kingside: ChessNotation::BLACK_CASTLE_KINGSIDE,
-                   black_castle_queenside: ChessNotation::BLACK_CASTLE_QUEENSIDE,
-                   en_passant_square: nil,
-                   half_move_clock: 0,
-                   full_move_number: 1)
+                   castling_rights: self.class.default_castling_rights,
+                   en_passant_square: nil)
       @grid = grid
-      @active_color = active_color
-      @white_castle_kingside = white_castle_kingside
-      @white_castle_queenside = white_castle_queenside
-      @black_castle_kingside = black_castle_kingside
-      @black_castle_queenside = black_castle_queenside
+      @castling_rights = castling_rights
       @en_passant_square = en_passant_square
-      @half_move_clock = half_move_clock
-      @full_move_number = full_move_number
     end
 
     class << self
-      def initial_start(add_pieces: true)
+      def start_positions(add_pieces: true)
         setup_starting_grid = add_pieces ? setup_pieces(empty_grid) : empty_grid
         new(grid: setup_starting_grid)
       end
 
       def from_fen(fen_string)
-        parsed_data = parse_fen(fen_string)
+        parsed_data = FromFEN.to_piece_placement(fen_string)
         new(**parsed_data)
       end
 
@@ -58,10 +41,19 @@ module Chess
         Array.new(Config::GRID_LENGTH) { Array.new(Config::GRID_LENGTH) }
       end
 
+      def default_castling_rights
+        {
+          white_castle_kingside: true,
+          white_castle_queenside: true,
+          black_castle_kingside: true,
+          black_castle_queenside: true
+        }
+      end
+
       private
 
       def setup_pieces(grid)
-        Piece::INITIAL_POSITIONS.each do |(rank, file), piece|
+        Piece::START_POSITIONS.each do |(rank, file), piece|
           grid[rank][file] = piece
         end
         grid
@@ -70,10 +62,6 @@ module Chess
 
     def to_display
       grid.map { |rank| rank.map { |file| file.nil? ? '' : file.to_s } }
-    end
-
-    def to_fen
-      create_fen(self)
     end
 
     def piece_at(position)
