@@ -4,7 +4,6 @@ require 'digest/md5'
 
 module Chess
   class MoveHistory
-    include FromFEN
     attr_accessor :move_history, :past_positions
 
     def initialize(move_history = [], past_positions = [])
@@ -51,7 +50,7 @@ module Chess
     end
 
     def fen_position(fen_string)
-      parse_fen_for_positions(fen_string)
+      FromFEN.to_piece_placement(fen_string)
     end
   end
 end

@@ -4,21 +4,35 @@ module Chess
   # Helper methods to convert
   # Forsyth–Edwards Notation
   # into a Chess game
-  module FromFEN
-    # starting position FEN:
-    # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
-    def parse_fen(fen_string)
-      split_fen_string(fen_string)
+  class FromFEN
+    attr_reader :fen_string
+
+    def self.parse_fen(...)
+      new(...).parse_fen
     end
 
-    def parse_fen_for_positions(fen_string)
-      first_four_fen_fields(fen_string)
+    def self.to_piece_placement(...)
+      new(...).parse_fen_for_piece_placement
+    end
+
+    def initialize(fen_string)
+      @fen_string = fen_string
+    end
+
+    # starting position FEN:
+    # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+    def parse_fen
+      split_fen_string
+    end
+
+    def parse_fen_for_piece_placement
+      first_four_fen_fields
     end
 
     private
 
     # parse fen string helper methods
-    def split_fen_string(fen_string)
+    def split_fen_string
       fen_fields = fen_string.split
       return nil unless fen_fields.length == 6
 
@@ -27,10 +41,7 @@ module Chess
       {
         grid: parse_piece_placement(fen_fields[0]),
         active_color: fen_fields[1],
-        white_castle_kingside: can_castle?(castling_rights, ChessNotation::WHITE_CASTLE_KINGSIDE),
-        white_castle_queenside: can_castle?(castling_rights, ChessNotation::WHITE_CASTLE_QUEENSIDE),
-        black_castle_kingside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_KINGSIDE),
-        black_castle_queenside: can_castle?(castling_rights, ChessNotation::BLACK_CASTLE_QUEENSIDE),
+        castling_rights_hash: build_castling_rights(castling_rights),
         en_passant_square: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
         full_move_number: fen_fields[5].to_i
@@ -54,6 +65,15 @@ module Chess
       end
     end
 
+    def build_castling_rights(castling_string)
+      {
+        white_castle_kingside: can_castle?(castling_string, ChessNotation::WHITE_CASTLE_KINGSIDE),
+        white_castle_queenside: can_castle?(castling_string, ChessNotation::WHITE_CASTLE_QUEENSIDE),
+        black_castle_kingside: can_castle?(castling_string, ChessNotation::BLACK_CASTLE_KINGSIDE),
+        black_castle_queenside: can_castle?(castling_string, ChessNotation::BLACK_CASTLE_QUEENSIDE)
+      }
+    end
+
     def can_castle?(castling_symbol, castle_type)
       castling_symbol.include?(castle_type)
     end
@@ -64,10 +84,10 @@ module Chess
       Position.from_algebraic(field)
     end
 
-    def first_four_fen_fields(fen_string)
-      fields = fen_string.split
-      fields.pop(2)
-      fields.join(' ')
+    # return only first 4 fields for Board
+    def first_four_fen_fields
+      fields = split_fen_string
+      fields.delete_if { |key, _v| key.to_s.include?('move') }
     end
   end
 end
