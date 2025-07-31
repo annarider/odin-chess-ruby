@@ -25,8 +25,13 @@ module Chess
       split_fen_string
     end
 
+    # return only first 4 fields for Board
     def parse_fen_for_piece_placement
-      first_four_fen_fields
+      fields = split_fen_string
+      fields.delete_if do
+        |key, _v| key.to_s.include?('move') ||
+          key.to_s.include?('active')
+      end
     end
 
     private
@@ -82,12 +87,6 @@ module Chess
       return nil if field == '-'
 
       Position.from_algebraic(field)
-    end
-
-    # return only first 4 fields for Board
-    def first_four_fen_fields
-      fields = split_fen_string
-      fields.delete_if { |key, _v| key.to_s.include?('move') }
     end
   end
 end
