@@ -13,8 +13,9 @@ require_relative '../chess'
 # game = Game.new
 #
 class Game
-  attr_accessor :active_color, :board, :half_move_clock,
+  attr_accessor :active_color, :half_move_clock,
                   :full_move_number
+  attr_reader :board              
 
   def initialize(active_color: ChessNotation::WHITE_PLAYER, 
                   board: Board.start_positions,
@@ -26,8 +27,13 @@ class Game
 @full_move_number = full_move_number
   end
 
+  def self.from_fen
+    parsed_data = FromFEN.parse_fen
+    new()
+  end
+
     def to_fen
-      create_fen(self)
+      ToFEN.create_fen
     end
   def start
   end
@@ -57,6 +63,18 @@ class Game
   end
 
   private
+
+  def create_fen_data
+    {
+      active_color: active_color,
+      half_move_clock: half_move_clock,
+      full_move_number: full_move_number
+    }.merge(board_fen_data)
+  end
+
+  def board_fen_data
+    board.to_fen
+  end
 
   def create_players(players_data)
  
