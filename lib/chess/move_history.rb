@@ -16,6 +16,7 @@ module Chess
       add_to_position(move.fen)
     end
 
+    # for 50 move rule
     def count_moves
       move_history.count
     end
@@ -26,6 +27,8 @@ module Chess
       false
     end
 
+    # hash position for threefold repetition rule,
+    # which omits move clocks from consideration
     def add_to_position(fen_string)
       position = fen_position(fen_string)
       @past_positions << hash_position(position) if position
@@ -37,8 +40,9 @@ module Chess
 
     private
 
+    # hash isn't strictly necessary as the FEN string is sufficient
     def hash_position(partial_fen_string)
-      Digest::MD5.hexdigest(partial_fen_string)
+      Digest::MD5.hexdigest(partial_fen_string.to_s)
     end
 
     def count_duplicate_positions
