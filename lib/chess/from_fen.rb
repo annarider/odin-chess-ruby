@@ -28,8 +28,8 @@ module Chess
     # return only first 4 fields for Board
     def parse_fen_for_piece_placement
       fields = split_fen_string
-      fields.delete_if do
-        |key, _v| key.to_s.include?('move') ||
+      fields.delete_if do |key, _v|
+        key.to_s.include?('move') ||
           key.to_s.include?('active')
       end
     end
