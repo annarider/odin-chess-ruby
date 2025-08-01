@@ -15,7 +15,6 @@ describe Chess::Board do
   let(:c_file) { 2 }
   let(:e_file) { 4 }
   let(:h_file) { 7 }
-  let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
 
   describe '.start_positions' do
     context 'when the board is created' do
@@ -50,16 +49,6 @@ describe Chess::Board do
         start_pos = Chess::Position.from_coordinates(eighth_rank, c_file)
         expect(start_board.piece_at(start_pos)).to eq('b')
       end
-
-      it 'returns white as the active player color' do
-        current_player = start_board.active_color
-        expect(current_player).to eq('w')
-      end
-
-      it 'returns starting position fen string' do
-        result = start_board.to_fen
-        expect(result).to eq(starting_fen)
-      end
     end
   end
 
@@ -79,28 +68,12 @@ describe Chess::Board do
         expect(starting_board.piece_at(black_king_pos)).to eq('k')
       end
 
-      it 'returns white move' do
-        result = starting_board.active_color
-        expect(result).to eq('w')
-      end
-
       it 'returns all pieces have castling rights' do
-        expect(starting_board.white_castle_kingside).to be true
-        expect(starting_board.white_castle_queenside).to be true
-        expect(starting_board.black_castle_kingside).to be true
-        expect(starting_board.black_castle_queenside).to be true
+        expect(starting_board.castling_rights.values).to all(be true)
       end
 
       it 'returns nil for en passant square' do
         expect(starting_board.en_passant_square).to be_nil
-      end
-
-      it 'returns 0 for half move clock' do
-        expect(starting_board.half_move_clock).to eq(0)
-      end
-
-      it 'returns 1 for full move number' do
-        expect(starting_board.full_move_number).to eq(1)
       end
     end
 
@@ -114,62 +87,32 @@ describe Chess::Board do
         expect(mid_game_board.piece_at(white_pawn_pos)).to eq('P')
       end
 
-      it 'returns active player color is black' do
-        expect(mid_game_board.active_color).to eq('b')
-      end
-
       it 'returns true for all 4 castling rights' do
-        expect(mid_game_board.white_castle_kingside).to be true
-        expect(mid_game_board.white_castle_queenside).to be true
-        expect(mid_game_board.black_castle_kingside).to be true
-        expect(mid_game_board.black_castle_queenside).to be true
+        expect(mid_game_board.castling_rights.values).to all(be true)
       end
 
       it 'returns e3 for en passant square' do
         en_passant_pos = Chess::Position.from_algebraic('e3')
         expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
       end
-
-      it 'returns 0 for half move clock' do
-        expect(mid_game_board.half_move_clock).to eq(0)
-      end
-
-      it 'returns 1 for full move number' do
-        expect(mid_game_board.full_move_number).to eq(1)
-      end
     end
 
-    context 'when writing an end game to fen' do
-      subject(:game_over_board) { described_class.from_fen(end_game_fen) }
+    context 'when loading an end game from fen' do
+      subject(:end_game_board) { described_class.from_fen(end_game_fen) }
 
       let(:end_game_fen) { '3B4/K7/2k1b1p1/1p2Pp1p/3P3P/2P3P1/8/8 w - - 0 74' }
 
       it 'returns a white king at a7' do
         white_king_pos = Chess::Position.from_algebraic('a7')
-        expect(game_over_board.piece_at(white_king_pos)).to eq('K')
-      end
-
-      it 'returns active player color is white' do
-        expect(game_over_board.active_color).to eq('w')
+        expect(end_game_board.piece_at(white_king_pos)).to eq('K')
       end
 
       it 'returns false for all 4 castling rights' do
-        expect(game_over_board.white_castle_kingside).to be false
-        expect(game_over_board.white_castle_queenside).to be false
-        expect(game_over_board.black_castle_kingside).to be false
-        expect(game_over_board.black_castle_queenside).to be false
+        expect(end_game_board.castling_rights.values).to all(be false)
       end
 
       it 'returns nil for en passant square' do
-        expect(game_over_board.en_passant_square).to be_nil
-      end
-
-      it 'returns 0 for half move clock' do
-        expect(game_over_board.half_move_clock).to eq(0)
-      end
-
-      it 'returns 74 for full move number' do
-        expect(game_over_board.full_move_number).to eq(74)
+        expect(end_game_board.en_passant_square).to be_nil
       end
     end
   end

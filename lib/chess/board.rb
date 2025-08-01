@@ -13,8 +13,6 @@ module Chess
   # board = Board.new
   #
   class Board
-    include ToFEN
-    extend ToFEN
     extend ChessNotation
     attr_accessor :grid, :castling_rights, :en_passant_square
 
