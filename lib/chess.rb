@@ -14,6 +14,7 @@ require_relative 'chess/board'
 require_relative 'chess/position'
 require_relative 'chess/move'
 require_relative 'chess/move_history'
+require_relative 'chess/game'
 
 # top-level namespace for organization
 # and contain the library files for

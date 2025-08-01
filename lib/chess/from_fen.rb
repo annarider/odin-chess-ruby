@@ -15,6 +15,10 @@ module Chess
       new(...).parse_fen_for_piece_placement
     end
 
+    def self.to_game_data(...)
+      new(...).parse_fen_for_game_data
+    end
+
     def initialize(fen_string)
       @fen_string = fen_string
     end
@@ -22,25 +26,30 @@ module Chess
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
     def parse_fen
-      split_fen_string
+      fen_fields = fen_string.split
+      return nil unless fen_fields.length == 6
+
+      split_fen_string(fen_fields)
     end
 
-    # return only first 4 fields for Board
+    # return only first 4 fields for Board.new
     def parse_fen_for_piece_placement
-      fields = split_fen_string
+      fields = parse_fen
       fields.delete_if do |key, _v|
         key.to_s.include?('move') ||
           key.to_s.include?('active')
       end
     end
 
+    def parse_fen_for_game_data
+      fields = parse_fen
+      fields.slice(:active_color, :half_move_clock, :full_move_number)
+    end
+
     private
 
     # parse fen string helper methods
-    def split_fen_string
-      fen_fields = fen_string.split
-      return nil unless fen_fields.length == 6
-
+    def split_fen_string(fen_fields)
       castling_rights = fen_fields[2]
 
       {
