@@ -34,7 +34,7 @@ module Chess
     end
 
     def to_fen
-      ToFEN.create_fen
+      ToFEN.create_fen(build_fen_data)
     end
 
     def start; end
@@ -53,7 +53,7 @@ module Chess
 
     private
 
-    def create_fen_data
+    def build_fen_data
       {
         active_color: active_color,
         half_move_clock: half_move_clock,
