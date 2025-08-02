@@ -17,6 +17,7 @@ module Chess
 
     # starting position FEN:
     # rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+    # create fen string from fen_data (hash data structure)
     def create_fen
       fen_string = ''
       fen_string += "#{build_piece_placement(fen_data[:grid])} "
