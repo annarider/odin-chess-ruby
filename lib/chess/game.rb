@@ -54,18 +54,19 @@ module Chess
       Display.show_board(board.to_display)
     end
 
-    def play_turn; end
-
-    def pick_column; end
-
-    def end_game?(column); end
-
     def switch_turn
-      @active_color = active_color == 'w' ? 'b' : 'w'
+      @active_color = opponent_color
     end
 
     def game_over?
       @game_over || checkmate? || stalemate? || draw_by_rule?
+    end
+
+    def winner
+      return nil unless game_over?
+      return nil if stalemate? || draw_by_rule?
+
+      opponent_color
     end
 
     private
@@ -80,6 +81,15 @@ module Chess
 
     def board_fen_data
       board.to_fen
+    end
+
+    def play_turn
+      move = Interface.request_move
+      until board.try_move[:success]
+        move = Interface.request_move
+      end
+      update_game_state(move)
+      Display.show_board(board.to_display)
     end
 
     def checkmate?
@@ -100,6 +110,10 @@ module Chess
 
     def fifty_move_rule?
       half_move_clock >= 100
+    end
+
+    def opponent_color
+      active_color == 'w' ? 'b' : 'w'
     end
 
     def announce_game_end
