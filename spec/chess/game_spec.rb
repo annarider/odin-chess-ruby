@@ -109,7 +109,18 @@ describe Chess::Game do
     context 'when starting the game from initial positions' do
       subject(:new_game) { described_class.from_fen(starting_fen) }
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
-
+let(:mock_board_data) do
+        [
+          ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+          ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+          ['', '', '', '', '', '', '', ''],
+          ['', '', '', '', '', '', '', ''],
+          ['', '', '', '', '', '', '', ''],
+          ['', '', '', '', '', '', '', ''],
+          ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+          ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+        ]
+      end
       it 'returns white as the active player color' do
         current_player = new_game.active_color
         expect(current_player).to eq('w')
@@ -119,8 +130,19 @@ describe Chess::Game do
         result = new_game.to_fen
         expect(result).to eq(starting_fen)
       end
-      it 'it sends a welcome message' do
-        allow(Interface).to receive(:welcome)
+      it 'sends a welcome message' do
+        allow(Chess::Display).to receive(:show_board)
+        allow(Chess::Interface).to receive(:welcome)
+        expect(Chess::Interface).to receive(:welcome)
+        new_game.start
+      end
+      it 'displays the board' do
+        allow(Chess::Interface).to receive(:welcome)
+        board_mock = instance_double(Chess::Board)
+        allow(board_mock).to receive(:to_display).and_return(mock_board_data)
+        game = described_class.new(board: board_mock)
+        expect(Chess::Display).to receive(:show_board).with(mock_board_data)
+        game.start
       end
     end
   end
@@ -128,7 +150,7 @@ describe Chess::Game do
   describe '#current_player' do
     context 'when starting a new game' do
       it 'returns the player white' do
-        expect(start_game.current_player).to eq('w')
+        expect(start_game.active_color).to eq('w')
       end
     end
   end
@@ -136,7 +158,7 @@ describe Chess::Game do
   describe '#switch_turn' do
     context 'after white makes a move' do
       it 'sends a message to switch to black' do
-        expect {start_game.switch_turn}.to change {start_game.current_player}.
+        expect {start_game.switch_turn}.to change {start_game.active_color}.
           from('w').to ('b')
         start_game.switch_turn
       end

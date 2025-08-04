@@ -42,10 +42,6 @@ module Chess
       Display.show_board(board.to_display)
     end
 
-    def current_player
-      active_color
-    end
-
     def play; end
 
     def play_turn; end
@@ -54,7 +50,9 @@ module Chess
 
     def end_game?(column); end
 
-    def switch_turn; end
+    def switch_turn
+      @active_color = active_color == 'w' ? 'b' : 'w'
+    end
 
     private
 
