@@ -6,7 +6,8 @@ require_relative '../../lib/chess'
 
 describe Chess::Game do
   let(:start_game) { described_class.new }
-
+  let(:end_game) { described_class.new }
+  
   describe '.from_fen' do
     context 'when creating a new game from start positions' do
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
@@ -169,6 +170,20 @@ let(:mock_board_data) do
     context 'when the game just started' do
       it 'returns false' do
         expect(start_game.game_over?).to be false
+      end
+    end
+    context 'when checkmate? is true' do
+      let(:checkmate) { true }
+      it 'returns true' do
+        allow(end_game).to receive(:checkmate?).and_return(true)
+        expect(end_game).to be_game_over 
+      end
+    end
+    context 'when draw by rule is true' do
+      let(:draw) { true }
+      it 'returns true' do
+        allow(end_game).to receive(:draw_by_rule?).and_return(true)
+        expect(end_game).to be_game_over
       end
     end
   end
