@@ -16,14 +16,14 @@ module Chess
   #
   class Display
     using Chess::ColorizeString
-    attr_reader :board
+    attr_reader :board_data
 
     def self.show_board(...)
       new(...).build_board_for_display
     end
 
-    def initialize(board)
-      @board = board
+    def initialize(board_data)
+      @board_data = board_data
     end
 
     def map_piece_symbol(code)
@@ -31,17 +31,12 @@ module Chess
     end
 
     def build_board_for_display
-      grid = board.to_display
-      format_board(grid)
-    end
-
-    private
-
-    def format_board(grid)
-      grid.map.with_index do |rank, rank_index|
+            board_data.map.with_index do |rank, rank_index|
         format_rank(rank, rank_index)
       end.join("\n")
     end
+
+    private
 
     def format_rank(rank, rank_index)
       rank.map.with_index do |piece_code, file_index|

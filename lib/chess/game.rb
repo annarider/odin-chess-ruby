@@ -39,7 +39,7 @@ module Chess
 
     def start
       Interface.welcome
-      Interface.show_board
+      Display.show_board(board.to_display)
     end
 
     def current_player
