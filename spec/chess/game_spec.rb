@@ -164,4 +164,12 @@ let(:mock_board_data) do
       end
     end
   end
+
+  describe '#game_over?' do
+    context 'when the game just started' do
+      it 'returns false' do
+        expect(start_game.game_over?).to be false
+      end
+    end
+  end
 end
