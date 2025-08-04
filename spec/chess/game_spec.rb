@@ -120,11 +120,11 @@ describe Chess::Game do
       end
       it 'calls start' do
         expect(start_game).to receive(:start)
-        start_game.start
+        start_game.play
       end
       it 'calls announce_game_end' do
         expect(start_game).to receive(:announce_game_end)
-        start_game.start
+        start_game.play
       end
     end
   end

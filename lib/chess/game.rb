@@ -117,7 +117,7 @@ module Chess
     end
 
     def announce_game_end
-      if winner?
+      if winner
         announce_winner
       else
         announce_end
