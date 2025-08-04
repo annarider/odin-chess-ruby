@@ -37,9 +37,14 @@ module Chess
       ToFEN.create_fen(build_fen_data)
     end
 
-    def start; end
+    def start
+      Interface.welcome
+      Interface.show_board
+    end
 
-    def current_player; end
+    def current_player
+      active_color
+    end
 
     def play; end
 
@@ -49,7 +54,7 @@ module Chess
 
     def end_game?(column); end
 
-    def switch_turns; end
+    def switch_turn; end
 
     private
 

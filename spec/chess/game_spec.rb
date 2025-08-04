@@ -119,6 +119,27 @@ describe Chess::Game do
         result = new_game.to_fen
         expect(result).to eq(starting_fen)
       end
+      it 'it sends a welcome message' do
+        allow(Interface).to receive(:welcome)
+      end
+    end
+  end
+
+  describe '#current_player' do
+    context 'when starting a new game' do
+      it 'returns the player white' do
+        expect(start_game.current_player).to eq('w')
+      end
+    end
+  end
+
+  describe '#switch_turn' do
+    context 'after white makes a move' do
+      it 'sends a message to switch to black' do
+        expect {start_game.switch_turn}.to change {start_game.current_player}.
+          from('w').to ('b')
+        start_game.switch_turn
+      end
     end
   end
 end
