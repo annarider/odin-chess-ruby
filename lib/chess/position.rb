@@ -33,10 +33,6 @@ module Chess
       new(row, column)
     end
 
-    def self.two_rank_move?(from_position, to_position)
-      (from_position.row - to_position.row).abs == 2
-    end
-
     def initialize(row, column)
       @row = row
       @column = column
@@ -92,5 +88,11 @@ module Chess
     def -(other)
       Position.new(row - other.row, column - other.column)
     end
+
+    def two_rank_move?(other)
+      (row - other.row).abs == 2
+    end
+
+
   end
 end
