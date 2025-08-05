@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'config'
-
 module Chess
   # Board represents a chess board.
   #

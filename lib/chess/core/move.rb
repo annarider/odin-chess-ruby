@@ -46,5 +46,7 @@ module Chess
     end
 
     def validate_capture(opponent_piece)
+      
+    end
   end
 end

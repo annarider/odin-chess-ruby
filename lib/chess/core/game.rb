@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../chess'
-
 module Chess
   # Game defines a game object
   # which handles game logic.
