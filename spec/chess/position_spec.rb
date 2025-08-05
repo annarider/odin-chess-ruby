@@ -198,5 +198,23 @@ describe Chess::Position do
         end
       end
     end
+    describe '#-' do
+      context 'when pawn moves 1 rank' do
+        from_position = described_class.from_algebraic('a2')
+        to_position = described_class.from_algebraic('a3')
+
+        it 'returns a Position with 1 rank difference' do
+          expect((from_position - to_position).row.abs).to eq(1)
+        end
+      end
+      context 'when pawn moves 2 ranks' do
+        from_position = described_class.from_algebraic('b2')
+        to_position = described_class.from_algebraic('b4')
+
+        it 'returns a Position with 2 rank difference' do
+          expect((from_position - to_position).row.abs).to eq(2)
+        end
+      end      
+    end
   end
 end

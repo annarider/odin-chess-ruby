@@ -84,5 +84,9 @@ module Chess
     def +(other)
       transform_coordinates(other)
     end
+
+    def -(other)
+      Position.new(row - other.row, column - other.column)
+    end
   end
 end
