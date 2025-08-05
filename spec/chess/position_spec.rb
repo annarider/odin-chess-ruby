@@ -10,7 +10,6 @@ describe Chess::Position do
   let(:bottom_left_position) { described_class.from_coordinates(7, 0) }
   let(:bottom_right_position) { described_class.from_coordinates(7, 7) }
 
-  describe 'class methods' do
     describe '.from_coordinates' do
       context 'when passing in the topmost leftmost square' do
         it 'returns the position using array index coordinates' do
@@ -40,9 +39,36 @@ describe Chess::Position do
         end
       end
     end
-  end
-
-  describe 'instance methods' do
+    describe '#two_rank_move?' do
+      context 'when white pawn advances two squares forward' do
+        from_position = described_class.from_algebraic('c2')
+        to_position = described_class.from_algebraic('c4')
+        it 'returns true' do
+          result = described_class.two_rank_move?(from_position, to_position)
+          expect(result).to be true
+        end
+      end
+    end
+    describe '#two_rank_move?' do
+      context 'when black pawn advances two squares forward' do
+        from_position = described_class.from_algebraic('e7')
+        to_position = described_class.from_algebraic('e5')
+        it 'returns true' do
+          result = described_class.two_rank_move?(from_position, to_position)
+          expect(result).to be true
+        end
+      end
+    end
+    describe '#two_rank_move?' do
+      context 'when queen advances one squares forward' do
+        from_position = described_class.from_algebraic('d4')
+        to_position = described_class.from_algebraic('d5')
+        it 'returns false' do
+          result = described_class.two_rank_move?(from_position, to_position)
+          expect(result).to be false
+        end
+      end
+    end
     describe '#rank' do
       it 'returns 8 for a8, top left square, when the row is 0 index' do
         expect(top_left_position.rank).to eq('8')
@@ -214,7 +240,6 @@ describe Chess::Position do
         it 'returns a Position with 2 rank difference' do
           expect((from_position - to_position).row.abs).to eq(2)
         end
-      end      
+      end
     end
   end
-end
