@@ -4,6 +4,12 @@ module Chess
   # Move Calculator generates the
   # possible moves each piece can
   # make.
+  # 
+  # For example, the #pawn_moves
+  # returns all forward moves, such 
+  # as 1 square advance, 2 square
+  # advance, and 1 square diagonal
+  # capture.
   #
   # It does NOT validate
   # the moves. Validation happens
@@ -85,6 +91,8 @@ module Chess
       calculate_moves(vectors, 1)
     end
 
+    # includes all possible move forward (1 square advance, 1 diagonal
+    # square capture, 2 squares advance)
     def pawn_moves
       vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
       calculate_moves(vectors, 1)
