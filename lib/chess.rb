@@ -1,21 +1,26 @@
 # frozen_string_literal: true
 
-require_relative 'chess/config'
-require_relative 'chess/colorize_string'
-require_relative 'chess/chess_notation'
-require_relative 'chess/from_fen'
-require_relative 'chess/to_fen'
-require_relative 'chess/display'
-require_relative 'chess/interface'
-require_relative 'chess/directions_data'
-require_relative 'chess/piece_data'
-require_relative 'chess/move_calculator'
-require_relative 'chess/move_validator'
-require_relative 'chess/board'
-require_relative 'chess/position'
-require_relative 'chess/move'
-require_relative 'chess/move_history'
-require_relative 'chess/game'
+require_relative 'chess/data/config'
+require_relative 'chess/data/directions_data'
+require_relative 'chess/data/piece_data'
+
+require_relative 'chess/helpers/chess_notation'
+require_relative 'chess/helpers/colorize_string'
+require_relative 'chess/helpers/display'
+require_relative 'chess/helpers/from_fen'
+require_relative 'chess/helpers/interface'
+require_relative 'chess/helpers/to_fen'
+
+require_relative 'chess/services/castling_validator'
+require_relative 'chess/services/move_calculator'
+require_relative 'chess/services/move_validator'
+require_relative 'chess/services/pawn_move_validator'
+
+require_relative 'chess/core/board'
+require_relative 'chess/core/game'
+require_relative 'chess/core/move_history'
+require_relative 'chess/core/move'
+require_relative 'chess/core/position'
 
 # top-level namespace for organization
 # and contain the library files for

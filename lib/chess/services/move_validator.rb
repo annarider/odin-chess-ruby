@@ -18,9 +18,11 @@ module Chess
       new(...).is_move_legal?
     end
 
-    def initialize(board, move)
+    # def self.two_square_pawn_move?()
+    def initialize(board, move, move_history = [])
       @board = board
       @move = move
+      @move_history = move_history
     end
 
     def is_move_legal?
@@ -46,11 +48,6 @@ module Chess
       else
         enemy_color?(move.piece, target_piece)
       end
-    end
-
-    def enemy_color?(attack_piece, captured_piece)
-      (attack_piece.match?(/[A-Z]/) && captured_piece.match?(/[a-z]/)) ||
-        (attack_piece.match?(/[a-z]/) && captured_piece.match?(/[A-Z]/))
     end
 
     def clear_path?

@@ -88,7 +88,7 @@ module Chess
     # 4 steps to a move:
     # 1. check move is valid
     # 2. create new position
-    # 3. update game state (grid, flags, etc.)
+    # 3. update board state (grid, flags, etc.)
     # 4. return status
     def try_move(move)
       return :no_piece if possible_move.empty?
@@ -102,6 +102,12 @@ module Chess
       MoveValidator.is_move_legal?(self, move)
     end
 
+    def play_move(move)
+      update_position(move.from_position, move.to_position)
+      update_castling_rights(move)
+      update_en_passant_square(move)
+    end
+
     private
 
     def possible_moves(position)
@@ -112,6 +118,16 @@ module Chess
 
     def erase_origin_position(start_pos)
       @grid[start_pos.row][start_pos.column] = nil
+    end
+
+    def update_en_passant_square(move)
+      @en_passant_square = nil # reset en passant square
+      if %w[p P].include?(move.piece) && pawn_advanced_two_squares?(move)
+      end
+    end
+
+    def pawn_advanced_two_squares?(move)
+      
     end
   end
 end

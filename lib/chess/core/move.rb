@@ -44,5 +44,7 @@ module Chess
 
       raise ArgumentError, "#{position.coordinates} is out of bounds" unless position.in_bound?
     end
+
+    def validate_capture(opponent_piece)
   end
 end
