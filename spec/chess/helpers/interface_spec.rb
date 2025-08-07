@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-require_relative '../lib/interface'
-require_relative '../lib/board'
+require_relative '../../../lib/chess'
 
 # Tests for the Connect Four Chess::Interface module
 
-describe Chess::Chess::Interface do
+describe Chess::Interface do
   describe '.request_players_data' do
     context 'when game greets the players' do
       it "should request and return the players' info" do

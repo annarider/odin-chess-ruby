@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../../lib/chess'
+require_relative '../../../lib/chess'
 
 # Tests for the Chess Game class
 
