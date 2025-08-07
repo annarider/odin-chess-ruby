@@ -4,9 +4,9 @@ module Chess
   # Move Calculator generates the
   # possible moves each piece can
   # make.
-  # 
+  #
   # For example, the #pawn_moves
-  # returns all forward moves, such 
+  # returns all forward moves, such
   # as 1 square advance, 2 square
   # advance, and 1 square diagonal
   # capture.

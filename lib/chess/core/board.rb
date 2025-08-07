@@ -124,8 +124,6 @@ module Chess
       end
     end
 
-    def pawn_advanced_two_squares?(move)
-      
-    end
+    def pawn_advanced_two_squares?(move); end
   end
 end

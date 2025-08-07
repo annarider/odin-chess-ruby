@@ -16,10 +16,10 @@ module Chess
     attr_reader :board, :move_history
 
     def initialize(active_color: ChessNotation::WHITE_PLAYER,
-                  board: Board.start_positions,
-                  half_move_clock: 0,
-                  full_move_number: 1, 
-                  move_history: MoveHistory.new)
+                   board: Board.start_positions,
+                   half_move_clock: 0,
+                   full_move_number: 1,
+                   move_history: MoveHistory.new)
       @active_color = active_color
       @board = board
       @half_move_clock = half_move_clock
@@ -83,9 +83,7 @@ module Chess
 
     def play_turn
       move = Interface.request_move
-      until board.try_move[:success]
-        move = Interface.request_move
-      end
+      move = Interface.request_move until board.try_move[:success]
       update_game_state(move)
       Display.show_board(board.to_display)
     end

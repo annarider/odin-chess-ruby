@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   module PieceHelpers
     # checks if the captured piece is an enemy color

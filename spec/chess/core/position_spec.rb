@@ -247,25 +247,27 @@ describe Chess::Position do
   end
 
   describe '#diagonal_move?'
-    context 'when black pawn captures' do
-      start_pos = described_class.from_algebraic('d7')
-      destination = described_class.from_algebraic('e6')
-      it 'returns true' do
-        expect(start_pos.diagonal_move?(destination)).to be true
-      end
+  context 'when black pawn captures' do
+    start_pos = described_class.from_algebraic('d7')
+    destination = described_class.from_algebraic('e6')
+    it 'returns true' do
+      expect(start_pos.diagonal_move?(destination)).to be true
     end
-    context 'when white pawn captures' do
-      start_pos = described_class.from_algebraic('e2')
-      destination = described_class.from_algebraic('f3')
-      it 'returns true' do
-        expect(start_pos.diagonal_move?(destination)).to be true
-      end
+  end
+
+  context 'when white pawn captures' do
+    start_pos = described_class.from_algebraic('e2')
+    destination = described_class.from_algebraic('f3')
+    it 'returns true' do
+      expect(start_pos.diagonal_move?(destination)).to be true
     end
-    context 'when rook moves' do
-      start_pos = described_class.from_algebraic('a1')
-      destination = described_class.from_algebraic('a2')
-      it 'returns true' do
-        expect(start_pos.diagonal_move?(destination)).to be false
-      end
+  end
+
+  context 'when rook moves' do
+    start_pos = described_class.from_algebraic('a1')
+    destination = described_class.from_algebraic('a2')
+    it 'returns true' do
+      expect(start_pos.diagonal_move?(destination)).to be false
     end
+  end
 end

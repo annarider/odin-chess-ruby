@@ -7,7 +7,7 @@ require_relative '../../../lib/chess'
 describe Chess::Game do
   let(:start_game) { described_class.new }
   let(:end_game) { described_class.new }
-  
+
   describe '.from_fen' do
     context 'when creating a new game from start positions' do
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
@@ -112,27 +112,32 @@ describe Chess::Game do
       allow(Chess::Display).to receive(:show_board)
       allow(start_game).to receive(:puts)
     end
+
     context 'when game starts and ends immediately' do
-      before do 
+      before do
         allow(start_game).to receive(:play_turn) do
           start_game.instance_variable_set(:@game_over, true)
         end
       end
+
       it 'calls start' do
         expect(start_game).to receive(:start)
         start_game.play
       end
+
       it 'calls announce_game_end' do
         expect(start_game).to receive(:announce_game_end)
         start_game.play
       end
     end
   end
+
   describe '#start' do
     context 'when starting the game from initial positions' do
       subject(:new_game) { described_class.from_fen(starting_fen) }
+
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
-let(:mock_board_data) do
+      let(:mock_board_data) do
         [
           ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
           ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
@@ -144,6 +149,7 @@ let(:mock_board_data) do
           ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
         ]
       end
+
       it 'returns white as the active player color' do
         current_player = new_game.active_color
         expect(current_player).to eq('w')
@@ -153,12 +159,14 @@ let(:mock_board_data) do
         result = new_game.to_fen
         expect(result).to eq(starting_fen)
       end
+
       it 'sends a welcome message' do
         allow(Chess::Display).to receive(:show_board)
         allow(Chess::Interface).to receive(:welcome)
         expect(Chess::Interface).to receive(:welcome)
         new_game.start
       end
+
       it 'displays the board' do
         allow(Chess::Interface).to receive(:welcome)
         board_mock = instance_double(Chess::Board)
@@ -173,8 +181,8 @@ let(:mock_board_data) do
   describe '#switch_turn' do
     context 'after white makes a move' do
       it 'sends a message to switch to black' do
-        expect {start_game.switch_turn}.to change {start_game.active_color}.
-          from('w').to ('b')
+        expect { start_game.switch_turn }.to change(start_game, :active_color)
+          .from('w').to('b')
         start_game.switch_turn
       end
     end
@@ -186,12 +194,14 @@ let(:mock_board_data) do
         expect(start_game.game_over?).to be false
       end
     end
+
     context 'when checkmate? is true' do
       it 'returns true' do
         allow(end_game).to receive(:checkmate?).and_return(true)
         expect(end_game).to be_game_over
       end
     end
+
     context 'when draw by rule is true' do
       it 'returns true' do
         allow(end_game).to receive(:draw_by_rule?).and_return(true)
@@ -199,12 +209,14 @@ let(:mock_board_data) do
       end
     end
   end
+
   describe '#winner' do
     context 'when game is not over' do
       it 'returns nil' do
         expect(start_game.winner).to be_nil
       end
     end
+
     context 'when black checkmates' do
       it 'returns black as the winner' do
         allow(end_game).to receive(:game_over?).and_return(true)

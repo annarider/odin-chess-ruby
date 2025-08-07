@@ -10,7 +10,6 @@
 #
 module Chess
   module Interface
-
     def self.welcome
       puts <<~WELCOME
         ♔♟️ Welcome to Chess. You will play a Chess game in the console.

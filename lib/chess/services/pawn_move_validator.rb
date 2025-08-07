@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # PawnMoveValidator handles pawn-specific
   # move validation rules that go beyond
@@ -25,9 +27,5 @@ module Chess
         forward_move_valid?
       end
     end
-
-    private
-
-    
   end
 end

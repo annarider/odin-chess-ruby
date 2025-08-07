@@ -5,11 +5,11 @@ require_relative '../../../lib/chess'
 # Tests for the Connect Four Display class
 
 describe Chess::Display do
-  
-  
   describe '#map_piece_symbol' do
-  subject(:display) { described_class.new(mock_board_data) }
-  let(:mock_board_data) { [['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']] }
+    subject(:display) { described_class.new(mock_board_data) }
+
+    let(:mock_board_data) { [%w[r n b q k b n r]] }
+
     context 'when taking the raw pieces data as input' do
       Chess::Piece::PIECE_SYMBOLS.map do |code, symbol|
         it "shows the piece #{code} maps to the #{symbol}" do

@@ -96,7 +96,7 @@ module Chess
     def diagonal_move?(other)
       row_delta = (row - other.row).abs
       column_delta = (column - other.column).abs
-      (row_delta == column_delta) && (row_delta > 0)
+      (row_delta == column_delta) && row_delta.positive?
     end
   end
 end
