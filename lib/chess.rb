@@ -9,6 +9,7 @@ require_relative 'chess/helpers/colorize_string'
 require_relative 'chess/helpers/display'
 require_relative 'chess/helpers/from_fen'
 require_relative 'chess/helpers/interface'
+require_relative 'chess/helpers/piece_helpers'
 require_relative 'chess/helpers/to_fen'
 
 require_relative 'chess/services/castling_validator'

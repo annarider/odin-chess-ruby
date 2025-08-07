@@ -31,7 +31,7 @@ module Chess
     end
 
     def build_board_for_display
-            board_data.map.with_index do |rank, rank_index|
+      board_data.map.with_index do |rank, rank_index|
         format_rank(rank, rank_index)
       end.join("\n")
     end

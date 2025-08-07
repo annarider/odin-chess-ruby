@@ -14,9 +14,8 @@ describe Chess::Interface do
     end
   end
   describe '.request_column' do
-    context 'when the player chooses a column to drop a piece into' do
-      context 'when the chosen column is between 0 and 6' do
-        let(:valid_column) { '3' }
+    context 'when the player chooses a move' do
+        let(:valid_move) { '3' }
 
         before do
           allow(Chess::Interface).to receive(:gets).and_return(valid_column)
@@ -24,7 +23,6 @@ describe Chess::Interface do
         it 'returns the column number' do
           expect(Chess::Interface.request_column).to eq(3)
         end
-      end
       context 'when the chosen column is invalid twice then valid' do
         let(:letter) { 'd' }
         let(:symbol) { '$' }
