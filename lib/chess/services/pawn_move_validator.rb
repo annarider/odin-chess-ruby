@@ -10,7 +10,7 @@ module Chess
   # - Two-square moves only for unmoved pawns
   # - Forward moves only to empty squares
   class PawnMoveValidator
-    attr_reader :start_position, :end_position
+    attr_reader :start_position, :end_position, :piece, :captured_piece
     def self.valid_move?(...)
       new(...).valid_move?
     end
@@ -36,7 +36,7 @@ module Chess
     def capture_move_valid?
       return false unless captured_piece
 
-      PieceHelpers.enemy_color?
+      PieceHelpers.enemy_color?(piece, captured_piece)
     end
 
     def forward_move_valid?

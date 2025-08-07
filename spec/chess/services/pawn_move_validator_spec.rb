@@ -16,16 +16,38 @@ describe Chess::PawnMoveValidator do
       allow(move).to receive(:to_position).and_return(end_position)
       allow(move).to receive(:piece).and_return('P')
       allow(move).to receive(:captured_piece).and_return(nil)
+      allow(Chess::PieceHelpers).to receive(:enemy_color?)
+      allow(move_history).to receive(:has_moved?)
     end
-    context 'when white pawn advances 1 square' do
+    context 'when white pawn advances 1 rank to an empty square' do
       before do
-        allow(start_position).to receive(:diagonal_move?).with(end_position).and_return(false)
-        allow(start_position).to receive(:two_rank_move?).with(end_position).and_return(false)
+        allow(start_position).to receive(:diagonal_move?)
+          .with(end_position).and_return(false)
+        allow(start_position).to receive(:two_rank_move?)
+          .with(end_position).and_return(false)
       end
         it 'returns true' do
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
         end
+    end
+    context 'when white pawn moves diagonally' do
+      before do
+        allow(start_position).to receive(:diagonal_move?)
+          .with(end_position).and_return(true)
+        allow(move).to receive(:captured_piece).and_return('b')
+        allow(Chess::PieceHelpers).to receive(:enemy_color?).and_return(true)
+      end
+      context 'when capturing an enemy piece' do
+        before do
+          allow(move).to receive(:captured_piece).and_return('b')
+            .with('P', 'b').and_return(true)
+        end
+      end
+      it 'returns true' do
+        result = described_class.valid_move?(move, move_history)
+        expect(result).to be true
+      end
     end
   end
 end
