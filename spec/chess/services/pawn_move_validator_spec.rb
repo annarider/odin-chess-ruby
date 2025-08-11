@@ -83,7 +83,7 @@ describe Chess::PawnMoveValidator do
       context 'when trying to capture a friendly piece' do
         it 'returns false' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
-            .with('P', 'b').and_return(false)
+            .with('P', 'Q').and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
         end
@@ -98,6 +98,27 @@ describe Chess::PawnMoveValidator do
       end
 
       it 'returns false' do
+        result = described_class.valid_move?(move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when black pawn moves diagonally to capture' do
+      before do
+        allow(start_position).to receive(:diagonal_move?)
+          .with(end_position).and_return(true)
+        allow(move).to receive_messages(piece: 'p', captured_piece: 'P')
+      end
+
+      it 'returns true when capturing an enemy piece' do
+        expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          .with('p', 'P').and_return(true)
+        result = described_class.valid_move?(move, move_history)
+        expect(result).to be true
+      end
+      it 'returns false when capturing a friendly piece' do
+        expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          .with('p', 'r').and_return(false)
         result = described_class.valid_move?(move, move_history)
         expect(result).to be false
       end
