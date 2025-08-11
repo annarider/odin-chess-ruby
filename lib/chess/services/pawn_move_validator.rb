@@ -10,7 +10,9 @@ module Chess
   # - Two-square moves only for unmoved pawns
   # - Forward moves only to empty squares
   class PawnMoveValidator
-    attr_reader :start_position, :end_position, :piece, :captured_piece
+    attr_reader :start_position, :end_position, :piece, :captured_piece,
+      :move_history
+
     def self.valid_move?(...)
       new(...).valid_move?
     end
@@ -34,15 +36,19 @@ module Chess
     private
 
     def capture_move_valid?
+      # Pawns move diagonally only for capturing
       return false unless captured_piece
 
+      # must only capture enemy pieces
       PieceHelpers.enemy_color?(piece, captured_piece)
     end
 
     def forward_move_valid?
-      # pawn hasn't moved yet, allowed to move 2 squares
+      # If pawn tries to move 2 squares, it must not have moved before
       return false if start_position.two_rank_move?(end_position) && pawn_has_moved?
 
+      # Pawn can move 1 square forward. Move directions limited in MoveCalculator
+      # Destination is empty is checked in MoveValidator
       true
     end
 
