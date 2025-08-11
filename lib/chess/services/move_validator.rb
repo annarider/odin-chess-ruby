@@ -12,7 +12,8 @@ module Chess
   # specialty validations, such as
   # check.
   class MoveValidator
-    attr_reader :board, :move
+    attr_reader :board, :move, :start_position, :end_position, :piece,
+      :move_history
 
     def self.is_move_legal?(...)
       new(...).is_move_legal?
@@ -22,6 +23,9 @@ module Chess
     def initialize(board, move, move_history = [])
       @board = board
       @move = move
+      @start_position = move.from_position
+      @end_position = move.to_position
+      @piece = move.piece
       @move_history = move_history
     end
 
@@ -29,6 +33,7 @@ module Chess
       return false unless possible_move?
       return false unless valid_destination?
       return false unless clear_path?
+      return false unless valid_piece_moves?
 
       true
     end
@@ -36,24 +41,24 @@ module Chess
     private
 
     def possible_move?
-      all_moves = MoveCalculator.generate_possible_moves(move.from_position, move.piece)
-      all_moves.include?(move.to_position)
+      all_moves = MoveCalculator.generate_possible_moves(start_position, piece)
+      all_moves.include?(end_position)
     end
 
     def valid_destination?
-      target_piece = board.piece_at(move.to_position)
+      target_piece = board.piece_at(end_position)
 
       if target_piece.nil? # empty square
         true
       else
-        PieceHelpers.enemy_color?(move.piece, target_piece)
+        PieceHelpers.enemy_color?(piece, target_piece)
       end
     end
 
     def clear_path?
-      return true if %w[n N].include?(move.piece)
+      return true if %w[n N].include?(piece)
 
-      path = calculate_path_between(move.from_position, move.to_position)
+      path = calculate_path_between(start_position, end_position)
       empty_square_along_path?(path)
     end
 
@@ -81,8 +86,15 @@ module Chess
     end
 
     def request_moves(direction_vector, steps)
-      calculator = MoveCalculator.new(move.from_position, move.piece)
+      calculator = MoveCalculator.new(start_position, piece)
       calculator.calculate_moves([direction_vector], steps)
+    end
+
+    def valid_piece_moves?
+      return PawnMoveValidator.valid_move?(move, move_history) if %w[P p].include?(piece)
+
+      # other pieces return true as they don't have piece-specific moves
+      true
     end
   end
 end

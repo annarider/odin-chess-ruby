@@ -73,5 +73,23 @@ describe Chess::MoveValidator do
         expect(described_class.is_move_legal?(board, move)).to be true
       end
     end
+    context 'when validating a pawn move' do
+      let(:pawn_start) { Chess::Position.from_algebraic('e2') }
+      let(:pawn_destination) { Chess::Position.from_algebraic('e4') }
+      let(:pawn_move) { Chess::Move.new(from_position: pawn_start, to_position: pawn_destination, piece: 'P') }
+      let(:move_history) { [] }
+      before do 
+        board.place_piece(pawn_start, 'P')
+        allow(Chess::MoveCalculator).to receive(:generate_possible_moves)
+          .and_return([pawn_destination])
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(true)
+      end
+      it 'sends valid_move? message to PawnMoveValidator service' do
+        expect(Chess::PawnMoveValidator).to receive(:valid_move?)
+          .with(pawn_move, move_history)
+
+          described_class.is_move_legal?(board, pawn_move, move_history)
+      end
+    end
   end
 end
