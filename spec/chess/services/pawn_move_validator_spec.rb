@@ -66,25 +66,34 @@ describe Chess::PawnMoveValidator do
     end
 
     context 'when white pawn moves diagonally to capture' do
+      let(:attacking_piece) { 'attacking_piece' }
       before do
         allow(start_position).to receive(:diagonal_move?)
           .with(end_position).and_return(true)
-        allow(move).to receive(:captured_piece).and_return('b')
+        allow(move).to receive(:piece).and_return(attacking_piece)
       end
 
       context 'when capturing an enemy piece' do
+        let(:enemy_piece) { 'enemy_piece' }
+        before do
+          allow(move).to receive(:captured_piece).and_return(enemy_piece)
+        end
         it 'returns true' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
-            .with(attack_piece: 'P', captured_piece: 'b').and_return(true)
+            .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
         end
       end
 
       context 'when trying to capture a friendly piece' do
+        let(:friendly_piece) { 'friendly_piece' }
+        before do
+          allow(move).to receive(:captured_piece).and_return(friendly_piece)
+        end
         it 'returns false' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
-            .with(attack_piece: 'P', captured_piece: 'Q').and_return(false)
+            .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
         end
@@ -105,23 +114,36 @@ describe Chess::PawnMoveValidator do
     end
 
     context 'when black pawn moves diagonally to capture' do
+      let(:attacking_piece) { 'attacking_piece' }
       before do
         allow(start_position).to receive(:diagonal_move?)
           .with(end_position).and_return(true)
-        allow(move).to receive_messages(piece: 'p', captured_piece: 'P')
+        allow(move).to receive(:piece).and_return(attacking_piece)
       end
 
-      it 'returns true when capturing an enemy piece' do
-        expect(Chess::PieceHelpers).to receive(:enemy_color?)
-          .with(attack_piece: 'p', captured_piece: 'P').and_return(true)
-        result = described_class.valid_move?(move, move_history)
-        expect(result).to be true
+      context 'when capturing an enemy piece' do
+        let(:enemy_piece) { 'enemy_piece' }
+        before do
+          allow(move).to receive(:captured_piece).and_return(enemy_piece)
+        end
+        it 'returns true' do
+          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+            .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
+          result = described_class.valid_move?(move, move_history)
+          expect(result).to be true
+        end        
       end
-      it 'returns false when capturing a friendly piece' do
-        expect(Chess::PieceHelpers).to receive(:enemy_color?)
-          .with(attack_piece: 'p', captured_piece: 'r').and_return(false)
-        result = described_class.valid_move?(move, move_history)
-        expect(result).to be false
+      context 'when capturing a friendly piece' do
+        let(:friendly_piece) { 'friendly_piece' }
+        before do
+          allow(move).to receive(:captured_piece).and_return(friendly_piece)
+        end
+        it 'returns false' do
+          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+            .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
+          result = described_class.valid_move?(move, move_history)
+          expect(result).to be false
+        end        
       end
     end
   end
