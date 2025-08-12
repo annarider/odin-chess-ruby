@@ -40,7 +40,7 @@ module Chess
       return false unless captured_piece
 
       # must only capture enemy pieces
-      PieceHelpers.enemy_color?(piece, captured_piece)
+      PieceHelpers.enemy_color?(attack_piece: piece, captured_piece: captured_piece)
     end
 
     def forward_move_valid?
