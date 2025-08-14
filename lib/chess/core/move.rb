@@ -33,8 +33,8 @@ module Chess
       @castling = castling
       @en_passant_target = en_passant_target
       @promotion = promotion
-      @double_pawn_move = double_pawn_move,
-                          @fen = fen
+      @double_pawn_move = double_pawn_move
+      @fen = fen
     end
 
     private
