@@ -5,9 +5,21 @@ module Chess
   # This class contains methods to
   # ensure castling moves are allowed.
   module Castling
-    def can_castle?(board, move)
-      return false if king_moved?(board)
-      return false if rook_moved?(board)
+
+    def self.is_castling_legal?(...)
+      new(...).can_castle?
+    end
+
+    def initialize(move, move_history = [])
+      @king_start = move.from_position
+      @king_end = move.to_position
+      @piece = move.piece
+      @rook_position = move.castling
+    end
+
+    def can_castle?
+      return false if king_has_moved?
+      return false if rook_has_moved?
       return false if king_in_check?(board, move)
       return false if path_in_check?(board, move)
       return false if castling_into_check?(board, move)
@@ -17,6 +29,12 @@ module Chess
 
     private
 
-    def king_moved?(board, move); end
+    def king_has_moved?
+      move_history.has_moved?(king_start)
+    end
+
+    def rook
+      move_history.has_moved?()
+    end
   end
 end
