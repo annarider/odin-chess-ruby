@@ -97,7 +97,7 @@ module Chess
     end
 
     def valid_move?(move)
-      MoveValidator.is_move_legal?(self, move)
+      MoveValidator.move_legal?(self, move)
     end
 
     def play_move(move)

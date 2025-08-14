@@ -15,8 +15,8 @@ module Chess
     attr_reader :board, :move, :start_position, :end_position, :piece,
                 :move_history
 
-    def self.is_move_legal?(...)
-      new(...).is_move_legal?
+    def self.move_legal?(...)
+      new(...).move_legal?
     end
 
     # def self.two_square_pawn_move?()
@@ -29,7 +29,7 @@ module Chess
       @move_history = move_history
     end
 
-    def is_move_legal?
+    def move_legal?
       return false unless possible_move?
       return false unless valid_destination?
       return false unless clear_path?

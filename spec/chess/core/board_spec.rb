@@ -182,7 +182,7 @@ describe Chess::Board do
     let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
 
     it 'delegates to MoveValidator' do
-      expect(Chess::MoveValidator).to receive(:is_move_legal?).with(start_board, move)
+      expect(Chess::MoveValidator).to receive(:move_legal?).with(start_board, move)
       start_board.valid_move?(move)
     end
   end

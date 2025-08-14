@@ -1,6 +1,6 @@
 =========================================
 REPOSITORY STRUCTURE AND CONTENT
-Generated on: Tue Aug 12 11:22:58 MDT 2025
+Generated on: Thu Aug 14 11:40:50 MDT 2025
 =========================================
 
 DIRECTORY TREE:
@@ -224,7 +224,7 @@ module Chess
     end
 
     def valid_move?(move)
-      MoveValidator.is_move_legal?(self, move)
+      MoveValidator.move_legal?(self, move)
     end
 
     def play_move(move)
@@ -1192,8 +1192,7 @@ module Chess
   # This class contains methods to
   # ensure castling moves are allowed.
   module Castling
-
-    def self.is_castling_legal?(...)
+    def self.castling_legal?(...)
       new(...).can_castle?
     end
 
@@ -1201,7 +1200,8 @@ module Chess
       @king_start = move.from_position
       @king_end = move.to_position
       @piece = move.piece
-      @rook = 
+      @rook_position = move.castling
+      @move_history = move_history
     end
 
     def can_castle?
@@ -1221,7 +1221,7 @@ module Chess
     end
 
     def rook
-      move_history.has_moved?()
+      move_history.has_moved?
     end
   end
 end
@@ -1351,10 +1351,10 @@ module Chess
   # check.
   class MoveValidator
     attr_reader :board, :move, :start_position, :end_position, :piece,
-      :move_history
+                :move_history
 
-    def self.is_move_legal?(...)
-      new(...).is_move_legal?
+    def self.move_legal?(...)
+      new(...).move_legal?
     end
 
     # def self.two_square_pawn_move?()
@@ -1367,7 +1367,7 @@ module Chess
       @move_history = move_history
     end
 
-    def is_move_legal?
+    def move_legal?
       return false unless possible_move?
       return false unless valid_destination?
       return false unless clear_path?
@@ -1454,7 +1454,7 @@ module Chess
   # - Forward moves only to empty squares
   class PawnMoveValidator
     attr_reader :start_position, :end_position, :piece, :captured_piece,
-      :move_history
+                :move_history
 
     def self.valid_move?(...)
       new(...).valid_move?
@@ -1845,7 +1845,7 @@ describe Chess::Board do
     let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
 
     it 'delegates to MoveValidator' do
-      expect(Chess::MoveValidator).to receive(:is_move_legal?).with(start_board, move)
+      expect(Chess::MoveValidator).to receive(:move_legal?).with(start_board, move)
       start_board.valid_move?(move)
     end
   end
@@ -2279,6 +2279,66 @@ FILE: ./spec/chess/core/move_spec.rb
 require_relative '../../../lib/chess'
 
 # Tests for the Move class
+
+describe Chess::Move do
+  let(:valid_from_position) { Chess::Position.from_algebraic('b2') }
+  let(:valid_to_position) { Chess::Position.from_algebraic('b4') }
+
+  describe '#initialize' do
+    context 'when creating from valid positions' do
+      it 'creates a move successfully' do
+        expect do
+          described_class.new(
+            from_position: valid_from_position,
+            to_position: valid_to_position,
+            piece: 'P',
+            captured_piece: 'p',
+            double_pawn_move: true
+          )
+        end.not_to raise_error
+      end
+
+      context 'when given invalid positions' do
+        let(:invalid_position) { double('invalid_position') }
+
+        before do
+          allow(invalid_position).to receive(:is_a?)
+            .with(Chess::Position).and_return(false)
+        end
+
+        it 'raises an ArgumentError' do
+          expect do
+            described_class.new(
+              from_position: invalid_position,
+              to_position: valid_to_position,
+              piece: 'p'
+            )
+          end.to raise_error(ArgumentError, /must be a Position object/)
+        end
+      end
+
+      context 'when given an out of bounds object' do
+        let(:out_of_bounds_position) { double('out_of_bounds_position') }
+
+        before do
+          allow(out_of_bounds_position).to receive(:is_a?)
+            .with(Chess::Position).and_return(true)
+          allow(out_of_bounds_position).to receive_messages(in_bound?: false, coordinates: [9, 9])
+        end
+
+        it 'raises ArgumentError for out-of-bounds from_position' do
+          expect do
+            described_class.new(
+              from_position: out_of_bounds_position,
+              to_position: valid_to_position,
+              piece: 'R'
+            )
+          end.to raise_error(ArgumentError, /is out of bounds/)
+        end
+      end
+    end
+  end
+end
 
 
 ================================================
@@ -2824,7 +2884,7 @@ describe Chess::MoveValidator do
 
   let(:board) { Chess::Board.new }
 
-  describe '.is_move_legal?' do
+  describe '.move_legal?' do
     context 'when a white knight in the middle of an empty board moves' do
       let(:knight_start) { Chess::Position.from_algebraic('d5') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
@@ -2835,7 +2895,7 @@ describe Chess::MoveValidator do
       end
 
       it 'returns true when the destination square is empty' do
-        result = described_class.is_move_legal?(board, move)
+        result = described_class.move_legal?(board, move)
         expect(result).to be true
       end
     end
@@ -2846,7 +2906,7 @@ describe Chess::MoveValidator do
         rook_destination = Chess::Position.from_algebraic('f7')
         move = Chess::Move.new(from_position: rook_start, to_position: rook_destination, piece: 'N')
         board.place_piece(rook_start, 'N')
-        expect(described_class.is_move_legal?(board, move)).to be false
+        expect(described_class.move_legal?(board, move)).to be false
       end
     end
 
@@ -2861,12 +2921,12 @@ describe Chess::MoveValidator do
 
       it 'returns true for a white pawn' do
         board.place_piece(knight_destination, 'P')
-        expect(described_class.is_move_legal?(board, move)).to be true
+        expect(described_class.move_legal?(board, move)).to be true
       end
 
       it 'returns false for a black pawn' do
         board.place_piece(knight_destination, 'p')
-        expect(described_class.is_move_legal?(board, move)).to be false
+        expect(described_class.move_legal?(board, move)).to be false
       end
     end
 
@@ -2878,39 +2938,48 @@ describe Chess::MoveValidator do
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')
-        expect(described_class.is_move_legal?(starting_board, move)).to be false
+        expect(described_class.move_legal?(starting_board, move)).to be false
       end
 
       it 'returns true for white knight which can leap over pieces' do
         knight_start = Chess::Position.from_algebraic('b1')
         knight_destination = Chess::Position.from_algebraic('c3')
         move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N')
-        expect(described_class.is_move_legal?(board, move)).to be true
+        expect(described_class.move_legal?(board, move)).to be true
       end
     end
+
     context 'when validating a pawn move' do
       let(:white_pawn_start) { Chess::Position.from_algebraic('e2') }
       let(:white_pawn_destination) { Chess::Position.from_algebraic('e4') }
-      let(:white_pawn_move) { Chess::Move.new(from_position: white_pawn_start, to_position: white_pawn_destination, piece: 'P') }
+      let(:white_pawn_move) do
+        Chess::Move.new(from_position: white_pawn_start, to_position: white_pawn_destination, piece: 'P')
+      end
       let(:move_history) { [] }
-      before do 
+
+      before do
         board.place_piece(white_pawn_start, 'P')
         allow(Chess::MoveCalculator).to receive(:generate_possible_moves)
           .and_return([white_pawn_destination])
         allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(true)
       end
+
       it 'sends valid_move? message to PawnMoveValidator service' do
         expect(Chess::PawnMoveValidator).to receive(:valid_move?)
           .with(white_pawn_move, move_history)
 
-          described_class.is_move_legal?(board, white_pawn_move, move_history)
+        described_class.move_legal?(board, white_pawn_move, move_history)
       end
     end
+
     context 'when validating a black pawn move' do
       let(:black_pawn_start) { Chess::Position.from_algebraic('d7') }
       let(:black_pawn_destination) { Chess::Position.from_algebraic('d6') }
-      let(:black_pawn_move) { Chess::Move.new(from_position: black_pawn_start, to_position: black_pawn_destination, piece: 'p') }
+      let(:black_pawn_move) do
+        Chess::Move.new(from_position: black_pawn_start, to_position: black_pawn_destination, piece: 'p')
+      end
       let(:move_history) { [] }
+
       before do
         board.place_piece(black_pawn_start, 'p')
         # Stub the other validation methods to isolate the outgoing command test
@@ -2918,42 +2987,51 @@ describe Chess::MoveValidator do
           .and_return([black_pawn_destination])
         allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(true)
       end
+
       it 'sends valid_move? message to PawnMoveValidator with correct arguments' do
         expect(Chess::PawnMoveValidator).to receive(:valid_move?)
           .with(black_pawn_move, move_history)
 
-          described_class.is_move_legal?(board, black_pawn_move, move_history)
+        described_class.move_legal?(board, black_pawn_move, move_history)
       end
     end
+
     context 'when validating a non-pawn move' do
       let(:knight_start) { Chess::Position.from_algebraic('b1') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
       let(:knight_move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
       let(:move_history) { [] }
+
       before do
         board.place_piece(knight_start, 'N')
         allow(Chess::MoveCalculator).to receive(:generate_possible_moves)
           .and_return([knight_destination])
       end
+
       it 'does not send valid_move? message to PawnMoveValidator' do
         expect(Chess::PawnMoveValidator).not_to receive(:valid_move?)
 
-        described_class.is_move_legal?(board, knight_move, move_history)
+        described_class.move_legal?(board, knight_move, move_history)
       end
     end
+
     context 'when PawnMoveValidator returns false' do
       let(:invalid_pawn_start) { Chess::Position.from_algebraic('e3') }
       let(:invalid_pawn_destination) { Chess::Position.from_algebraic('e5') }
-      let(:invalid_pawn_move) { Chess::Move.new(from_position: invalid_pawn_start, to_position: invalid_pawn_destination, piece: 'P') }
+      let(:invalid_pawn_move) do
+        Chess::Move.new(from_position: invalid_pawn_start, to_position: invalid_pawn_destination, piece: 'P')
+      end
       let(:move_history) { [] }
+
       before do
         board.place_piece(invalid_pawn_start, 'P')
         allow(Chess::MoveCalculator).to receive(:generate_possible_moves)
           .and_return([invalid_pawn_destination])
         allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(false)
       end
+
       it 'returns false when pawn validation fails' do
-        result = described_class.is_move_legal?(board, invalid_pawn_move, move_history)
+        result = described_class.move_legal?(board, invalid_pawn_move, move_history)
         expect(result).to be false
       end
     end
@@ -2978,10 +3056,8 @@ describe Chess::PawnMoveValidator do
     let(:end_position) { double('end_position') }
 
     before do
-      allow(move).to receive(:from_position).and_return(start_position)
-      allow(move).to receive(:to_position).and_return(end_position)
-      allow(move).to receive(:piece).and_return('P')
-      allow(move).to receive(:captured_piece).and_return(nil)
+      allow(move).to receive_messages(from_position: start_position, to_position: end_position, piece: 'P',
+                                      captured_piece: nil)
       allow(move_history).to receive(:has_moved?).and_return(false)
     end
 
@@ -3033,6 +3109,7 @@ describe Chess::PawnMoveValidator do
 
     context 'when white pawn moves diagonally to capture' do
       let(:attacking_piece) { 'attacking_piece' }
+
       before do
         allow(start_position).to receive(:diagonal_move?)
           .with(end_position).and_return(true)
@@ -3041,9 +3118,11 @@ describe Chess::PawnMoveValidator do
 
       context 'when capturing an enemy piece' do
         let(:enemy_piece) { 'enemy_piece' }
+
         before do
           allow(move).to receive(:captured_piece).and_return(enemy_piece)
         end
+
         it 'returns true' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
@@ -3054,9 +3133,11 @@ describe Chess::PawnMoveValidator do
 
       context 'when trying to capture a friendly piece' do
         let(:friendly_piece) { 'friendly_piece' }
+
         before do
           allow(move).to receive(:captured_piece).and_return(friendly_piece)
         end
+
         it 'returns false' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
@@ -3081,6 +3162,7 @@ describe Chess::PawnMoveValidator do
 
     context 'when black pawn moves diagonally to capture' do
       let(:attacking_piece) { 'attacking_piece' }
+
       before do
         allow(start_position).to receive(:diagonal_move?)
           .with(end_position).and_return(true)
@@ -3089,27 +3171,32 @@ describe Chess::PawnMoveValidator do
 
       context 'when capturing an enemy piece' do
         let(:enemy_piece) { 'enemy_piece' }
+
         before do
           allow(move).to receive(:captured_piece).and_return(enemy_piece)
         end
+
         it 'returns true' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
-        end        
+        end
       end
+
       context 'when capturing a friendly piece' do
         let(:friendly_piece) { 'friendly_piece' }
+
         before do
           allow(move).to receive(:captured_piece).and_return(friendly_piece)
         end
+
         it 'returns false' do
           expect(Chess::PieceHelpers).to receive(:enemy_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
-        end        
+        end
       end
     end
   end

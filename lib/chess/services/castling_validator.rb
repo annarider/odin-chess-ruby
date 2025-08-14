@@ -5,15 +5,16 @@ module Chess
   # This class contains methods to
   # ensure castling moves are allowed.
   module Castling
-    def self.is_castling_legal?(...)
+    def self.castling_legal?(...)
       new(...).can_castle?
     end
 
-    def initialize(move, _move_history = [])
+    def initialize(move, move_history = [])
       @king_start = move.from_position
       @king_end = move.to_position
       @piece = move.piece
       @rook_position = move.castling
+      @move_history = move_history
     end
 
     def can_castle?
