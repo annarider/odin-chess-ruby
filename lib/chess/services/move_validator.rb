@@ -13,7 +13,7 @@ module Chess
   # check.
   class MoveValidator
     attr_reader :board, :move, :start_position, :end_position, :piece,
-      :move_history
+                :move_history
 
     def self.is_move_legal?(...)
       new(...).is_move_legal?

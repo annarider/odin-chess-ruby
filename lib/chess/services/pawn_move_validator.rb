@@ -11,7 +11,7 @@ module Chess
   # - Forward moves only to empty squares
   class PawnMoveValidator
     attr_reader :start_position, :end_position, :piece, :captured_piece,
-      :move_history
+                :move_history
 
     def self.valid_move?(...)
       new(...).valid_move?
