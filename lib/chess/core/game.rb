@@ -53,7 +53,7 @@ module Chess
     end
 
     def switch_turn
-      @active_color = opponent_color
+      @active_color = PieceHelpers.opponent_color(active_color)
     end
 
     def game_over?
@@ -64,7 +64,7 @@ module Chess
       return nil unless game_over?
       return nil if stalemate? || draw_by_rule?
 
-      opponent_color
+      PieceHelpers.opponent_color(active_color)
     end
 
     private
@@ -106,10 +106,6 @@ module Chess
 
     def fifty_move_rule?
       half_move_clock >= 100
-    end
-
-    def opponent_color
-      active_color == 'w' ? 'b' : 'w'
     end
 
     def announce_game_end
