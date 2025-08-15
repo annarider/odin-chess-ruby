@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   class CheckDetector
     attr_reader :board, :active_color
@@ -12,11 +14,8 @@ module Chess
     end
 
     def in_check?
-      king_position = board.find_king(active_color)
-      enemy_color = PieceHelpers.opponent_color(active_color)
-      
+      board.find_king(active_color)
+      PieceHelpers.opponent_color(active_color)
     end
-
-    private 
   end
 end

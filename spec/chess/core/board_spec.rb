@@ -193,38 +193,43 @@ describe Chess::Board do
         expected_position = Chess::Position.from_algebraic('e1')
         expect(start_board.find_king(:white)).to eq(expected_position)
       end
+
       it 'returns e8 for black king' do
         expected_position = Chess::Position.from_algebraic('e8')
         expect(start_board.find_king(:black)).to eq(expected_position)
       end
     end
+
     context 'when placing a black king on e6' do
       start_pos = Chess::Position.from_algebraic('e8')
       end_pos = Chess::Position.from_algebraic('e6')
       before do
         start_board.update_position(start_pos, end_pos)
       end
+
       it 'returns e6 for moved black king' do
         expect(start_board.find_king(:black)).to eq(end_pos)
       end
     end
   end
+
   describe '#find_all_pieces' do
     context "when starting a new game (which starts as white's move)" do
       it 'returns all black pieces with positions' do
         expected_positions = starting_positions(:black)
         actual_positions = start_board.find_all_pieces(:black)
                                       .map { |data| data[:position] }
-        expect(actual_positions).to contain_exactly(*expected_positions)
+        expect(actual_positions).to match_array(expected_positions)
       end
-    context 'when the game has pieces in starting positions' do
-      it "returns all white pieces when it is black's move" do
-        expected_positions = starting_positions(:white)
-        actual_positions = start_board.find_all_pieces(:white)
-                                      .map { |data| data[:position] }
-        expect(actual_positions).to contain_exactly(*expected_positions)
+
+      context 'when the game has pieces in starting positions' do
+        it "returns all white pieces when it is black's move" do
+          expected_positions = starting_positions(:white)
+          actual_positions = start_board.find_all_pieces(:white)
+                                        .map { |data| data[:position] }
+          expect(actual_positions).to match_array(expected_positions)
+        end
       end
-    end
     end
 
     private
