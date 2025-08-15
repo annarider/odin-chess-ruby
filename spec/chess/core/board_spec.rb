@@ -191,12 +191,12 @@ describe Chess::Board do
     context 'when starting a new game' do
       it 'returns e1 for white king' do
         expected_position = Chess::Position.from_algebraic('e1')
-        expect(start_board.find_king(:white)).to eq(expected_position)
+        expect(start_board.find_king(Chess::ChessNotation::WHITE_PLAYER)).to eq(expected_position)
       end
 
       it 'returns e8 for black king' do
         expected_position = Chess::Position.from_algebraic('e8')
-        expect(start_board.find_king(:black)).to eq(expected_position)
+        expect(start_board.find_king(Chess::ChessNotation::BLACK_PLAYER)).to eq(expected_position)
       end
     end
 
@@ -208,7 +208,7 @@ describe Chess::Board do
       end
 
       it 'returns e6 for moved black king' do
-        expect(start_board.find_king(:black)).to eq(end_pos)
+        expect(start_board.find_king(Chess::ChessNotation::BLACK_PLAYER)).to eq(end_pos)
       end
     end
   end
@@ -216,18 +216,33 @@ describe Chess::Board do
   describe '#find_all_pieces' do
     context "when starting a new game (which starts as white's move)" do
       it 'returns all black pieces with positions' do
-        expected_positions = starting_positions(:black)
-        actual_positions = start_board.find_all_pieces(:black)
+        expected_positions = starting_positions(Chess::ChessNotation::BLACK_PLAYER)
+        actual_positions = start_board.find_all_pieces(Chess::ChessNotation::BLACK_PLAYER)
                                       .map { |data| data[:position] }
         expect(actual_positions).to match_array(expected_positions)
       end
 
       context 'when the game has pieces in starting positions' do
         it "returns all white pieces when it is black's move" do
-          expected_positions = starting_positions(:white)
-          actual_positions = start_board.find_all_pieces(:white)
+          expected_positions = starting_positions(Chess::ChessNotation::WHITE_PLAYER)
+          actual_positions = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
                                         .map { |data| data[:position] }
           expect(actual_positions).to match_array(expected_positions)
+        end
+      end
+
+      context 'when all black pieces are requested' do
+        it 'returns only black pieces' do
+          black_pieces = start_board.find_all_pieces(Chess::ChessNotation::BLACK_PLAYER)
+          expect(black_pieces.length).to eq(16)
+          expect(black_pieces.map { |data| data[:piece] }).to all(match(/[a-z]/))
+        end
+      end
+      context 'when all white pieces are requested' do
+        it 'returns only white pieces' do
+          white_pieces = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
+          expect(white_pieces.length).to eq(16)
+          expect(white_pieces.map { |data| data[:piece] }).to all(match(/[A-Z]/))
         end
       end
     end
@@ -235,7 +250,7 @@ describe Chess::Board do
     private
 
     def starting_positions(active_color)
-      regex = active_color == :white ? /[A-Z]/ : /[a-z]/
+      regex = active_color == Chess::ChessNotation::WHITE_PLAYER ? /[A-Z]/ : /[a-z]/
       # Use existing Piece data about starting positions
       Chess::Piece::START_POSITIONS.select { |_, symbol| symbol.match?(regex) }
                                    .keys # gets the position info in array
