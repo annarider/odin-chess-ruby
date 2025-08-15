@@ -7,7 +7,7 @@ require_relative '../../../lib/chess'
 describe Chess::CheckDetector do
   subject(:detector) { described_class }
 
-  let(:board) { Chess::Board.new }
+  let(:board) { Chess::Board.start_positions(add_pieces: true) }
 
   describe '.in_check?' do
     context 'when starting a new game and king is not in check' do
