@@ -54,7 +54,7 @@ module Chess
 
       {
         grid: parse_piece_placement(fen_fields[0]),
-        active_color: fen_fields[1],
+        active_color: convert_fen_active_color(fen_fields[1]),
         castling_rights: build_castling_rights(castling_rights),
         en_passant_square: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
@@ -96,6 +96,10 @@ module Chess
       return nil if field == '-'
 
       Position.from_algebraic(field)
+    end
+
+    def convert_fen_active_color(fen_string)
+      fen_string == 'w' ? :white : :black
     end
   end
 end

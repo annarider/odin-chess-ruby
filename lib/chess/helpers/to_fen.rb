@@ -21,7 +21,7 @@ module Chess
     def create_fen
       fen_string = ''
       fen_string += "#{build_piece_placement(fen_data[:grid])} "
-      fen_string += "#{fen_data[:active_color]} "
+      fen_string += "#{convert_fen_active_color(fen_data[:active_color])} "
       fen_string += "#{build_castling_rights(fen_data[:castling_rights])} "
       fen_string += "#{build_en_passant(fen_data[:en_passant_square])} "
       fen_string += "#{fen_data[:half_move_clock]} "
@@ -65,6 +65,11 @@ module Chess
       return '-' if square.nil?
 
       square
+    end
+
+    def convert_fen_active_color(color)
+      p color
+      color == :white ? 'w' : 'b'
     end
   end
 end

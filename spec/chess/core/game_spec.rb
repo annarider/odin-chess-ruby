@@ -14,7 +14,7 @@ describe Chess::Game do
 
       it "returns that it is white's turn to move" do
         result = start_game.active_color
-        expect(result).to eq('w')
+        expect(result).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -32,7 +32,7 @@ describe Chess::Game do
       let(:after_move_fen) { 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1' }
 
       it 'returns active player color is black' do
-        expect(midway_game.active_color).to eq('b')
+        expect(midway_game.active_color).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -50,7 +50,7 @@ describe Chess::Game do
       let(:end_game_fen) { '3B4/K7/2k1b1p1/1p2Pp1p/3P3P/2P3P1/8/8 w - - 0 74' }
 
       it 'returns active player color is white' do
-        expect(end_game.active_color).to eq('w')
+        expect(end_game.active_color).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -139,7 +139,7 @@ describe Chess::Game do
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
       let(:mock_board_data) do
         [
-          ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+          ['r', 'n', Chess::ChessNotation::BLACK_PLAYER, 'q', 'k', Chess::ChessNotation::BLACK_PLAYER, 'n', 'r'],
           ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
           ['', '', '', '', '', '', '', ''],
           ['', '', '', '', '', '', '', ''],
@@ -152,7 +152,7 @@ describe Chess::Game do
 
       it 'returns white as the active player color' do
         current_player = new_game.active_color
-        expect(current_player).to eq('w')
+        expect(current_player).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns starting position fen string' do
@@ -182,7 +182,7 @@ describe Chess::Game do
     context 'after white makes a move' do
       it 'sends a message to switch to black' do
         expect { start_game.switch_turn }.to change(start_game, :active_color)
-          .from('w').to('b')
+          .from(Chess::ChessNotation::WHITE_PLAYER).to(Chess::ChessNotation::BLACK_PLAYER)
         start_game.switch_turn
       end
     end
@@ -220,7 +220,7 @@ describe Chess::Game do
     context 'when black checkmates' do
       it 'returns black as the winner' do
         allow(end_game).to receive(:game_over?).and_return(true)
-        expect(end_game.winner).to eq('b')
+        expect(end_game.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
   end
