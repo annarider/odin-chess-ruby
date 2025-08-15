@@ -72,6 +72,16 @@ module Chess
       grid[position.row][position.column]
     end
 
+    def find_king(color)
+      grid.each_with_index do |rank, row_index|
+        rank.each_with_index do |piece, col_index|
+          if piece == (color == :white ? 'K' : 'k')
+            return Position.new(row_index, col_index)
+          end
+        end
+      end
+    end
+
     # command to update grid state when piece moves
     def update_position(start_pos, end_pos)
       piece = piece_at(start_pos)

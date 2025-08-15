@@ -186,4 +186,27 @@ describe Chess::Board do
       start_board.valid_move?(move)
     end
   end
+
+  describe '#find_king' do
+    context 'when starting a new game' do
+      it 'returns e1 for white king' do
+        expected_position = Chess::Position.from_algebraic('e1')
+        expect(start_board.find_king(:white)).to eq(expected_position)
+      end
+      it 'returns e8 for black king' do
+        expected_position = Chess::Position.from_algebraic('e8')
+        expect(start_board.find_king(:black)).to eq(expected_position)
+      end
+    end
+    context 'when placing a black king on e6' do
+      start_pos = Chess::Position.from_algebraic('e8')
+      end_pos = Chess::Position.from_algebraic('e6')
+      before do
+        start_board.update_position(start_pos, end_pos)
+      end
+      it 'returns e6 for moved black king' do
+        expect(start_board.find_king(:black)).to eq(end_pos)
+      end
+    end
+  end
 end
