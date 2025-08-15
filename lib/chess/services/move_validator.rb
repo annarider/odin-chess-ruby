@@ -51,7 +51,7 @@ module Chess
       if target_piece.nil? # empty square
         true
       else
-        PieceHelpers.enemy_color?(attack_piece: piece, captured_piece: target_piece)
+        PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: target_piece)
       end
     end
 

@@ -80,7 +80,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
@@ -95,7 +95,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
@@ -133,7 +133,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
@@ -148,7 +148,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false

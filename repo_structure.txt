@@ -1099,7 +1099,7 @@ FILE: ./lib/chess/helpers/piece_helpers.rb
 module Chess
   module PieceHelpers
     # checks if the captured piece is an enemy color
-    def self.enemy_color?(attack_piece:, captured_piece:)
+    def self.opponent_color?(attack_piece:, captured_piece:)
       (attack_piece.match?(/[A-Z]/) && captured_piece.match?(/[a-z]/)) ||
         (attack_piece.match?(/[a-z]/) && captured_piece.match?(/[A-Z]/))
     end
@@ -1389,7 +1389,7 @@ module Chess
       if target_piece.nil? # empty square
         true
       else
-        PieceHelpers.enemy_color?(attack_piece: piece, captured_piece: target_piece)
+        PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: target_piece)
       end
     end
 
@@ -1483,7 +1483,7 @@ module Chess
       return false unless captured_piece
 
       # must only capture enemy pieces
-      PieceHelpers.enemy_color?(attack_piece: piece, captured_piece: captured_piece)
+      PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: captured_piece)
     end
 
     def forward_move_valid?
@@ -3124,7 +3124,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
@@ -3139,7 +3139,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
@@ -3177,7 +3177,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be true
@@ -3192,7 +3192,7 @@ describe Chess::PawnMoveValidator do
         end
 
         it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:enemy_color?)
+          expect(Chess::PieceHelpers).to receive(:opponent_color?)
             .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
           result = described_class.valid_move?(move, move_history)
           expect(result).to be false
