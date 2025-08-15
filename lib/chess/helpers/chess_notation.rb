@@ -5,8 +5,8 @@ module Chess
   # Notation in Chess game
   module ChessNotation
     FILES = %w[a b c d e f g h].freeze
-    WHITE_PLAYER = 'w'
-    BLACK_PLAYER = 'b'
+    WHITE_PLAYER = :white
+    BLACK_PLAYER = :black
     NEITHER_CASTLE_RIGHTS = '-'
     WHITE_CASTLE_KINGSIDE = 'K'
     WHITE_CASTLE_QUEENSIDE = 'Q'

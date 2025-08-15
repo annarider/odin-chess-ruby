@@ -209,4 +209,29 @@ describe Chess::Board do
       end
     end
   end
+  describe '#find_all_pieces' do
+    context "when starting a new game (which starts as white's move)" do
+      it 'returns all black pieces with positions' do
+        expected_positions = starting_positions(:white)
+        actual_positions = start_board.find_all_pieces(:black)
+                                      .map { |data| data[:position] }
+        expect(actual_positions).to contain_exactly(*expected_positions)
+      end
+    end
+
+    private
+
+    def starting_positions(active_color)
+      opponent_color = active_color == :white ? /[a-z]/ : /[A-Z]/
+      # Use existing Piece data about starting positions
+      Chess::Piece::START_POSITIONS.select { |_, symbol| symbol.match?(opponent_color) }
+                                   .keys # gets the position info in array
+                                   .map { |pos| Chess::Position.new(pos.first, pos.last) }
+    end
+
+    def positions_for_color(board, active_color)
+      board.find_all_pieces(active_color)
+           .map { |data| Chess::Position.new(data[:position].first, data[:position].last) }
+    end
+  end
 end

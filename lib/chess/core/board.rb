@@ -72,14 +72,23 @@ module Chess
       grid[position.row][position.column]
     end
 
-    def find_king(color)
-      grid.each_with_index do |rank, row_index|
-        rank.each_with_index do |piece, col_index|
-          if piece == (color == :white ? 'K' : 'k')
-            return Position.new(row_index, col_index)
-          end
+    def find_king(active_color)
+      target_piece = active_color == Chess::ChessNotation::WHITE_PLAYER ? 'K' : 'k'
+      each_square do |piece, row_index, col_index|
+        return Position.new(row_index, col_index) if piece == target_piece
+      end
+    end
+
+    def find_all_pieces(active_color)
+      pieces = []
+      each_square do |piece, row, column|
+        next if piece.nil?
+
+        if PieceHelpers.opponent_team?(active_color: active_color, target_piece: piece)
+          pieces << { position: Position.new(row, column), piece: piece }
         end
       end
+      pieces
     end
 
     # command to update grid state when piece moves
@@ -117,6 +126,14 @@ module Chess
     end
 
     private
+
+    def each_square
+      grid.each_with_index do |rank, row_index|
+        rank.each_with_index do |piece, col_index|
+          yield(piece, row_index, col_index)
+        end
+      end
+    end
 
     def possible_moves(position)
       return [] if piece_at(position).nil?
