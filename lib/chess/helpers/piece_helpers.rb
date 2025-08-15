@@ -12,11 +12,11 @@ module Chess
       active_color == Chess::ChessNotation::WHITE_PLAYER ? Chess::ChessNotation::BLACK_PLAYER : Chess::ChessNotation::WHITE_PLAYER
     end
 
-    def self.opponent_team?(active_color:, target_piece:)
-      # if white's piece
-      if active_color == Chess::ChessNotation::WHITE_PLAYER
+    def self.friendly_piece?(color:, target_piece:)
+      # if it's white's piece
+      if color == Chess::ChessNotation::WHITE_PLAYER
         target_piece.match?(/[A-Z]/)
-      else
+      elsif color == Chess::ChessNotation::BLACK_PLAYER
         target_piece.match?(/[a-z]/)
       end
     end

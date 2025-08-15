@@ -72,19 +72,19 @@ module Chess
       grid[position.row][position.column]
     end
 
-    def find_king(active_color)
-      target_piece = active_color == Chess::ChessNotation::WHITE_PLAYER ? 'K' : 'k'
+    def find_king(color)
+      target_piece = color == Chess::ChessNotation::WHITE_PLAYER ? 'K' : 'k'
       each_square do |piece, row_index, col_index|
         return Position.new(row_index, col_index) if piece == target_piece
       end
     end
 
-    def find_all_pieces(active_color)
+    def find_all_pieces(color)
       pieces = []
       each_square do |piece, row, column|
         next if piece.nil?
 
-        if PieceHelpers.opponent_team?(active_color: active_color, target_piece: piece)
+        if PieceHelpers.friendly_piece?(color: color, target_piece: piece)
           pieces << { position: Position.new(row, column), piece: piece }
         end
       end
