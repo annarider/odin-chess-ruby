@@ -59,11 +59,10 @@ describe Chess::MoveValidator do
       subject(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
       it 'returns false when white bishop path is blocked' do
-        starting_board = Chess::Board.start_positions(add_pieces: true)
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')
-        expect(described_class.move_legal?(starting_board, move)).to be false
+        expect(described_class.move_legal?(start_board, move)).to be false
       end
 
       it 'returns true for white knight which can leap over pieces' do
