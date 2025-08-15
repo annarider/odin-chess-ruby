@@ -12,6 +12,7 @@ require_relative 'chess/helpers/interface'
 require_relative 'chess/helpers/piece_helpers'
 require_relative 'chess/helpers/to_fen'
 
+require_relative 'chess/services/check_detector'
 require_relative 'chess/services/castling_validator'
 require_relative 'chess/services/move_calculator'
 require_relative 'chess/services/move_validator'

@@ -12,7 +12,8 @@ module Chess
     end
 
     def in_check?
-      
+      king_position = board.find_king(active_color)
+      all_moves
     end
   end
 end
