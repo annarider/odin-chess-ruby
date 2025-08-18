@@ -28,8 +28,11 @@ module Chess
     private
 
     def find_all_pieces_moves(piece_data)
-      piece_data.flat_map do |position, piece|
-        MoveCalculator.generate_possible_moves(position, piece)
+      piece_data.flat_map do |piece_hash|
+        MoveCalculator.generate_possible_moves(
+          piece_hash[:position],
+          piece_hash[:piece]
+        )
       end
     end
 

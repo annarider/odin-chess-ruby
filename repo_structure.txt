@@ -1,6 +1,6 @@
 =========================================
 REPOSITORY STRUCTURE AND CONTENT
-Generated on: Mon Aug 18 11:20:02 MDT 2025
+Generated on: Mon Aug 18 11:38:45 MDT 2025
 =========================================
 
 DIRECTORY TREE:
@@ -1308,15 +1308,13 @@ module Chess
     private
 
     def find_all_pieces_moves(piece_data)
-      possible_move_positions = []
-      piece_data.each do |position, piece|
-        possible_move_positions << MoveCalculator.new(position[:position], piece)
+      piece_data.flat_map do |piece_hash|
+        MoveCalculator.generate_possible_moves(piece_hash[:position], piece_hash[:piece])
       end
-      possible_move_positions
     end
 
     def find_king_in_opponent_moves?(king_position, opponent_moves)
-      opponent_moves.find { |position| position == king_position }
+      opponent_moves.any? { |position| position == king_position }
     end
   end
 end
