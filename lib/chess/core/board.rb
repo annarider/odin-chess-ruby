@@ -94,6 +94,8 @@ module Chess
     # command to update grid state when piece moves
     def update_position(start_pos, end_pos)
       piece = piece_at(start_pos)
+      raise ArgumentError, "No piece at #{start_pos}" unless piece
+
       place_piece(end_pos, piece)
       erase_origin_position(start_pos)
     end
