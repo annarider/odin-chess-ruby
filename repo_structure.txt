@@ -1,6 +1,6 @@
 =========================================
 REPOSITORY STRUCTURE AND CONTENT
-Generated on: Mon Aug 18 11:38:45 MDT 2025
+Generated on: Mon Aug 18 11:44:48 MDT 2025
 =========================================
 
 DIRECTORY TREE:
@@ -1309,7 +1309,10 @@ module Chess
 
     def find_all_pieces_moves(piece_data)
       piece_data.flat_map do |piece_hash|
-        MoveCalculator.generate_possible_moves(piece_hash[:position], piece_hash[:piece])
+        MoveCalculator.generate_possible_moves(
+          piece_hash[:position],
+          piece_hash[:piece]
+        )
       end
     end
 

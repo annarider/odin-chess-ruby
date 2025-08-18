@@ -21,6 +21,7 @@ describe Chess::CheckDetector do
         expect(black_check).to be false
       end
     end
+
     context 'when white king is in check by queen' do
       # Scholar's mate position: king in check by queen on f7
       let(:board) { Chess::Board.from_fen('rnb1kbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1qPP/RNBQK1NR w KQkq - 2 3') }
@@ -29,6 +30,7 @@ describe Chess::CheckDetector do
         white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
         expect(white_check).to be true
       end
+
       it 'returns false for black king' do
         black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
         expect(black_check).to be false
@@ -43,27 +45,56 @@ describe Chess::CheckDetector do
         black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
         expect(black_check).to be true
       end
+
       it 'returns false for white king' do
         white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
         expect(white_check).to be false
       end
     end
 
-    context 'when white king is in check by black  bishop' do
+    context 'when white king is in check by black bishop' do
       # White king in check by black bishop on diagonal
       let(:bishop_start) { Chess::Position.from_algebraic('f8') }
       let(:bishop_end) { Chess::Position.from_algebraic('a5') }
+
       before do
         # Move black bishop to attack white king position
         board.update_position(bishop_start, bishop_end)
       end
+
       it 'returns true for white king' do
         white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
         expect(white_check).to be true
       end
+
       it 'returns false for black king' do
         black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
         expect(black_check).to be false
+      end
+    end
+
+    context 'when king is in check by knight' do
+      let(:board) { Chess::Board.from_fen('rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2') }
+
+      before do
+        # Place white king on e4 and black knight on f6 to create check conditions
+        board.place_piece(Chess::Position.from_algebraic('e4'), 'K')
+        board.place_piece(Chess::Position.from_algebraic('f6'), 'n')
+      end
+
+      it 'returns true for white king in check' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
+      end
+    end
+
+    context 'when white king is in check by black pawn' do
+      # Create position with white king on e5 and black pawn on d6 to set up check
+      let(:board) { Chess::Board.from_fen('rnbqkbnr/ppp1pppp/3p4/4K3/8/8/PPPPPPPP/RNBQ1BNR w KQkq - 0 1') }
+
+      it 'returns true for white king in check' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
       end
     end
   end
