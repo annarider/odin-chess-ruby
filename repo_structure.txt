@@ -1,6 +1,6 @@
 =========================================
 REPOSITORY STRUCTURE AND CONTENT
-Generated on: Thu Aug 14 11:40:50 MDT 2025
+Generated on: Mon Aug 18 11:20:02 MDT 2025
 =========================================
 
 DIRECTORY TREE:
@@ -44,6 +44,7 @@ DIRECTORY TREE:
 │   │   │   └── to_fen.rb
 │   │   └── services
 │   │       ├── castling_validator.rb
+│   │       ├── check_detector.rb
 │   │       ├── move_calculator.rb
 │   │       ├── move_validator.rb
 │   │       └── pawn_move_validator.rb
@@ -64,6 +65,7 @@ DIRECTORY TREE:
 │   │   │   └── interface_spec.rb
 │   │   └── services
 │   │       ├── castling_validator_spec.rb
+│   │       ├── check_detector.rb
 │   │       ├── move_calculator_spec.rb
 │   │       ├── move_validator_spec.rb
 │   │       └── pawn_move_validator_spec.rb
@@ -71,7 +73,7 @@ DIRECTORY TREE:
 └── spike
     └── interface.rb
 
-16 directories, 49 files
+16 directories, 51 files
 
 
 FILE CONTENTS:
@@ -104,6 +106,7 @@ require_relative 'chess/helpers/interface'
 require_relative 'chess/helpers/piece_helpers'
 require_relative 'chess/helpers/to_fen'
 
+require_relative 'chess/services/check_detector'
 require_relative 'chess/services/castling_validator'
 require_relative 'chess/services/move_calculator'
 require_relative 'chess/services/move_validator'
@@ -199,6 +202,25 @@ module Chess
       grid[position.row][position.column]
     end
 
+    def find_king(color)
+      target_piece = color == Chess::ChessNotation::WHITE_PLAYER ? 'K' : 'k'
+      each_square do |piece, row_index, col_index|
+        return Position.new(row_index, col_index) if piece == target_piece
+      end
+    end
+
+    def find_all_pieces(color)
+      pieces = []
+      each_square do |piece, row, column|
+        next if piece.nil?
+
+        if PieceHelpers.friendly_piece?(color: color, target_piece: piece)
+          pieces << { position: Position.new(row, column), piece: piece }
+        end
+      end
+      pieces
+    end
+
     # command to update grid state when piece moves
     def update_position(start_pos, end_pos)
       piece = piece_at(start_pos)
@@ -234,6 +256,14 @@ module Chess
     end
 
     private
+
+    def each_square
+      grid.each_with_index do |rank, row_index|
+        rank.each_with_index do |piece, col_index|
+          yield(piece, row_index, col_index)
+        end
+      end
+    end
 
     def possible_moves(position)
       return [] if piece_at(position).nil?
@@ -314,7 +344,7 @@ module Chess
     end
 
     def switch_turn
-      @active_color = opponent_color
+      @active_color = PieceHelpers.opponent_color(active_color)
     end
 
     def game_over?
@@ -325,7 +355,7 @@ module Chess
       return nil unless game_over?
       return nil if stalemate? || draw_by_rule?
 
-      opponent_color
+      PieceHelpers.opponent_color(active_color)
     end
 
     private
@@ -367,10 +397,6 @@ module Chess
 
     def fifty_move_rule?
       half_move_clock >= 100
-    end
-
-    def opponent_color
-      active_color == 'w' ? 'b' : 'w'
     end
 
     def announce_game_end
@@ -743,8 +769,8 @@ module Chess
   # Notation in Chess game
   module ChessNotation
     FILES = %w[a b c d e f g h].freeze
-    WHITE_PLAYER = 'w'
-    BLACK_PLAYER = 'b'
+    WHITE_PLAYER = :white
+    BLACK_PLAYER = :black
     NEITHER_CASTLE_RIGHTS = '-'
     WHITE_CASTLE_KINGSIDE = 'K'
     WHITE_CASTLE_QUEENSIDE = 'Q'
@@ -956,7 +982,7 @@ module Chess
 
       {
         grid: parse_piece_placement(fen_fields[0]),
-        active_color: fen_fields[1],
+        active_color: convert_fen_active_color(fen_fields[1]),
         castling_rights: build_castling_rights(castling_rights),
         en_passant_square: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
@@ -998,6 +1024,10 @@ module Chess
       return nil if field == '-'
 
       Position.from_algebraic(field)
+    end
+
+    def convert_fen_active_color(fen_string)
+      fen_string == 'w' ? :white : :black
     end
   end
 end
@@ -1103,6 +1133,19 @@ module Chess
       (attack_piece.match?(/[A-Z]/) && captured_piece.match?(/[a-z]/)) ||
         (attack_piece.match?(/[a-z]/) && captured_piece.match?(/[A-Z]/))
     end
+
+    def self.opponent_color(active_color)
+      active_color == Chess::ChessNotation::WHITE_PLAYER ? Chess::ChessNotation::BLACK_PLAYER : Chess::ChessNotation::WHITE_PLAYER
+    end
+
+    def self.friendly_piece?(color:, target_piece:)
+      # if it's white's piece
+      if color == Chess::ChessNotation::WHITE_PLAYER
+        target_piece.match?(/[A-Z]/)
+      elsif color == Chess::ChessNotation::BLACK_PLAYER
+        target_piece.match?(/[a-z]/)
+      end
+    end
   end
 end
 
@@ -1133,7 +1176,7 @@ module Chess
     def create_fen
       fen_string = ''
       fen_string += "#{build_piece_placement(fen_data[:grid])} "
-      fen_string += "#{fen_data[:active_color]} "
+      fen_string += "#{convert_fen_active_color(fen_data[:active_color])} "
       fen_string += "#{build_castling_rights(fen_data[:castling_rights])} "
       fen_string += "#{build_en_passant(fen_data[:en_passant_square])} "
       fen_string += "#{fen_data[:half_move_clock]} "
@@ -1177,6 +1220,11 @@ module Chess
       return '-' if square.nil?
 
       square
+    end
+
+    def convert_fen_active_color(color)
+      p color
+      color == :white ? 'w' : 'b'
     end
   end
 end
@@ -1222,6 +1270,53 @@ module Chess
 
     def rook
       move_history.has_moved?
+    end
+  end
+end
+
+
+================================================
+FILE: ./lib/chess/services/check_detector.rb
+================================================
+# frozen_string_literal: true
+
+module Chess
+  class CheckDetector
+    attr_reader :board, :active_color
+
+    def self.in_check?(...)
+      new(...).in_check?
+    end
+
+    def initialize(board, active_color)
+      @board = board
+      @active_color = active_color
+    end
+
+    def in_check?
+      king_position = board.find_king(active_color)
+      return false unless king_position
+
+      opponent_color = PieceHelpers.opponent_color(active_color)
+      # retrieve data on all of opponent's pieces & their positions
+      opponent_pieces = board.find_all_pieces(opponent_color)
+      # calculate all moves possible from opponent pieces
+      opponent_moves = find_all_pieces_moves(opponent_pieces)
+      find_king_in_opponent_moves?(king_position, opponent_moves)
+    end
+
+    private
+
+    def find_all_pieces_moves(piece_data)
+      possible_move_positions = []
+      piece_data.each do |position, piece|
+        possible_move_positions << MoveCalculator.new(position[:position], piece)
+      end
+      possible_move_positions
+    end
+
+    def find_king_in_opponent_moves?(king_position, opponent_moves)
+      opponent_moves.find { |position| position == king_position }
     end
   end
 end
@@ -1849,6 +1944,82 @@ describe Chess::Board do
       start_board.valid_move?(move)
     end
   end
+
+  describe '#find_king' do
+    context 'when starting a new game' do
+      it 'returns e1 for white king' do
+        expected_position = Chess::Position.from_algebraic('e1')
+        expect(start_board.find_king(Chess::ChessNotation::WHITE_PLAYER)).to eq(expected_position)
+      end
+
+      it 'returns e8 for black king' do
+        expected_position = Chess::Position.from_algebraic('e8')
+        expect(start_board.find_king(Chess::ChessNotation::BLACK_PLAYER)).to eq(expected_position)
+      end
+    end
+
+    context 'when placing a black king on e6' do
+      start_pos = Chess::Position.from_algebraic('e8')
+      end_pos = Chess::Position.from_algebraic('e6')
+      before do
+        start_board.update_position(start_pos, end_pos)
+      end
+
+      it 'returns e6 for moved black king' do
+        expect(start_board.find_king(Chess::ChessNotation::BLACK_PLAYER)).to eq(end_pos)
+      end
+    end
+  end
+
+  describe '#find_all_pieces' do
+    context "when starting a new game (which starts as white's move)" do
+      it 'returns all black pieces with positions' do
+        expected_positions = starting_positions(Chess::ChessNotation::BLACK_PLAYER)
+        actual_positions = start_board.find_all_pieces(Chess::ChessNotation::BLACK_PLAYER)
+                                      .map { |data| data[:position] }
+        expect(actual_positions).to match_array(expected_positions)
+      end
+
+      context 'when the game has pieces in starting positions' do
+        it "returns all white pieces when it is black's move" do
+          expected_positions = starting_positions(Chess::ChessNotation::WHITE_PLAYER)
+          actual_positions = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
+                                        .map { |data| data[:position] }
+          expect(actual_positions).to match_array(expected_positions)
+        end
+      end
+
+      context 'when all black pieces are requested' do
+        it 'returns only black pieces' do
+          black_pieces = start_board.find_all_pieces(Chess::ChessNotation::BLACK_PLAYER)
+          expect(black_pieces.length).to eq(16)
+          expect(black_pieces.map { |data| data[:piece] }).to all(match(/[a-z]/))
+        end
+      end
+      context 'when all white pieces are requested' do
+        it 'returns only white pieces' do
+          white_pieces = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
+          expect(white_pieces.length).to eq(16)
+          expect(white_pieces.map { |data| data[:piece] }).to all(match(/[A-Z]/))
+        end
+      end
+    end
+
+    private
+
+    def starting_positions(active_color)
+      regex = active_color == Chess::ChessNotation::WHITE_PLAYER ? /[A-Z]/ : /[a-z]/
+      # Use existing Piece data about starting positions
+      Chess::Piece::START_POSITIONS.select { |_, symbol| symbol.match?(regex) }
+                                   .keys # gets the position info in array
+                                   .map { |pos| Chess::Position.new(pos.first, pos.last) }
+    end
+
+    def positions_for_color(board, active_color)
+      board.find_all_pieces(active_color)
+           .map { |data| Chess::Position.new(data[:position].first, data[:position].last) }
+    end
+  end
 end
 
 
@@ -1871,7 +2042,7 @@ describe Chess::Game do
 
       it "returns that it is white's turn to move" do
         result = start_game.active_color
-        expect(result).to eq('w')
+        expect(result).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -1889,7 +2060,7 @@ describe Chess::Game do
       let(:after_move_fen) { 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1' }
 
       it 'returns active player color is black' do
-        expect(midway_game.active_color).to eq('b')
+        expect(midway_game.active_color).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -1907,7 +2078,7 @@ describe Chess::Game do
       let(:end_game_fen) { '3B4/K7/2k1b1p1/1p2Pp1p/3P3P/2P3P1/8/8 w - - 0 74' }
 
       it 'returns active player color is white' do
-        expect(end_game.active_color).to eq('w')
+        expect(end_game.active_color).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns 0 for half move clock' do
@@ -1996,7 +2167,7 @@ describe Chess::Game do
       let(:starting_fen) { 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1' }
       let(:mock_board_data) do
         [
-          ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+          ['r', 'n', Chess::ChessNotation::BLACK_PLAYER, 'q', 'k', Chess::ChessNotation::BLACK_PLAYER, 'n', 'r'],
           ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
           ['', '', '', '', '', '', '', ''],
           ['', '', '', '', '', '', '', ''],
@@ -2009,7 +2180,7 @@ describe Chess::Game do
 
       it 'returns white as the active player color' do
         current_player = new_game.active_color
-        expect(current_player).to eq('w')
+        expect(current_player).to eq(Chess::ChessNotation::WHITE_PLAYER)
       end
 
       it 'returns starting position fen string' do
@@ -2039,7 +2210,7 @@ describe Chess::Game do
     context 'after white makes a move' do
       it 'sends a message to switch to black' do
         expect { start_game.switch_turn }.to change(start_game, :active_color)
-          .from('w').to('b')
+          .from(Chess::ChessNotation::WHITE_PLAYER).to(Chess::ChessNotation::BLACK_PLAYER)
         start_game.switch_turn
       end
     end
@@ -2077,7 +2248,7 @@ describe Chess::Game do
     context 'when black checkmates' do
       it 'returns black as the winner' do
         allow(end_game).to receive(:game_over?).and_return(true)
-        expect(end_game.winner).to eq('b')
+        expect(end_game.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
   end
@@ -2753,6 +2924,30 @@ require_relative '../../../lib/chess'
 
 
 ================================================
+FILE: ./spec/chess/services/check_detector.rb
+================================================
+# frozen_string_literal: true
+
+require_relative '../../../lib/chess'
+
+# Tests for Check Detector
+
+describe Chess::CheckDetector do
+  subject(:detector) { described_class }
+
+  let(:board) { Chess::Board.start_positions(add_pieces: true) }
+
+  describe '.in_check?' do
+    context 'when starting a new game and king is not in check' do
+      it 'returns false for white king' do
+        expect(detector.in_check?(board, :white)).to be false
+      end
+    end
+  end
+end
+
+
+================================================
 FILE: ./spec/chess/services/move_calculator_spec.rb
 ================================================
 # frozen_string_literal: true
@@ -2934,11 +3129,10 @@ describe Chess::MoveValidator do
       subject(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
       it 'returns false when white bishop path is blocked' do
-        starting_board = Chess::Board.start_positions(add_pieces: true)
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')
-        expect(described_class.move_legal?(starting_board, move)).to be false
+        expect(described_class.move_legal?(start_board, move)).to be false
       end
 
       it 'returns true for white knight which can leap over pieces' do
