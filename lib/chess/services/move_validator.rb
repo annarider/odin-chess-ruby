@@ -62,15 +62,8 @@ module Chess
         start: start_position,
         destination: end_position
         )
-      empty_square_along_path?(path)
-    end
-
-    # are there any pieces along the piece's movement path?
-    def empty_square_along_path?(path)
-      route = path[0...-1] # remove destination square
-      return true if route.all? { |position| board.piece_at(position).nil? }
-
-      false
+      # are there any pieces along the piece's movement path?
+      path.all? { |position| board.piece_at(position).nil? }
     end
 
     def valid_piece_moves?
