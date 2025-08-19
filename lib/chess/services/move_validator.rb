@@ -59,7 +59,6 @@ module Chess
       return true if %w[n N].include?(piece)
 
       path = PathCalculator.calculate_path_between(
-        board,
         start: start_position,
         destination: end_position
         )

@@ -1,32 +1,70 @@
 module Chess
   # Find all the squares between start and destination positions
   class PathCalculator
-    attr_reader :board, :start_position, :end_position
+    attr_reader :start_position, :end_position
 
     def self.calculate_path_between(...)
-      new(...).calculate_path_between
+      new(...).calculate_path
     end
 
-    def initialize(board, start:, destination:)
+    def initialize(start:, destination:)
       @start_position = start
       @end_position = destination
-      @board = board
     end
 
-    def calculate_path_between
-      total_row_delta = end_position.row - start_position.row
-      total_column_delta = end_position.column - start_position.column
-      direction_vector = [
-        convert_direction(total_row_delta),
-        convert_direction(total_column_delta)
-      ]
-      steps = [total_row_delta.abs, total_column_delta.abs].max
-      request_moves(direction_vector, steps)
+    def calculate_path
+      return [] if same_position? || adjacent_positions?
+      return [] unless valid_line?
+
+      build_path
     end
 
     private
 
-    def convert_direction(delta)
+    def same_position?
+      start_position == end_position
+    end
+
+    def adjacent_positions?
+      row_distance <= 1 && column_distance <= 1
+    end
+
+    def valid_line?
+      horizontal_line? || vertical_line? || diagonal_line?
+    end
+
+    def horizontal_line?
+      start_position.row == end_position.row
+    end
+
+    def vertical_line?
+      start_position.column == end_position.column
+    end
+
+    def diagonal_line?
+      row_distance == column_distance
+    end
+
+    def build_path
+      positions = []
+      current_position = start_position + direction_vector
+
+      while current_position != end_position
+        positions << current_position
+        current_position += direction_vector
+      end
+
+      positions
+    end
+
+    def direction_vector
+      Position.new(
+        normalize_direction(end_position.row - start_position.row),
+        normalize_direction(end_position.column - start_position.column)
+      )
+    end
+
+    def normalize_direction(delta)
       return 0 if delta.zero?
 
       delta.positive? ? 1 : -1
@@ -37,8 +75,12 @@ module Chess
       calculator.calculate_moves([direction_vector], steps)
     end
 
-    def piece
-      board.piece_at(start_position)
+    def row_distance
+      (start_position.row - end_position.row).abs
+    end
+
+    def column_distance
+      (start_position.column - end_position.column).abs
     end
   end
 end
