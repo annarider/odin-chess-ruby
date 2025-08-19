@@ -172,4 +172,49 @@ describe Chess::CheckDetector do
       end
     end
   end
+
+  describe '#initialize' do
+    context "when the king's position is provided at the start of the game" do
+      it "returns false when using the king's position which is passed in" do
+        king_start = Chess::Position.new(3, 4)
+        black_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::BLACK_PLAYER,
+          king_start
+        )
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the king's position isn't provided" do
+      it 'returns false for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the king's position is explicitly passed in as nil" do
+      it 'returns false for black king' do
+        black_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::BLACK_PLAYER,
+          nil
+        )
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the white king's position is provided" do
+      # Set up a post castling move which puts the king in check
+      let(:board) { Chess::Board.from_fen('6r1/8/8/8/8/8/8/4K2R w K - 0 1') }
+      it 'returns true when the king is in check' do
+        white_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::WHITE_PLAYER,
+          Chess::Position.from_algebraic('g1')
+        )
+        expect(white_check).to be true
+      end
+    end
+  end
 end

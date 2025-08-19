@@ -2,21 +2,19 @@
 
 module Chess
   class CheckDetector
-    attr_reader :board, :active_color
+    attr_reader :board, :active_color, :king_position
 
     def self.in_check?(...)
       new(...).in_check?
     end
 
-    def initialize(board, active_color)
+    def initialize(board, active_color, king_position = nil)
       @board = board
       @active_color = active_color
+      @king_position = king_position || setup_king
     end
 
     def in_check?
-      king_position = board.find_king(active_color)
-      return false unless king_position
-
       opponent_color = PieceHelpers.opponent_color(active_color)
       # retrieve data on all of opponent's pieces & their positions
       opponent_pieces = board.find_all_pieces(opponent_color)
@@ -26,6 +24,10 @@ module Chess
     end
 
     private
+
+    def setup_king
+      board.find_king(active_color)
+    end
 
     def find_all_pieces_moves(piece_data)
       piece_data.flat_map do |piece_hash|
