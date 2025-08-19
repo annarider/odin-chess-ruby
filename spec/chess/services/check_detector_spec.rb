@@ -97,5 +97,79 @@ describe Chess::CheckDetector do
         expect(white_check).to be true
       end
     end
+
+    context 'when pieces are blocking potential check' do
+      # Rook attack blocked by another piece
+      let(:board) { Chess::Board.from_fen('r3k3/8/8/8/8/8/4P3/4K3 w - - 0 1') }
+
+      it 'returns false for white king when rook attack is blocked' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be false
+      end
+    end
+
+    context 'edge cases' do
+      let(:empty_board) { Chess::Board.new }
+
+      context 'when no king on the board' do
+        it 'returns false for black king' do
+          black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+          expect(black_check).to be false
+        end
+      end
+      context 'when no opponent pieces on the board' do
+        before do
+          # Only white king, no other pieces
+          board.place_piece(Chess::Position.from_algebraic('e1'), 'K')
+        end
+        it 'returns false for white king' do
+          white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+          expect(white_check).to be false
+        end
+      end
+    end
+
+    context 'when black king is in complex check situation' do
+      # Fischer vs Byrne 1956, position after queen sacrifice
+      let(:board) { Chess::Board.from_fen('r3r1k1/pp3ppp/1qn2n2/3p1b2/3P1B2/2N2N2/PP2QPPP/2RR2K1 b - - 0 18') }
+
+      it 'returns false when it correctly detects black king is not in check' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context 'when back rank mate set up puts black king in check' do
+      # Rook creates a back rank check
+      let(:board) { Chess::Board.from_fen('6k1/5ppp/8/8/8/8/5PPP/4R1K1 b - - 0 1') }
+
+      before do
+        board.place_piece(Chess::Position.from_algebraic('e8'), 'R')
+      end
+
+      it 'returns true as it identifies check before mate' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be true
+      end
+    end
+
+    context 'when endgame has black king under check from white king & queen' do
+      # King and queen vs king endgame
+      let(:board) { Chess::Board.from_fen('8/8/8/8/8/4k3/2Q5/4K3 w - - 0 1') }
+      it 'returns false correctly when black king is not yet in check in endgame' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+
+      it 'returns true correctly after queen moves and king comes under check' do
+        # Set up white queen in position to attack black king 
+        board.update_position(
+          Chess::Position.from_algebraic('c2'),
+          Chess::Position.from_algebraic('d2')
+        )
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be true
+      end
+    end
   end
 end
