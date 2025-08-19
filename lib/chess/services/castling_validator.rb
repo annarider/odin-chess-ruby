@@ -5,24 +5,28 @@ module Chess
   # This class contains methods to
   # ensure castling moves are allowed.
   module Castling
+    attr_reader :king_start, :king_end, :piece, :rook_position,
+                :board, :move_history
+
     def self.castling_legal?(...)
       new(...).can_castle?
     end
 
-    def initialize(move, move_history = [])
+    def initialize(move, board, move_history = [])
       @king_start = move.from_position
       @king_end = move.to_position
       @piece = move.piece
       @rook_position = move.castling
+      @board = board
       @move_history = move_history
     end
 
     def can_castle?
       return false if king_has_moved?
       return false if rook_has_moved?
-      return false if king_in_check?(board, move)
-      return false if path_in_check?(board, move)
-      return false if castling_into_check?(board, move)
+      return false if king_in_check?
+      return false if path_in_check?
+      return false if castling_into_check?
 
       true
     end
@@ -33,8 +37,20 @@ module Chess
       move_history.has_moved?(king_start)
     end
 
-    def rook
-      move_history.has_moved?
+    def rook_has_moved
+      move_history.has_moved?(rook_position)
+    end
+
+    def king_in_check?
+      CheckDetector.in_check?(board, calculate_color)
+    end
+
+    private
+
+    def calculate_color
+      return nil unless piece
+
+      piece.match?(/[A-Z]/) ? Chess::ChessNotation::WHITE_PLAYER : Chess::ChessNotation::BLACK_PLAYER
     end
   end
 end
