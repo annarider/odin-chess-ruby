@@ -45,6 +45,10 @@ module Chess
       CheckDetector.in_check?(board, calculate_color)
     end
 
+    def path_in_check?
+      
+    end
+
     private
 
     def calculate_color

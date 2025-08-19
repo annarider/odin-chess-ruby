@@ -15,6 +15,7 @@ require_relative 'chess/helpers/to_fen'
 require_relative 'chess/services/check_detector'
 require_relative 'chess/services/castling_validator'
 require_relative 'chess/services/move_calculator'
+require_relative 'chess/services/path_calculator'
 require_relative 'chess/services/move_validator'
 require_relative 'chess/services/pawn_move_validator'
 

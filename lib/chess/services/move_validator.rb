@@ -58,17 +58,12 @@ module Chess
     def clear_path?
       return true if %w[n N].include?(piece)
 
-      path = calculate_path_between(start_position, end_position)
+      path = PathCalculator.calculate_path_between(
+        board,
+        start: start_position,
+        destination: end_position
+        )
       empty_square_along_path?(path)
-    end
-
-    # find all the squares between start and destination positions
-    def calculate_path_between(start_position, end_position)
-      total_row_delta = end_position.row - start_position.row
-      total_column_delta = end_position.column - start_position.column
-      direction_vector = [convert_direction(total_row_delta), convert_direction(total_column_delta)]
-      steps = [total_row_delta.abs, total_column_delta.abs].max
-      request_moves(direction_vector, steps)
     end
 
     # are there any pieces along the piece's movement path?
@@ -77,17 +72,6 @@ module Chess
       return true if route.all? { |position| board.piece_at(position).nil? }
 
       false
-    end
-
-    def convert_direction(delta)
-      return 0 if delta.zero?
-
-      delta.positive? ? 1 : -1
-    end
-
-    def request_moves(direction_vector, steps)
-      calculator = MoveCalculator.new(start_position, piece)
-      calculator.calculate_moves([direction_vector], steps)
     end
 
     def valid_piece_moves?
