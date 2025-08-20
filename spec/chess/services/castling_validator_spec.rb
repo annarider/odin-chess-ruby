@@ -6,8 +6,6 @@ require_relative '../../../lib/chess'
 
 describe Chess::CastlingValidator do
   subject(:validator) { described_class }
-  let(:board) { Chess::Board.start_positions(add_pieces: true) }
-  let(:move_history) { Chess::MoveHistory.new }
 
   # Helper methods to create real Position and Move objects
   def position(square)
@@ -31,7 +29,30 @@ describe Chess::CastlingValidator do
     )
   end
 
+  # Use real board setup for testing
+  def setup_castling_board
+    # Create a board with kings and rooks in castling positions
+    # and clear the path between them
+    Chess::Board.start_positions(add_pieces: true).tap do |board|
+      # Remove pieces between king and rook for castling
+      board.remove_piece(position('f1'))
+      board.remove_piece(position('g1'))
+      board.remove_piece(position('b1'))
+      board.remove_piece(position('c1'))
+      board.remove_piece(position('d1'))
+      # Similar for black pieces
+      board.remove_piece(position('f8'))
+      board.remove_piece(position('g8'))
+      board.remove_piece(position('b8'))
+      board.remove_piece(position('c8'))
+      board.remove_piece(position('d8'))
+    end
+  end
+
   describe '.castling_legal?' do
+    let(:board) { setup_castling_board }
+    let(:move_history) { Chess::MoveHistory.new }
+
     # Test the happy path - when all castling conditions are met
     context 'when all castling conditions are met' do
       it 'returns true for valid white kingside castling' do
@@ -68,7 +89,7 @@ describe Chess::CastlingValidator do
       end
       it 'returns false' do
         move = create_castling_move('e1', 'g1', 'K', 'h1')
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(move, board, move_history_with_king_move)
         expect(result).to be false
       end
     end

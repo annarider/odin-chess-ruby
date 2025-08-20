@@ -9,7 +9,7 @@ module Chess
                 :board, :move_history
 
     def self.castling_legal?(...)
-      new(...).can_castle?
+      new(...).legal?
     end
 
     def initialize(move, board, move_history = [])
@@ -21,7 +21,7 @@ module Chess
       @move_history = move_history
     end
 
-    def can_castle?
+    def legal?
       return false if king_has_moved?
       return false if rook_has_moved?
       return false if king_in_check?
@@ -42,7 +42,7 @@ module Chess
     end
 
     def king_in_check?
-      CheckDetector.in_check?(board, calculate_color)
+      CheckDetector.in_check?(board, PieceHelpers.calculate_color(piece))
     end
 
     def path_in_check?
@@ -50,17 +50,21 @@ module Chess
         start: king_start,
         destination: king_end
       )
-      path.any? { |square| CheckDetector.in_check?(board, calculate_color, square) }
+      path.any? do |square| 
+        CheckDetector.in_check?(
+          board,
+          PieceHelpers.calculate_color(piece),
+          square
+        )
+      end
     end
 
     def castling_into_check?
-      CheckDetector.in_check?(board, calculate_color, king_end)
-    end
-
-    def calculate_color
-      return nil unless piece
-
-      piece.match?(/[A-Z]/) ? Chess::ChessNotation::WHITE_PLAYER : Chess::ChessNotation::BLACK_PLAYER
+      CheckDetector.in_check?(
+        board,
+        PieceHelpers.calculate_color(piece),
+        king_end
+      )
     end
   end
 end
