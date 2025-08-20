@@ -97,11 +97,15 @@ module Chess
       raise ArgumentError, "No piece at #{start_pos}" unless piece
 
       place_piece(end_pos, piece)
-      erase_origin_position(start_pos)
+      remove_piece(start_pos)
     end
 
     def place_piece(position, piece)
       @grid[position.row][position.column] = piece
+    end
+
+    def remove_piece(position)
+      @grid[position.row][position.column] = nil
     end
 
     # 4 steps to a move:
@@ -141,10 +145,6 @@ module Chess
       return [] if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
-    end
-
-    def erase_origin_position(start_pos)
-      @grid[start_pos.row][start_pos.column] = nil
     end
 
     def update_en_passant_square(move)
