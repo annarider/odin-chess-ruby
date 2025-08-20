@@ -12,20 +12,22 @@ describe Chess::CastlingValidator do
     Chess::Position.from_algebraic(square)
   end
 
-  def create_castling_move(from_square, to_square, piece, rook_square)
+  def create_castling_move(from_square, to_square, piece, rook_square, fen)
     Chess::Move.new(
       from_position: position(from_square),
       to_position: position(to_square),
       piece: piece,
-      castling: position(rook_square)
+      castling: position(rook_square),
+      fen: fen
     )
   end
 
-  def create_regular_move(from_square, to_square, piece)
+  def create_regular_move(from_square, to_square, piece, fen)
     Chess::Move.new(
       from_position: position(from_square),
       to_position: position(to_square),
-      piece: piece
+      piece: piece,
+      fen: fen
     )
   end
 
@@ -55,62 +57,81 @@ describe Chess::CastlingValidator do
 
     # Test the happy path - when all castling conditions are met
     context 'when all castling conditions are met' do
+      let(:starting_fen) { 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1' }
       it 'returns true for valid white kingside castling' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
+        move = create_castling_move('e1', 'g1', 'K', 'h1', starting_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid white queenside castling' do
-        move = create_castling_move('e1', 'c1', 'K', 'a1')
+        move = create_castling_move('e1', 'c1', 'K', 'a1', starting_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black kingside castling' do
-        move = create_castling_move('e8', 'g8', 'k', 'h8')
+        move = create_castling_move('e8', 'g8', 'k', 'h8', starting_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black queenside castling' do
-        move = create_castling_move('e8', 'c8', 'k', 'a8')
+        move = create_castling_move('e8', 'c8', 'k', 'a8', starting_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
     end
 
     context 'when the king has previously moved' do
-      let(:move_history_with_king_move) do
-        history = Chess::MoveHistory.new
-        king_move = create_regular_move('e1', 'e2', 'K')
-        history.add_move(king_move)
-        history
+      before do
+        # Simulate king moving by adding moves to history
+        # King moves from e8 to e7
+        fen_after_king_move = 'r6r/ppppkppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'
+        king_move = create_regular_move('e8', 'e7', 'K', fen_after_king_move)
+        move_history.add_move(king_move)
+        # FEN after king moves back to e8 (but castling rights lost)
+        fen_king_back = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        king_move_back = create_regular_move('e7', 'e8', 'K', fen_king_back)
+        move_history.add_move(king_move_back)
       end
       it 'returns false' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        result = validator.castling_legal?(move, board, move_history_with_king_move)
+        # Current FEN shows king back on e8 but without black castling rights kq
+        current_fen = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQ - 2 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
     context 'when the rook has previously moved' do
-      let(:move_history_with_rook_move) do
-        history = Chess::MoveHistory.new
-        rook_move = create_regular_move('h1', 'h2', 'R')
-        history.add_move(rook_move)
-        history
+      before do
+        # FEN after rook moves (kingside castling right lost for black, based on cleared board)
+        fen_after_rook_move = 'r3k3/pppppprp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'  
+        rook_move_out = create_regular_move('h8', 'h7', 'r', fen_after_rook_move)
+        move_history.add_move(rook_move_out)
+        # FEN after rook moves back (kingside castling still lost for black)
+        fen_rook_back = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        rook_move_back = create_regular_move('h7', 'h8', 'r', fen_rook_back)
+        move_history.add_move(rook_move_back)
       end
       it 'returns false' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
+        current_fen = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
     context 'when the king is currently in check' do
+      before do
+        # Place a white queen that puts black king in check
+        board.place_piece(position('e6'), 'Q')
+      end
       it 'returns false' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
+        # King in check - cannot castle (cleared board + white queen on e6)
+        current_fen = 'r3k2r/pppppppp/4Q3/8/8/8/PPPPPPPP/R3K2R b KQkq - 1 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
         result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
@@ -118,190 +139,103 @@ describe Chess::CastlingValidator do
 
     context 'when the castling path is under attack' do
       before do
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER)
-          .and_return(false)
-        # Path square f1 is under attack
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('f1'))
-          .and_return(true)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('g1'))
-          .and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e1'), position('g1'))
-          .and_return([position('f1')])
+        # Place a white rook that attacks f8 (king would pass through check)
+        board.place_piece(position('f1'), 'R')
       end
 
       it 'returns false' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        # f8 square under attack - king cannot pass through (cleared board + rook on f1)
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3KR1R b KQkq - 0 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
     context 'when castling would put the king in check' do
       before do
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER)
-          .and_return(false)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('f1'))
-          .and_return(false)
-        # King would be in check at destination
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('g1'))
-          .and_return(true)
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e1'), position('g1'))
-          .and_return([position('f1')])
+        # Place a white rook that attacks g8 (where king would end up)
+        board.place_piece(position('g8'), 'r')
       end
 
       it 'returns false' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        # g1 square under attack - white king cannot end there (black rook on g8)
+        current_fen = 'r3k1r1/pppppppp/8/8/8/8/PPPPPPPP/R3K1RR b KQkq - 0 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
-    context 'with queenside castling and multiple path squares' do
+context 'when queenside castling path square is under attack' do
       before do
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER)
-          .and_return(false)
-        # d1 square is attacked, b1 is safe
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('d1'))
-          .and_return(true)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('b1'))
-          .and_return(false)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, position('c1'))
-          .and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e1'), position('c1'))
-          .and_return([position('d1'), position('b1')])
+        # Place a black bishop that attacks d1 (king passes through this square during queenside castling)
+        board.place_piece(position('a4'), 'b')
       end
 
-      it 'returns false when any path square is attacked' do
-        move = create_castling_move('e1', 'c1', 'K', 'a1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+      it 'returns false when d1 square is attacked' do
+        # d1 square under attack - king cannot pass through check during queenside castling
+        current_fen = 'r3k2r/pppppppp/8/8/b7/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+        move = create_castling_move('e1', 'c1', 'K', 'a1', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
-    context 'with complex move history scenarios' do
-      it 'correctly identifies when the specific castling rook has moved' do
-        # King hasn't moved, but h1 rook has moved (h1-h2-h1)
-        history = Chess::MoveHistory.new
-        history.add_move(create_regular_move('h1', 'h2', 'R'))
-        history.add_move(create_regular_move('h2', 'h1', 'R'))
+    context 'when the specific castling rook has moved' do
+      before do
+        # Set up move history where h1 rook has moved (but returned)
+        fen_after_rook_move = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K3 w KQq - 1 1'
+        rook_move_out = create_regular_move('h1', 'h2', 'R', fen_after_rook_move)
+        move_history.add_move(rook_move_out)
         
-        allow(check_detector).to receive(:in_check?).and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([position('f1')])
-        
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
-        expect(result).to be false
+        fen_rook_back = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
+        rook_move_back = create_regular_move('h2', 'h1', 'R', fen_rook_back)
+        move_history.add_move(rook_move_back)
       end
 
-      it 'allows castling when the other rook has moved' do
-        # a1 rook has moved, but h1 rook hasn't
-        history = Chess::MoveHistory.new
-        history.add_move(create_regular_move('a1', 'a2', 'R'))
-        
-        allow(check_detector).to receive(:in_check?).and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([position('f1')])
-        
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+      it 'returns false when the castling rook has previously moved' do
+        # h1 rook has moved and returned - castling rights lost for kingside
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the other rook has moved but not the castling rook' do
+      before do
+        # Set up move history where a1 rook has moved (but h1 rook hasn't)
+        fen_after_rook_move = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/4K2R w Kk - 1 1'
+        rook_move = create_regular_move('a1', 'a2', 'R', fen_after_rook_move)
+        move_history.add_move(rook_move)
+      end
+
+      it 'returns true when only the other rook has moved' do
+        # a1 rook moved but h1 rook hasn't - kingside castling still allowed
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/4K2R w Kk - 1 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
     end
 
-    context 'with different piece colors' do
+    context 'when testing white piece castling' do
       it 'correctly identifies white player from uppercase piece' do
-        move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER)
-          .and_return(false)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, anything)
-          .and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([])
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        # White king castling kingside - should work with clear board
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
+    end
 
+    context 'when testing black piece castling' do
       it 'correctly identifies black player from lowercase piece' do
-        move = create_castling_move('e8', 'g8', 'k', 'h8')
-        
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::BLACK_PLAYER)
-          .and_return(false)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::BLACK_PLAYER, anything)
-          .and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([])
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        # Black king castling kingside - should work with clear board
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1'
+        move = create_castling_move('e8', 'g8', 'k', 'h8', current_fen)
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
     end
