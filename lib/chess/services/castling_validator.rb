@@ -4,7 +4,7 @@ module Chess
   # Check rules for castling rights.
   # This class contains methods to
   # ensure castling moves are allowed.
-  module Castling
+  class CastlingValidator
     attr_reader :king_start, :king_end, :piece, :rook_position,
                 :board, :move_history
 
@@ -37,7 +37,7 @@ module Chess
       move_history.has_moved?(king_start)
     end
 
-    def rook_has_moved
+    def rook_has_moved?
       move_history.has_moved?(rook_position)
     end
 
@@ -46,10 +46,16 @@ module Chess
     end
 
     def path_in_check?
-      
+      path = PathCalculator.calculate_path_between(
+        start: king_start,
+        destination: king_end
+      )
+      path.any? { |square| CheckDetector.in_check?(board, calculate_color, square) }
     end
 
-    private
+    def castling_into_check?
+      CheckDetector.in_check?(board, calculate_color, king_end)
+    end
 
     def calculate_color
       return nil unless piece
