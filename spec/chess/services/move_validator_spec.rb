@@ -90,10 +90,10 @@ describe Chess::MoveValidator do
       end
 
       it 'sends valid_move? message to PawnMoveValidator service' do
-        expect(Chess::PawnMoveValidator).to receive(:valid_move?)
-          .with(white_pawn_move, move_history)
-
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, white_pawn_move, move_history)
+        expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
+          .with(white_pawn_move, move_history)
       end
     end
 
@@ -114,10 +114,10 @@ describe Chess::MoveValidator do
       end
 
       it 'sends valid_move? message to PawnMoveValidator with correct arguments' do
-        expect(Chess::PawnMoveValidator).to receive(:valid_move?)
-          .with(black_pawn_move, move_history)
-
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, black_pawn_move, move_history)
+        expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
+          .with(black_pawn_move, move_history)
       end
     end
 
@@ -134,9 +134,9 @@ describe Chess::MoveValidator do
       end
 
       it 'does not send valid_move? message to PawnMoveValidator' do
-        expect(Chess::PawnMoveValidator).not_to receive(:valid_move?)
-
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, knight_move, move_history)
+        expect(Chess::PawnMoveValidator).not_to have_received(:valid_move?)
       end
     end
 
@@ -161,67 +161,77 @@ describe Chess::MoveValidator do
       end
     end
 
-    context 'when validating king moves (castling scenarios)' do
-      context 'with a valid castling setup' do
-        let(:king_start) { Chess::Position.from_algebraic('e1') }
-        let(:king_destination) { Chess::Position.from_algebraic('g1') }
-        let(:castling_move) do
-          Chess::Move.new(from_position: king_start, to_position: king_destination, piece: 'K')
+    context 'when validating king moves (triggers castling validation)' do
+      context 'with a regular white king move' do
+        let(:king_start) { Chess::Position.from_algebraic('e4') }
+        let(:king_destination) { Chess::Position.from_algebraic('e5') }
+        let(:king_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'K'
+          )
         end
 
         before do
-          # Set up a board where castling could be legal
           board.place_piece(king_start, 'K')
-          board.place_piece(Chess::Position.from_algebraic('h1'), 'R')
         end
 
         it 'calls CastlingValidator for white king moves' do
-          expect(Chess::CastlingValidator).to receive(:castling_legal?)
-            .with(board, castling_move, move_history)
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
             .and_call_original
-
-          validator.move_legal?(board, castling_move, move_history)
+          validator.move_legal?(board, king_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, king_move, move_history)
         end
       end
 
-      context 'with black king castling' do
-        let(:king_start) { Chess::Position.from_algebraic('e8') }
-        let(:king_destination) { Chess::Position.from_algebraic('c8') }
-        let(:castling_move) do
-          Chess::Move.new(from_position: king_start, to_position: king_destination, piece: 'k')
+      context 'with a regular black king move' do
+        let(:king_start) { Chess::Position.from_algebraic('e5') }
+        let(:king_destination) { Chess::Position.from_algebraic('e4') }
+        let(:king_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'k'
+          )
         end
 
         before do
           board.place_piece(king_start, 'k')
-          board.place_piece(Chess::Position.from_algebraic('a8'), 'r')
         end
 
         it 'calls CastlingValidator for black king moves' do
-          expect(Chess::CastlingValidator).to receive(:castling_legal?)
-            .with(board, castling_move, move_history)
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
             .and_call_original
-
-          validator.move_legal?(board, castling_move, move_history)
+          validator.move_legal?(board, king_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, king_move, move_history)
         end
       end
 
-      context 'with regular king moves (non-castling)' do
+      context 'with a king capturing move' do
         let(:king_start) { Chess::Position.from_algebraic('e4') }
         let(:king_destination) { Chess::Position.from_algebraic('e5') }
-        let(:regular_king_move) do
-          Chess::Move.new(from_position: king_start, to_position: king_destination, piece: 'K')
+        let(:capture_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'K'
+          )
         end
 
         before do
           board.place_piece(king_start, 'K')
+          board.place_piece(king_destination, 'p') # Enemy pawn to capture
         end
 
-        it 'still calls CastlingValidator for any king move' do
-          expect(Chess::CastlingValidator).to receive(:castling_legal?)
-            .with(board, regular_king_move, move_history)
+        it 'still calls CastlingValidator even for capturing moves' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
             .and_call_original
-
-          validator.move_legal?(board, regular_king_move, move_history)
+          validator.move_legal?(board, capture_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, capture_move, move_history)
         end
       end
     end
@@ -231,7 +241,11 @@ describe Chess::MoveValidator do
         let(:queen_start) { Chess::Position.from_algebraic('d1') }
         let(:queen_destination) { Chess::Position.from_algebraic('d4') }
         let(:queen_move) do
-          Chess::Move.new(from_position: queen_start, to_position: queen_destination, piece: 'Q')
+          Chess::Move.new(
+            from_position: queen_start,
+            to_position: queen_destination,
+            piece: 'Q'
+          )
         end
 
         before do
@@ -239,9 +253,9 @@ describe Chess::MoveValidator do
         end
 
         it 'does not call CastlingValidator' do
-          expect(Chess::CastlingValidator).not_to receive(:castling_legal?)
-
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
           validator.move_legal?(board, queen_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
         end
       end
 
@@ -257,9 +271,9 @@ describe Chess::MoveValidator do
         end
 
         it 'does not call CastlingValidator' do
-          expect(Chess::CastlingValidator).not_to receive(:castling_legal?)
-
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
           validator.move_legal?(board, rook_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
         end
       end
 
@@ -275,9 +289,9 @@ describe Chess::MoveValidator do
         end
 
         it 'does not call CastlingValidator' do
-          expect(Chess::CastlingValidator).not_to receive(:castling_legal?)
-
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
           validator.move_legal?(board, pawn_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
         end
       end
     end
@@ -294,9 +308,9 @@ describe Chess::MoveValidator do
       end
 
       it 'does not call CastlingValidator when move is impossible' do
-        expect(Chess::CastlingValidator).not_to receive(:castling_legal?)
-
+        allow(Chess::CastlingValidator).to receive(:castling_legal?)
         result = validator.move_legal?(board, invalid_move, move_history)
+        expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
         expect(result).to be false
       end
     end
