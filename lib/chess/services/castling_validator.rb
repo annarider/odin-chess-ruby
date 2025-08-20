@@ -12,7 +12,7 @@ module Chess
       new(...).legal?
     end
 
-    def initialize(board, move, move_history = [])
+    def initialize(board, move, move_history = MoveHistory.new)
       @board = board
       @king_start = move.from_position
       @king_end = move.to_position

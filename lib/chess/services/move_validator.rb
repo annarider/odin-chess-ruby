@@ -20,7 +20,7 @@ module Chess
     end
 
     # def self.two_square_pawn_move?()
-    def initialize(board, move, move_history = [])
+    def initialize(board, move, move_history = MoveHistory.new)
       @board = board
       @move = move
       @start_position = move.from_position
