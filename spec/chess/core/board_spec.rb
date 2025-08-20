@@ -238,6 +238,7 @@ describe Chess::Board do
           expect(black_pieces.map { |data| data[:piece] }).to all(match(/[a-z]/))
         end
       end
+
       context 'when all white pieces are requested' do
         it 'returns only white pieces' do
           white_pieces = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)

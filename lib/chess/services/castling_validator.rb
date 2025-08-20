@@ -50,7 +50,7 @@ module Chess
         start: king_start,
         destination: king_end
       )
-      path.any? do |square| 
+      path.any? do |square|
         CheckDetector.in_check?(
           board,
           PieceHelpers.calculate_color(piece),

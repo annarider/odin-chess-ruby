@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # Find all the squares between start and destination positions
   class PathCalculator

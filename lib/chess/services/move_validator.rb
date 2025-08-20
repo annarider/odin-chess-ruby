@@ -61,7 +61,7 @@ module Chess
       path = PathCalculator.calculate_path_between(
         start: start_position,
         destination: end_position
-        )
+      )
       # are there any pieces along the piece's movement path?
       path.all? { |position| board.piece_at(position).nil? }
     end

@@ -4,6 +4,7 @@ require_relative '../../../lib/chess'
 
 describe Chess::PathCalculator do
   subject(:calc) { described_class }
+
   describe '.calculate_path_between' do
     context 'when start and destination are the same position' do
       it 'returns an empty array' do

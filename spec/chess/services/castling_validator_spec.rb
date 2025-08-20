@@ -58,6 +58,7 @@ describe Chess::CastlingValidator do
     # Test the happy path - when all castling conditions are met
     context 'when all castling conditions are met' do
       let(:starting_fen) { 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1' }
+
       it 'returns true for valid white kingside castling' do
         move = create_castling_move('e1', 'g1', 'K', 'h1', starting_fen)
         result = validator.castling_legal?(move, board, move_history)
@@ -95,6 +96,7 @@ describe Chess::CastlingValidator do
         king_move_back = create_regular_move('e7', 'e8', 'K', fen_king_back)
         move_history.add_move(king_move_back)
       end
+
       it 'returns false' do
         # Current FEN shows king back on e8 but without black castling rights kq
         current_fen = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQ - 2 1'
@@ -107,7 +109,7 @@ describe Chess::CastlingValidator do
     context 'when the rook has previously moved' do
       before do
         # FEN after rook moves (kingside castling right lost for black, based on cleared board)
-        fen_after_rook_move = 'r3k3/pppppprp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'  
+        fen_after_rook_move = 'r3k3/pppppprp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'
         rook_move_out = create_regular_move('h8', 'h7', 'r', fen_after_rook_move)
         move_history.add_move(rook_move_out)
         # FEN after rook moves back (kingside castling still lost for black)
@@ -115,6 +117,7 @@ describe Chess::CastlingValidator do
         rook_move_back = create_regular_move('h7', 'h8', 'r', fen_rook_back)
         move_history.add_move(rook_move_back)
       end
+
       it 'returns false' do
         current_fen = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
@@ -128,6 +131,7 @@ describe Chess::CastlingValidator do
         # Place a white queen that puts black king in check
         board.place_piece(position('e6'), 'Q')
       end
+
       it 'returns false' do
         # King in check - cannot castle (cleared board + white queen on e6)
         current_fen = 'r3k2r/pppppppp/4Q3/8/8/8/PPPPPPPP/R3K2R b KQkq - 1 1'
@@ -167,7 +171,7 @@ describe Chess::CastlingValidator do
       end
     end
 
-context 'when queenside castling path square is under attack' do
+    context 'when queenside castling path square is under attack' do
       before do
         # Place a black bishop that attacks d1 (king passes through this square during queenside castling)
         board.place_piece(position('a4'), 'b')
@@ -188,7 +192,7 @@ context 'when queenside castling path square is under attack' do
         fen_after_rook_move = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K3 w KQq - 1 1'
         rook_move_out = create_regular_move('h1', 'h2', 'R', fen_after_rook_move)
         move_history.add_move(rook_move_out)
-        
+
         fen_rook_back = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
         rook_move_back = create_regular_move('h2', 'h1', 'R', fen_rook_back)
         move_history.add_move(rook_move_back)

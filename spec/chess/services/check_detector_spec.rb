@@ -117,11 +117,13 @@ describe Chess::CheckDetector do
           expect(black_check).to be false
         end
       end
+
       context 'when no opponent pieces on the board' do
         before do
           # Only white king, no other pieces
           board.place_piece(Chess::Position.from_algebraic('e1'), 'K')
         end
+
         it 'returns false for white king' do
           white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
           expect(white_check).to be false
@@ -156,13 +158,14 @@ describe Chess::CheckDetector do
     context 'when endgame has black king under check from white king & queen' do
       # King and queen vs king endgame
       let(:board) { Chess::Board.from_fen('8/8/8/8/8/4k3/2Q5/4K3 w - - 0 1') }
+
       it 'returns false correctly when black king is not yet in check in endgame' do
         black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
         expect(black_check).to be false
       end
 
       it 'returns true correctly after queen moves and king comes under check' do
-        # Set up white queen in position to attack black king 
+        # Set up white queen in position to attack black king
         board.update_position(
           Chess::Position.from_algebraic('c2'),
           Chess::Position.from_algebraic('d2')
@@ -207,6 +210,7 @@ describe Chess::CheckDetector do
     context "when the white king's position is provided" do
       # Set up a post castling move which puts the king in check
       let(:board) { Chess::Board.from_fen('6r1/8/8/8/8/8/8/4K2R w K - 0 1') }
+
       it 'returns true when the king is in check' do
         white_check = detector.in_check?(
           board,
