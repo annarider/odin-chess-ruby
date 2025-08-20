@@ -36,64 +36,25 @@ describe Chess::CastlingValidator do
     context 'when all castling conditions are met' do
       it 'returns true for valid white kingside castling' do
         move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move, 
-          board, 
-          move_history
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid white queenside castling' do
         move = create_castling_move('e1', 'c1', 'K', 'a1')
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e1'), position('c1'))
-          .and_return([position('d1')])
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black kingside castling' do
         move = create_castling_move('e8', 'g8', 'k', 'h8')
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e8'), position('g8'))
-          .and_return([position('f8')])
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black queenside castling' do
         move = create_castling_move('e8', 'c8', 'k', 'a8')
-        allow(path_calculator).to receive(:calculate_path_between)
-          .with(position('e8'), position('c8'))
-          .and_return([position('d8')])
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be true
       end
     end
@@ -105,24 +66,9 @@ describe Chess::CastlingValidator do
         history.add_move(king_move)
         history
       end
-
-      before do
-        # Other conditions would be fine
-        allow(check_detector).to receive(:in_check?).and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([position('f1')])
-      end
-
       it 'returns false' do
         move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history_with_king_move,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
@@ -134,50 +80,17 @@ describe Chess::CastlingValidator do
         history.add_move(rook_move)
         history
       end
-
-      before do
-        allow(check_detector).to receive(:in_check?).and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([position('f1')])
-      end
-
       it 'returns false' do
         move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history_with_rook_move,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
 
     context 'when the king is currently in check' do
-      before do
-        # King is in check
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER)
-          .and_return(true)
-        allow(check_detector).to receive(:in_check?)
-          .with(board, Chess::ChessNotation::WHITE_PLAYER, anything)
-          .and_return(false)
-        allow(path_calculator).to receive(:calculate_path_between).and_return([position('f1')])
-      end
-
       it 'returns false' do
         move = create_castling_move('e1', 'g1', 'K', 'h1')
-        
-        result = validator.castling_legal?(
-          move,
-          board,
-          move_history,
-          check_detector: check_detector,
-          path_calculator: path_calculator
-        )
-        
+        result = validator.castling_legal?(move, board, move_history)
         expect(result).to be false
       end
     end
