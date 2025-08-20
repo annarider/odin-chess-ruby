@@ -61,25 +61,25 @@ describe Chess::CastlingValidator do
 
       it 'returns true for valid white kingside castling' do
         move = create_castling_move('e1', 'g1', 'K', 'h1', starting_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid white queenside castling' do
         move = create_castling_move('e1', 'c1', 'K', 'a1', starting_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black kingside castling' do
         move = create_castling_move('e8', 'g8', 'k', 'h8', starting_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
 
       it 'returns true for valid black queenside castling' do
         move = create_castling_move('e8', 'c8', 'k', 'a8', starting_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
     end
@@ -101,7 +101,7 @@ describe Chess::CastlingValidator do
         # Current FEN shows king back on e8 but without black castling rights kq
         current_fen = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQ - 2 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -121,7 +121,7 @@ describe Chess::CastlingValidator do
       it 'returns false' do
         current_fen = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -136,7 +136,7 @@ describe Chess::CastlingValidator do
         # King in check - cannot castle (cleared board + white queen on e6)
         current_fen = 'r3k2r/pppppppp/4Q3/8/8/8/PPPPPPPP/R3K2R b KQkq - 1 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -151,7 +151,7 @@ describe Chess::CastlingValidator do
         # f8 square under attack - king cannot pass through (cleared board + rook on f1)
         current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3KR1R b KQkq - 0 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -166,7 +166,7 @@ describe Chess::CastlingValidator do
         # g1 square under attack - white king cannot end there (black rook on g8)
         current_fen = 'r3k1r1/pppppppp/8/8/8/8/PPPPPPPP/R3K1RR b KQkq - 0 1'
         move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -181,7 +181,7 @@ describe Chess::CastlingValidator do
         # d1 square under attack - king cannot pass through check during queenside castling
         current_fen = 'r3k2r/pppppppp/8/8/b7/8/PPPPPPPP/R3K2R w KQkq - 0 1'
         move = create_castling_move('e1', 'c1', 'K', 'a1', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -202,7 +202,7 @@ describe Chess::CastlingValidator do
         # h1 rook has moved and returned - castling rights lost for kingside
         current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
         move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
       end
     end
@@ -219,7 +219,7 @@ describe Chess::CastlingValidator do
         # a1 rook moved but h1 rook hasn't - kingside castling still allowed
         current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/4K2R w Kk - 1 1'
         move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
     end
@@ -229,7 +229,7 @@ describe Chess::CastlingValidator do
         # White king castling kingside - should work with clear board
         current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
         move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
     end
@@ -239,7 +239,7 @@ describe Chess::CastlingValidator do
         # Black king castling kingside - should work with clear board
         current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1'
         move = create_castling_move('e8', 'g8', 'k', 'h8', current_fen)
-        result = validator.castling_legal?(move, board, move_history)
+        result = validator.castling_legal?(board, move, move_history)
         expect(result).to be true
       end
     end

@@ -5,19 +5,19 @@ module Chess
   # This class contains methods to
   # ensure castling moves are allowed.
   class CastlingValidator
-    attr_reader :king_start, :king_end, :piece, :rook_position,
-                :board, :move_history
+    attr_reader :board, :king_start, :king_end, :piece, :rook_position,
+                :move_history
 
     def self.castling_legal?(...)
       new(...).legal?
     end
 
-    def initialize(move, board, move_history = [])
+    def initialize(board, move, move_history = [])
+      @board = board
       @king_start = move.from_position
       @king_end = move.to_position
       @piece = move.piece
       @rook_position = move.castling
-      @board = board
       @move_history = move_history
     end
 

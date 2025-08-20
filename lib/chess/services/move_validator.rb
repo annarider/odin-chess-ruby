@@ -34,6 +34,7 @@ module Chess
       return false unless valid_destination?
       return false unless clear_path?
       return false unless valid_piece_moves?
+      return validate_castling if %w[k K].include?(piece)
 
       true
     end
@@ -71,6 +72,14 @@ module Chess
 
       # other pieces return true as they don't have piece-specific moves
       true
+    end
+
+    def validate_castling
+      CastlingValidator.castling_legal?(
+        board,
+        move,
+        move_history
+      )
     end
   end
 end
