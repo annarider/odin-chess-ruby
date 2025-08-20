@@ -33,12 +33,11 @@ module Chess
     def generate_possible_moves
       # move direction of pawn depends on color
       return pawn_moves if %w[p P].include?(piece)
+      return king_moves if %w[k K].include?(piece)
       # empty square
       return [] if piece.nil?
 
       case piece.downcase
-      when 'k'
-        king_moves
       when 'q'
         queen_moves
       when 'b'
@@ -59,7 +58,8 @@ module Chess
           row_delta = vector.first * distance
           column_delta = vector.last * distance
           delta_position = Position.from_coordinates(row_delta, column_delta)
-          moves << (position + delta_position)
+          end_position = position + delta_position
+          moves << end_position if end_position && end_position.in_bound?
         end
       end
       moves
@@ -70,7 +70,7 @@ module Chess
     def knight_moves
       KNIGHT.map do |vector|
         position + Position.from_directional_vector(vector)
-      end.compact
+      end
     end
 
     def rook_moves
