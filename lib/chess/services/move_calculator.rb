@@ -59,7 +59,7 @@ module Chess
           column_delta = vector.last * distance
           delta_position = Position.from_coordinates(row_delta, column_delta)
           end_position = position + delta_position
-          moves << end_position if end_position && end_position.in_bound?
+          moves << end_position if end_position&.in_bound?
         end
       end
       moves
