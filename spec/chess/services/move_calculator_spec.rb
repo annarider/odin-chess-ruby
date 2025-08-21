@@ -68,13 +68,28 @@ describe Chess::MoveCalculator do
     context 'when the black king from e8 moves from starting game positions' do
       let(:black_king) { Chess::Position.from_algebraic('e8') }
 
-      it 'returns an array with 5 positions' do
-        expect(calculator.generate_possible_moves(black_king, 'k').length).to eq(5)
+      it 'returns an array with 7 positions' do
+        expected_destinations = %w[c8 d8 d7 e7 f7 f8 g8].map { Chess::Position.from_algebraic(it) }
+        expect(calculator.generate_possible_moves(black_king, 'k')).to match_array(expected_destinations)
       end
 
       it 'returns the destination move of e7' do
         destination = Chess::Position.from_algebraic('e7')
         expect(calculator.generate_possible_moves(black_king, 'k')).to include(destination)
+      end
+    end
+
+    context 'when the white king from e1 moves from starting game positions' do
+      let(:white_king) { Chess::Position.from_algebraic('e1') }
+
+      it 'returns an array with 7 positions' do
+        expected_destinations = %w[c1 d1 d2 e2 f2 f1 g1].map { Chess::Position.from_algebraic(it) }
+        expect(calculator.generate_possible_moves(white_king, 'K')).to match_array(expected_destinations)
+      end
+
+      it 'returns the destination move of g1' do
+        destination = Chess::Position.from_algebraic('g1')
+        expect(calculator.generate_possible_moves(white_king, 'K')).to include(destination)
       end
     end
 
