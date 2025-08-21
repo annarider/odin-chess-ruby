@@ -7,8 +7,9 @@ module Chess
   # if the en passant move is
   # considered valid.
   class EnPassantManager
-    attr_reader :piece, :end_position, :en_passant_target, :double_pawn_move,
-      :opponent_last_move
+    PAWN_PIECES = %w[p P].freeze
+    attr_reader :piece, :start_position, :end_position, :en_passant_target,
+    :double_pawn_move, :opponent_last_move
 
     def self.en_passant_legal?(...)
       new(...).en_passant_legal?
@@ -16,6 +17,7 @@ module Chess
 
     def initialize(move)
       @piece = move.piece
+      @start_position = move.from_position
       @end_position = move.to_position
       @en_passant_target = move.en_passant_target
       @double_pawn_move = move.double_pawn_move
@@ -23,31 +25,28 @@ module Chess
     end
 
     def en_passant_legal?
-      return false unless %w[p P].include?(piece)
+      return false unless PAWN_PIECES.include?(piece)
       return false if double_pawn_move
-      return false unless end_position == en_passant_target
+      return false unless end_position_matches_target?
       return false unless opponent_last_move_double_pawn_advance?
-      return false unless adjacent_pawn_positions?
 
       true
     end
 
     private
 
-    def opponent_last_move_double_pawn_advance?
-      return false unless opponent_last_move
+    def end_position_matches_target?
+      return false unless en_passant_target
 
-      opponent_last_move.double_pawn_move &&
-        opponent_last_move.to_position == captured_pawn_end_position
+      end_position == en_passant_target
     end
 
-    def captured_pawn_end_position
-      directional_vector = if piece == 'K'
-                              Directions::PAWN_WHITE.first
-                           else
-                              Directions::PAWN_BLACK.first
-                           end
-      en_passant_target + directional_vector
+    def opponent_last_move_double_pawn_advance?
+      return false unless opponent_last_move
+      return false unless opponent_last_move.double_pawn_move
+
+      # The pawn that made the double move should now be adjacent to our pawn
+      opponent_last_move.to_position.adjacent?(start_position)
     end
   end
 end
