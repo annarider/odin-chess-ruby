@@ -10,6 +10,12 @@ describe Chess::Position do
   let(:bottom_left_position) { described_class.from_coordinates(7, 0) }
   let(:bottom_right_position) { described_class.from_coordinates(7, 7) }
 
+  let(:same_position) { described_class.from_algebraic('d4') }
+  let(:distant_position) { described_class.from_algebraic('a1') }
+  let(:diagonal_position) { described_class.from_algebraic('e5') }
+  let(:adjacent_position) { described_class.from_algebraic('d5') }
+  let(:center_position) { described_class.from_algebraic('d4') }
+
   describe '.from_coordinates' do
     context 'when passing in the topmost leftmost square' do
       it 'returns the position using array index coordinates' do
@@ -247,6 +253,7 @@ describe Chess::Position do
   end
 
   describe '#diagonal_move?'
+
   context 'when black pawn captures' do
     start_pos = described_class.from_algebraic('d7')
     destination = described_class.from_algebraic('e6')
@@ -268,6 +275,187 @@ describe Chess::Position do
     destination = described_class.from_algebraic('a2')
     it 'returns true' do
       expect(start_pos.diagonal_move?(destination)).to be false
+    end
+  end
+
+  describe '#adjacent?' do
+    context 'when positions are one square apart horizontally' do
+      let(:horizontal_neighbor) { described_class.from_algebraic('e4') }
+
+      it 'returns true' do
+        result = center_position.adjacent?(horizontal_neighbor)
+        expect(result).to be true
+      end
+    end
+
+    context 'when positions are one square apart vertically' do
+      it 'returns true' do
+        result = center_position.adjacent?(adjacent_position)
+        expect(result).to be true
+      end
+    end
+
+    context 'when positions are one square apart diagonally' do
+      it 'returns true' do
+        result = center_position.adjacent?(diagonal_position)
+        expect(result).to be true
+      end
+    end
+
+    context 'when positions are the same' do
+      it 'returns true' do
+        result = center_position.adjacent?(same_position)
+        expect(result).to be true
+      end
+    end
+
+    context 'when positions are two squares apart horizontally' do
+      let(:distant_horizontal) { described_class.from_algebraic('f4') }
+
+      it 'returns false' do
+        result = center_position.adjacent?(distant_horizontal)
+        expect(result).to be false
+      end
+    end
+
+    context 'when positions are two squares apart vertically' do
+      let(:distant_vertical) { described_class.from_algebraic('d6') }
+
+      it 'returns false' do
+        result = center_position.adjacent?(distant_vertical)
+        expect(result).to be false
+      end
+    end
+
+    context 'when positions are knight move apart' do
+      let(:knight_position) { described_class.from_algebraic('f5') }
+
+      it 'returns false' do
+        result = center_position.adjacent?(knight_position)
+        expect(result).to be false
+      end
+    end
+
+    context 'when positions are far apart' do
+      it 'returns false' do
+        result = center_position.adjacent?(distant_position)
+        expect(result).to be false
+      end
+    end
+  end
+
+  describe '#row_distance' do
+    context 'when positions are on the same rank' do
+      let(:same_rank_position) { described_class.from_algebraic('h4') }
+
+      it 'returns 0' do
+        result = center_position.row_distance(same_rank_position)
+        expect(result).to eq(0)
+      end
+    end
+
+    context 'when positions are one rank apart' do
+      it 'returns 1' do
+        result = center_position.row_distance(adjacent_position)
+        expect(result).to eq(1)
+      end
+    end
+
+    context 'when positions are multiple ranks apart' do
+      it 'returns the correct distance' do
+        result = center_position.row_distance(distant_position)
+        expect(result).to eq(3)
+      end
+    end
+
+    context 'when calculating distance from lower to higher rank' do
+      let(:higher_position) { described_class.from_algebraic('d7') }
+
+      it 'returns positive distance' do
+        result = center_position.row_distance(higher_position)
+        expect(result).to eq(3)
+      end
+    end
+
+    context 'when calculating distance from higher to lower rank' do
+      let(:lower_position) { described_class.from_algebraic('d2') }
+
+      it 'returns positive distance' do
+        result = center_position.row_distance(lower_position)
+        expect(result).to eq(2)
+      end
+    end
+  end
+
+  describe '#column_distance' do
+    context 'when positions are on the same file' do
+      it 'returns 0' do
+        result = center_position.column_distance(adjacent_position)
+        expect(result).to eq(0)
+      end
+    end
+
+    context 'when positions are one file apart' do
+      let(:adjacent_file) { described_class.from_algebraic('e4') }
+
+      it 'returns 1' do
+        result = center_position.column_distance(adjacent_file)
+        expect(result).to eq(1)
+      end
+    end
+
+    context 'when positions are multiple files apart' do
+      it 'returns the correct distance' do
+        result = center_position.column_distance(distant_position)
+        expect(result).to eq(3)
+      end
+    end
+
+    context 'when calculating distance from left to right file' do
+      let(:right_position) { described_class.from_algebraic('g4') }
+
+      it 'returns positive distance' do
+        result = center_position.column_distance(right_position)
+        expect(result).to eq(3)
+      end
+    end
+
+    context 'when calculating distance from right to left file' do
+      let(:left_position) { described_class.from_algebraic('b4') }
+
+      it 'returns positive distance' do
+        result = center_position.column_distance(left_position)
+        expect(result).to eq(2)
+      end
+    end
+  end
+
+  # Edge case tests for board boundaries
+  describe 'edge cases' do
+    context 'when testing adjacency at board edges' do
+      let(:corner_position) { described_class.from_algebraic('a1') }
+      let(:corner_adjacent) { described_class.from_algebraic('a2') }
+
+      it 'correctly identifies adjacent positions at corners' do
+        result = corner_position.adjacent?(corner_adjacent)
+        expect(result).to be true
+      end
+    end
+
+    context 'when testing maximum distances' do
+      let(:opposite_corner) { described_class.from_algebraic('h8') }
+
+      it 'calculates maximum row distance correctly' do
+        corner_position = described_class.from_algebraic('a1')
+        result = corner_position.row_distance(opposite_corner)
+        expect(result).to eq(7)
+      end
+
+      it 'calculates maximum column distance correctly' do
+        corner_position = described_class.from_algebraic('a1')
+        result = corner_position.column_distance(opposite_corner)
+        expect(result).to eq(7)
+      end
     end
   end
 end

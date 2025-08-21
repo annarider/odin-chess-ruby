@@ -85,14 +85,19 @@ module Chess
       transform_coordinates(other)
     end
 
+    # Returns the vector difference between positions
     def -(other)
       Position.new(row - other.row, column - other.column)
     end
 
+     # Checks if this is a two-rank move (useful for pawn logic)
     def two_rank_move?(other)
       (row - other.row).abs == 2
     end
-
+ 
+    # Checks if two positions are adjacent (within one square)
+    # Adjacent includes horizontal, vertical, and diagonal neighbors
+   
     def diagonal_move?(other)
       row_distance(other) == column_distance(other)
     end
