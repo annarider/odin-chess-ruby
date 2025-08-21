@@ -29,5 +29,6 @@ module Chess
     ].freeze
     ROOK = [[-1, 0], [1, 0], [0, 1], [0, -1]].freeze
     BISHOP = [[1, 1], [1, -1], [-1, 1], [-1, -1]].freeze
+    KING_CASTLING = [[0, 2], [0, -2]].freeze
   end
 end

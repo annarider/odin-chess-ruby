@@ -1,6 +1,6 @@
 =========================================
 REPOSITORY STRUCTURE AND CONTENT
-Generated on: Mon Aug 18 11:44:48 MDT 2025
+Generated on: Wed Aug 20 14:43:55 MDT 2025
 =========================================
 
 DIRECTORY TREE:
@@ -47,6 +47,7 @@ DIRECTORY TREE:
 │   │       ├── check_detector.rb
 │   │       ├── move_calculator.rb
 │   │       ├── move_validator.rb
+│   │       ├── path_calculator.rb
 │   │       └── pawn_move_validator.rb
 │   └── chess.rb
 ├── main.rb
@@ -65,15 +66,16 @@ DIRECTORY TREE:
 │   │   │   └── interface_spec.rb
 │   │   └── services
 │   │       ├── castling_validator_spec.rb
-│   │       ├── check_detector.rb
+│   │       ├── check_detector_spec.rb
 │   │       ├── move_calculator_spec.rb
 │   │       ├── move_validator_spec.rb
+│   │       ├── path_calculator_spec.rb
 │   │       └── pawn_move_validator_spec.rb
 │   └── spec_helper.rb
 └── spike
     └── interface.rb
 
-16 directories, 51 files
+16 directories, 53 files
 
 
 FILE CONTENTS:
@@ -109,6 +111,7 @@ require_relative 'chess/helpers/to_fen'
 require_relative 'chess/services/check_detector'
 require_relative 'chess/services/castling_validator'
 require_relative 'chess/services/move_calculator'
+require_relative 'chess/services/path_calculator'
 require_relative 'chess/services/move_validator'
 require_relative 'chess/services/pawn_move_validator'
 
@@ -224,12 +227,18 @@ module Chess
     # command to update grid state when piece moves
     def update_position(start_pos, end_pos)
       piece = piece_at(start_pos)
+      raise ArgumentError, "No piece at #{start_pos}" unless piece
+
       place_piece(end_pos, piece)
-      erase_origin_position(start_pos)
+      remove_piece(start_pos)
     end
 
     def place_piece(position, piece)
       @grid[position.row][position.column] = piece
+    end
+
+    def remove_piece(position)
+      @grid[position.row][position.column] = nil
     end
 
     # 4 steps to a move:
@@ -269,10 +278,6 @@ module Chess
       return [] if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
-    end
-
-    def erase_origin_position(start_pos)
-      @grid[start_pos.row][start_pos.column] = nil
     end
 
     def update_en_passant_square(move)
@@ -1127,6 +1132,8 @@ FILE: ./lib/chess/helpers/piece_helpers.rb
 # frozen_string_literal: true
 
 module Chess
+  # Utility methods related to
+  # querying piece data
   module PieceHelpers
     # checks if the captured piece is an enemy color
     def self.opponent_color?(attack_piece:, captured_piece:)
@@ -1144,6 +1151,16 @@ module Chess
         target_piece.match?(/[A-Z]/)
       elsif color == Chess::ChessNotation::BLACK_PLAYER
         target_piece.match?(/[a-z]/)
+      end
+    end
+
+    def self.calculate_color(piece)
+      return nil unless piece
+
+      if piece.match?(/[A-Z]/)
+        Chess::ChessNotation::WHITE_PLAYER
+      else
+        Chess::ChessNotation::BLACK_PLAYER
       end
     end
   end
@@ -1239,12 +1256,16 @@ module Chess
   # Check rules for castling rights.
   # This class contains methods to
   # ensure castling moves are allowed.
-  module Castling
+  class CastlingValidator
+    attr_reader :board, :king_start, :king_end, :piece, :rook_position,
+                :move_history
+
     def self.castling_legal?(...)
-      new(...).can_castle?
+      new(...).legal?
     end
 
-    def initialize(move, move_history = [])
+    def initialize(board, move, move_history = MoveHistory.new)
+      @board = board
       @king_start = move.from_position
       @king_end = move.to_position
       @piece = move.piece
@@ -1252,12 +1273,12 @@ module Chess
       @move_history = move_history
     end
 
-    def can_castle?
+    def legal?
       return false if king_has_moved?
       return false if rook_has_moved?
-      return false if king_in_check?(board, move)
-      return false if path_in_check?(board, move)
-      return false if castling_into_check?(board, move)
+      return false if king_in_check?
+      return false if path_in_check?
+      return false if castling_into_check?
 
       true
     end
@@ -1268,8 +1289,34 @@ module Chess
       move_history.has_moved?(king_start)
     end
 
-    def rook
-      move_history.has_moved?
+    def rook_has_moved?
+      move_history.has_moved?(rook_position)
+    end
+
+    def king_in_check?
+      CheckDetector.in_check?(board, PieceHelpers.calculate_color(piece))
+    end
+
+    def path_in_check?
+      path = PathCalculator.calculate_path_between(
+        start: king_start,
+        destination: king_end
+      )
+      path.any? do |square|
+        CheckDetector.in_check?(
+          board,
+          PieceHelpers.calculate_color(piece),
+          square
+        )
+      end
+    end
+
+    def castling_into_check?
+      CheckDetector.in_check?(
+        board,
+        PieceHelpers.calculate_color(piece),
+        king_end
+      )
     end
   end
 end
@@ -1282,21 +1329,19 @@ FILE: ./lib/chess/services/check_detector.rb
 
 module Chess
   class CheckDetector
-    attr_reader :board, :active_color
+    attr_reader :board, :active_color, :king_position
 
     def self.in_check?(...)
       new(...).in_check?
     end
 
-    def initialize(board, active_color)
+    def initialize(board, active_color, king_position = nil)
       @board = board
       @active_color = active_color
+      @king_position = king_position || setup_king
     end
 
     def in_check?
-      king_position = board.find_king(active_color)
-      return false unless king_position
-
       opponent_color = PieceHelpers.opponent_color(active_color)
       # retrieve data on all of opponent's pieces & their positions
       opponent_pieces = board.find_all_pieces(opponent_color)
@@ -1306,6 +1351,10 @@ module Chess
     end
 
     private
+
+    def setup_king
+      board.find_king(active_color)
+    end
 
     def find_all_pieces_moves(piece_data)
       piece_data.flat_map do |piece_hash|
@@ -1361,12 +1410,11 @@ module Chess
     def generate_possible_moves
       # move direction of pawn depends on color
       return pawn_moves if %w[p P].include?(piece)
+      return king_moves if %w[k K].include?(piece)
       # empty square
       return [] if piece.nil?
 
       case piece.downcase
-      when 'k'
-        king_moves
       when 'q'
         queen_moves
       when 'b'
@@ -1387,7 +1435,8 @@ module Chess
           row_delta = vector.first * distance
           column_delta = vector.last * distance
           delta_position = Position.from_coordinates(row_delta, column_delta)
-          moves << (position + delta_position)
+          end_position = position + delta_position
+          moves << end_position if end_position&.in_bound?
         end
       end
       moves
@@ -1398,7 +1447,7 @@ module Chess
     def knight_moves
       KNIGHT.map do |vector|
         position + Position.from_directional_vector(vector)
-      end.compact
+      end
     end
 
     def rook_moves
@@ -1454,7 +1503,7 @@ module Chess
     end
 
     # def self.two_square_pawn_move?()
-    def initialize(board, move, move_history = [])
+    def initialize(board, move, move_history = MoveHistory.new)
       @board = board
       @move = move
       @start_position = move.from_position
@@ -1468,6 +1517,7 @@ module Chess
       return false unless valid_destination?
       return false unless clear_path?
       return false unless valid_piece_moves?
+      return validate_castling if %w[k K].include?(piece)
 
       true
     end
@@ -1492,28 +1542,104 @@ module Chess
     def clear_path?
       return true if %w[n N].include?(piece)
 
-      path = calculate_path_between(start_position, end_position)
-      empty_square_along_path?(path)
+      path = PathCalculator.calculate_path_between(
+        start: start_position,
+        destination: end_position
+      )
+      # are there any pieces along the piece's movement path?
+      path.all? { |position| board.piece_at(position).nil? }
     end
 
-    # find all the squares between start and destination positions
-    def calculate_path_between(start_position, end_position)
-      total_row_delta = end_position.row - start_position.row
-      total_column_delta = end_position.column - start_position.column
-      direction_vector = [convert_direction(total_row_delta), convert_direction(total_column_delta)]
-      steps = [total_row_delta.abs, total_column_delta.abs].max
-      request_moves(direction_vector, steps)
+    def valid_piece_moves?
+      return PawnMoveValidator.valid_move?(move, move_history) if %w[P p].include?(piece)
+
+      # other pieces return true as they don't have piece-specific moves
+      true
     end
 
-    # are there any pieces along the piece's movement path?
-    def empty_square_along_path?(path)
-      route = path[0...-1] # remove destination square
-      return true if route.all? { |position| board.piece_at(position).nil? }
+    def validate_castling
+      CastlingValidator.castling_legal?(
+        board,
+        move,
+        move_history
+      )
+    end
+  end
+end
 
-      false
+
+================================================
+FILE: ./lib/chess/services/path_calculator.rb
+================================================
+# frozen_string_literal: true
+
+module Chess
+  # Find all the squares between start and destination positions
+  class PathCalculator
+    attr_reader :start_position, :end_position
+
+    def self.calculate_path_between(...)
+      new(...).calculate_path
     end
 
-    def convert_direction(delta)
+    def initialize(start:, destination:)
+      @start_position = start
+      @end_position = destination
+    end
+
+    def calculate_path
+      return [] if same_position? || adjacent_positions?
+      return [] unless valid_line?
+
+      build_path
+    end
+
+    private
+
+    def same_position?
+      start_position == end_position
+    end
+
+    def adjacent_positions?
+      row_distance <= 1 && column_distance <= 1
+    end
+
+    def valid_line?
+      horizontal_line? || vertical_line? || diagonal_line?
+    end
+
+    def horizontal_line?
+      start_position.row == end_position.row
+    end
+
+    def vertical_line?
+      start_position.column == end_position.column
+    end
+
+    def diagonal_line?
+      row_distance == column_distance
+    end
+
+    def build_path
+      positions = []
+      current_position = start_position + direction_vector
+
+      while current_position != end_position
+        positions << current_position
+        current_position += direction_vector
+      end
+
+      positions
+    end
+
+    def direction_vector
+      Position.new(
+        normalize_direction(end_position.row - start_position.row),
+        normalize_direction(end_position.column - start_position.column)
+      )
+    end
+
+    def normalize_direction(delta)
       return 0 if delta.zero?
 
       delta.positive? ? 1 : -1
@@ -1524,11 +1650,12 @@ module Chess
       calculator.calculate_moves([direction_vector], steps)
     end
 
-    def valid_piece_moves?
-      return PawnMoveValidator.valid_move?(move, move_history) if %w[P p].include?(piece)
+    def row_distance
+      (start_position.row - end_position.row).abs
+    end
 
-      # other pieces return true as they don't have piece-specific moves
-      true
+    def column_distance
+      (start_position.column - end_position.column).abs
     end
   end
 end
@@ -1997,6 +2124,7 @@ describe Chess::Board do
           expect(black_pieces.map { |data| data[:piece] }).to all(match(/[a-z]/))
         end
       end
+
       context 'when all white pieces are requested' do
         it 'returns only white pieces' do
           white_pieces = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
@@ -2923,9 +3051,251 @@ require_relative '../../../lib/chess'
 
 # Tests for Castling class
 
+describe Chess::CastlingValidator do
+  subject(:validator) { described_class }
+
+  # Helper methods to create real Position and Move objects
+  def position(square)
+    Chess::Position.from_algebraic(square)
+  end
+
+  def create_castling_move(from_square, to_square, piece, rook_square, fen)
+    Chess::Move.new(
+      from_position: position(from_square),
+      to_position: position(to_square),
+      piece: piece,
+      castling: position(rook_square),
+      fen: fen
+    )
+  end
+
+  def create_regular_move(from_square, to_square, piece, fen)
+    Chess::Move.new(
+      from_position: position(from_square),
+      to_position: position(to_square),
+      piece: piece,
+      fen: fen
+    )
+  end
+
+  # Use real board setup for testing
+  def setup_castling_board
+    # Create a board with kings and rooks in castling positions
+    # and clear the path between them
+    Chess::Board.start_positions(add_pieces: true).tap do |board|
+      # Remove pieces between king and rook for castling
+      board.remove_piece(position('f1'))
+      board.remove_piece(position('g1'))
+      board.remove_piece(position('b1'))
+      board.remove_piece(position('c1'))
+      board.remove_piece(position('d1'))
+      # Similar for black pieces
+      board.remove_piece(position('f8'))
+      board.remove_piece(position('g8'))
+      board.remove_piece(position('b8'))
+      board.remove_piece(position('c8'))
+      board.remove_piece(position('d8'))
+    end
+  end
+
+  describe '.castling_legal?' do
+    let(:board) { setup_castling_board }
+    let(:move_history) { Chess::MoveHistory.new }
+
+    # Test the happy path - when all castling conditions are met
+    context 'when all castling conditions are met' do
+      let(:starting_fen) { 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1' }
+
+      it 'returns true for valid white kingside castling' do
+        move = create_castling_move('e1', 'g1', 'K', 'h1', starting_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+
+      it 'returns true for valid white queenside castling' do
+        move = create_castling_move('e1', 'c1', 'K', 'a1', starting_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+
+      it 'returns true for valid black kingside castling' do
+        move = create_castling_move('e8', 'g8', 'k', 'h8', starting_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+
+      it 'returns true for valid black queenside castling' do
+        move = create_castling_move('e8', 'c8', 'k', 'a8', starting_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+    end
+
+    context 'when the king has previously moved' do
+      before do
+        # Simulate king moving by adding moves to history
+        # King moves from e8 to e7
+        fen_after_king_move = 'r6r/ppppkppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'
+        king_move = create_regular_move('e8', 'e7', 'K', fen_after_king_move)
+        move_history.add_move(king_move)
+        # FEN after king moves back to e8 (but castling rights lost)
+        fen_king_back = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        king_move_back = create_regular_move('e7', 'e8', 'K', fen_king_back)
+        move_history.add_move(king_move_back)
+      end
+
+      it 'returns false' do
+        # Current FEN shows king back on e8 but without black castling rights kq
+        current_fen = 'r3k2r/pppp1ppp/8/8/8/8/PPPPPPPP/R3K2R b KQ - 2 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the rook has previously moved' do
+      before do
+        # FEN after rook moves (kingside castling right lost for black, based on cleared board)
+        fen_after_rook_move = 'r3k3/pppppprp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 1 1'
+        rook_move_out = create_regular_move('h8', 'h7', 'r', fen_after_rook_move)
+        move_history.add_move(rook_move_out)
+        # FEN after rook moves back (kingside castling still lost for black)
+        fen_rook_back = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        rook_move_back = create_regular_move('h7', 'h8', 'r', fen_rook_back)
+        move_history.add_move(rook_move_back)
+      end
+
+      it 'returns false' do
+        current_fen = 'r3k2r/pppppp1p/8/8/8/8/PPPPPPPP/R3K2R b KQq - 2 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the king is currently in check' do
+      before do
+        # Place a white queen that puts black king in check
+        board.place_piece(position('e6'), 'Q')
+      end
+
+      it 'returns false' do
+        # King in check - cannot castle (cleared board + white queen on e6)
+        current_fen = 'r3k2r/pppppppp/4Q3/8/8/8/PPPPPPPP/R3K2R b KQkq - 1 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the castling path is under attack' do
+      before do
+        # Place a white rook that attacks f8 (king would pass through check)
+        board.place_piece(position('f1'), 'R')
+      end
+
+      it 'returns false' do
+        # f8 square under attack - king cannot pass through (cleared board + rook on f1)
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3KR1R b KQkq - 0 1'
+        move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when castling would put the king in check' do
+      before do
+        # Place a white rook that attacks g8 (where king would end up)
+        board.place_piece(position('g8'), 'r')
+      end
+
+      it 'returns false' do
+        # g1 square under attack - white king cannot end there (black rook on g8)
+        current_fen = 'r3k1r1/pppppppp/8/8/8/8/PPPPPPPP/R3K1RR b KQkq - 0 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when queenside castling path square is under attack' do
+      before do
+        # Place a black bishop that attacks d1 (king passes through this square during queenside castling)
+        board.place_piece(position('a4'), 'b')
+      end
+
+      it 'returns false when d1 square is attacked' do
+        # d1 square under attack - king cannot pass through check during queenside castling
+        current_fen = 'r3k2r/pppppppp/8/8/b7/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+        move = create_castling_move('e1', 'c1', 'K', 'a1', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the specific castling rook has moved' do
+      before do
+        # Set up move history where h1 rook has moved (but returned)
+        fen_after_rook_move = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K3 w KQq - 1 1'
+        rook_move_out = create_regular_move('h1', 'h2', 'R', fen_after_rook_move)
+        move_history.add_move(rook_move_out)
+
+        fen_rook_back = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
+        rook_move_back = create_regular_move('h2', 'h1', 'R', fen_rook_back)
+        move_history.add_move(rook_move_back)
+      end
+
+      it 'returns false when the castling rook has previously moved' do
+        # h1 rook has moved and returned - castling rights lost for kingside
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQq - 2 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be false
+      end
+    end
+
+    context 'when the other rook has moved but not the castling rook' do
+      before do
+        # Set up move history where a1 rook has moved (but h1 rook hasn't)
+        fen_after_rook_move = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/4K2R w Kk - 1 1'
+        rook_move = create_regular_move('a1', 'a2', 'R', fen_after_rook_move)
+        move_history.add_move(rook_move)
+      end
+
+      it 'returns true when only the other rook has moved' do
+        # a1 rook moved but h1 rook hasn't - kingside castling still allowed
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/4K2R w Kk - 1 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+    end
+
+    context 'when testing white piece castling' do
+      it 'correctly identifies white player from uppercase piece' do
+        # White king castling kingside - should work with clear board
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R w KQkq - 0 1'
+        move = create_castling_move('e1', 'g1', 'K', 'h1', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+    end
+
+    context 'when testing black piece castling' do
+      it 'correctly identifies black player from lowercase piece' do
+        # Black king castling kingside - should work with clear board
+        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3K2R b KQkq - 0 1'
+        move = create_castling_move('e8', 'g8', 'k', 'h8', current_fen)
+        result = validator.castling_legal?(board, move, move_history)
+        expect(result).to be true
+      end
+    end
+  end
+end
+
 
 ================================================
-FILE: ./spec/chess/services/check_detector.rb
+FILE: ./spec/chess/services/check_detector_spec.rb
 ================================================
 # frozen_string_literal: true
 
@@ -2941,7 +3311,212 @@ describe Chess::CheckDetector do
   describe '.in_check?' do
     context 'when starting a new game and king is not in check' do
       it 'returns false for white king' do
-        expect(detector.in_check?(board, :white)).to be false
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be false
+      end
+
+      it 'returns false for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context 'when white king is in check by queen' do
+      # Scholar's mate position: king in check by queen on f7
+      let(:board) { Chess::Board.from_fen('rnb1kbnr/pppp1ppp/8/4p3/2B1P3/8/PPPP1qPP/RNBQK1NR w KQkq - 2 3') }
+
+      it 'returns true for white king' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
+      end
+
+      it 'returns false for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context 'when black king is in check by rook' do
+      # Black king in check by white rook on e8
+      let(:board) { Chess::Board.from_fen('rnbqk2R/ppppppbp/6pn/8/8/8/PPPPPPPP/RNBQKBN1 b Qq - 0 4') }
+
+      it 'returns true for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be true
+      end
+
+      it 'returns false for white king' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be false
+      end
+    end
+
+    context 'when white king is in check by black bishop' do
+      # White king in check by black bishop on diagonal
+      let(:bishop_start) { Chess::Position.from_algebraic('f8') }
+      let(:bishop_end) { Chess::Position.from_algebraic('a5') }
+
+      before do
+        # Move black bishop to attack white king position
+        board.update_position(bishop_start, bishop_end)
+      end
+
+      it 'returns true for white king' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
+      end
+
+      it 'returns false for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context 'when king is in check by knight' do
+      let(:board) { Chess::Board.from_fen('rnbqkb1r/pppppppp/5n2/8/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 1 2') }
+
+      before do
+        # Place white king on e4 and black knight on f6 to create check conditions
+        board.place_piece(Chess::Position.from_algebraic('e4'), 'K')
+        board.place_piece(Chess::Position.from_algebraic('f6'), 'n')
+      end
+
+      it 'returns true for white king in check' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
+      end
+    end
+
+    context 'when white king is in check by black pawn' do
+      # Create position with white king on e5 and black pawn on d6 to set up check
+      let(:board) { Chess::Board.from_fen('rnbqkbnr/ppp1pppp/3p4/4K3/8/8/PPPPPPPP/RNBQ1BNR w KQkq - 0 1') }
+
+      it 'returns true for white king in check' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be true
+      end
+    end
+
+    context 'when pieces are blocking potential check' do
+      # Rook attack blocked by another piece
+      let(:board) { Chess::Board.from_fen('r3k3/8/8/8/8/8/4P3/4K3 w - - 0 1') }
+
+      it 'returns false for white king when rook attack is blocked' do
+        white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(white_check).to be false
+      end
+    end
+
+    context 'edge cases' do
+      let(:empty_board) { Chess::Board.new }
+
+      context 'when no king on the board' do
+        it 'returns false for black king' do
+          black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+          expect(black_check).to be false
+        end
+      end
+
+      context 'when no opponent pieces on the board' do
+        before do
+          # Only white king, no other pieces
+          board.place_piece(Chess::Position.from_algebraic('e1'), 'K')
+        end
+
+        it 'returns false for white king' do
+          white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
+          expect(white_check).to be false
+        end
+      end
+    end
+
+    context 'when black king is in complex check situation' do
+      # Fischer vs Byrne 1956, position after queen sacrifice
+      let(:board) { Chess::Board.from_fen('r3r1k1/pp3ppp/1qn2n2/3p1b2/3P1B2/2N2N2/PP2QPPP/2RR2K1 b - - 0 18') }
+
+      it 'returns false when it correctly detects black king is not in check' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context 'when back rank mate set up puts black king in check' do
+      # Rook creates a back rank check
+      let(:board) { Chess::Board.from_fen('6k1/5ppp/8/8/8/8/5PPP/4R1K1 b - - 0 1') }
+
+      before do
+        board.place_piece(Chess::Position.from_algebraic('e8'), 'R')
+      end
+
+      it 'returns true as it identifies check before mate' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be true
+      end
+    end
+
+    context 'when endgame has black king under check from white king & queen' do
+      # King and queen vs king endgame
+      let(:board) { Chess::Board.from_fen('8/8/8/8/8/4k3/2Q5/4K3 w - - 0 1') }
+
+      it 'returns false correctly when black king is not yet in check in endgame' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+
+      it 'returns true correctly after queen moves and king comes under check' do
+        # Set up white queen in position to attack black king
+        board.update_position(
+          Chess::Position.from_algebraic('c2'),
+          Chess::Position.from_algebraic('d2')
+        )
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be true
+      end
+    end
+  end
+
+  describe '#initialize' do
+    context "when the king's position is provided at the start of the game" do
+      it "returns false when using the king's position which is passed in" do
+        king_start = Chess::Position.new(3, 4)
+        black_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::BLACK_PLAYER,
+          king_start
+        )
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the king's position isn't provided" do
+      it 'returns false for black king' do
+        black_check = detector.in_check?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the king's position is explicitly passed in as nil" do
+      it 'returns false for black king' do
+        black_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::BLACK_PLAYER,
+          nil
+        )
+        expect(black_check).to be false
+      end
+    end
+
+    context "when the white king's position is provided" do
+      # Set up a post castling move which puts the king in check
+      let(:board) { Chess::Board.from_fen('6r1/8/8/8/8/8/8/4K2R w K - 0 1') }
+
+      it 'returns true when the king is in check' do
+        white_check = detector.in_check?(
+          board,
+          Chess::ChessNotation::WHITE_PLAYER,
+          Chess::Position.from_algebraic('g1')
+        )
+        expect(white_check).to be true
       end
     end
   end
@@ -2958,7 +3533,7 @@ require_relative '../../../lib/chess'
 # Tests for the Chess Board class
 
 describe Chess::MoveCalculator do
-  subject(:calculator) { described_class.generate_possible_moves }
+  subject(:calculator) { described_class }
 
   let(:start_board) { Chess::Board.start_positions(add_pieces: true) }
 
@@ -2967,7 +3542,7 @@ describe Chess::MoveCalculator do
       it 'returns an array with 3 expected destinations' do
         start_pos = Chess::Position.from_algebraic('b1')
         expected_destinations = %w[c3 a3 d2].map { Chess::Position.from_algebraic(it) }
-        expect(described_class.generate_possible_moves(start_pos, 'N')).to match_array(expected_destinations)
+        expect(calculator.generate_possible_moves(start_pos, 'N')).to match_array(expected_destinations)
       end
     end
 
@@ -2975,7 +3550,7 @@ describe Chess::MoveCalculator do
       it 'returns an array with 3 expected destinations' do
         start_pos = Chess::Position.from_algebraic('g8')
         expected_destinations = %w[f6 h6 e7].map { Chess::Position.from_algebraic(it) }
-        expect(described_class.generate_possible_moves(start_pos, 'n')).to match_array(expected_destinations)
+        expect(calculator.generate_possible_moves(start_pos, 'n')).to match_array(expected_destinations)
       end
     end
 
@@ -2983,12 +3558,12 @@ describe Chess::MoveCalculator do
       let(:black_rook) { Chess::Position.from_algebraic('a8') }
 
       it 'returns an array with 14 moves' do
-        expect(described_class.generate_possible_moves(black_rook, 'r').length).to eq(14)
+        expect(calculator.generate_possible_moves(black_rook, 'r').length).to eq(14)
       end
 
       it 'returns the destination move of a6' do
         destination = Chess::Position.from_algebraic('a6')
-        expect(described_class.generate_possible_moves(black_rook, 'r')).to include(destination)
+        expect(calculator.generate_possible_moves(black_rook, 'r')).to include(destination)
       end
     end
 
@@ -2996,12 +3571,12 @@ describe Chess::MoveCalculator do
       let(:black_bishop) { Chess::Position.from_algebraic('c8') }
 
       it 'returns an array with 7 positions' do
-        expect(described_class.generate_possible_moves(black_bishop, 'b').length).to eq(7)
+        expect(calculator.generate_possible_moves(black_bishop, 'b').length).to eq(7)
       end
 
       it 'returns the destination move of f5' do
         destination = Chess::Position.from_algebraic('f5')
-        expect(described_class.generate_possible_moves(black_bishop, 'b')).to include(destination)
+        expect(calculator.generate_possible_moves(black_bishop, 'b')).to include(destination)
       end
     end
 
@@ -3009,12 +3584,12 @@ describe Chess::MoveCalculator do
       let(:white_queen) { Chess::Position.from_algebraic('d1') }
 
       it 'returns an array with 21 positions' do
-        expect(described_class.generate_possible_moves(white_queen, 'Q').length).to eq(21)
+        expect(calculator.generate_possible_moves(white_queen, 'Q').length).to eq(21)
       end
 
       it 'returns the destination move of f3' do
         destination = Chess::Position.from_algebraic('f3')
-        expect(described_class.generate_possible_moves(white_queen, 'Q')).to include(destination)
+        expect(calculator.generate_possible_moves(white_queen, 'Q')).to include(destination)
       end
     end
 
@@ -3022,12 +3597,12 @@ describe Chess::MoveCalculator do
       let(:black_king) { Chess::Position.from_algebraic('e8') }
 
       it 'returns an array with 5 positions' do
-        expect(described_class.generate_possible_moves(black_king, 'k').length).to eq(5)
+        expect(calculator.generate_possible_moves(black_king, 'k').length).to eq(5)
       end
 
       it 'returns the destination move of e7' do
         destination = Chess::Position.from_algebraic('e7')
-        expect(described_class.generate_possible_moves(black_king, 'k')).to include(destination)
+        expect(calculator.generate_possible_moves(black_king, 'k')).to include(destination)
       end
     end
 
@@ -3035,7 +3610,7 @@ describe Chess::MoveCalculator do
       it 'returns an array with 4 positions' do
         start_pos = Chess::Position.from_algebraic('c2')
         expected_destinations = %w[c3 c4 b3 d3].map { Chess::Position.from_algebraic(it) }
-        expect(described_class.generate_possible_moves(start_pos, 'P')).to match_array(expected_destinations)
+        expect(calculator.generate_possible_moves(start_pos, 'P')).to match_array(expected_destinations)
       end
     end
 
@@ -3043,7 +3618,7 @@ describe Chess::MoveCalculator do
       it 'returns an array with 4 positions' do
         start_pos = Chess::Position.from_algebraic('g7')
         expected_destinations = %w[f6 g6 h6 g5].map { Chess::Position.from_algebraic(it) }
-        expect(described_class.generate_possible_moves(start_pos, 'p')).to match_array(expected_destinations)
+        expect(calculator.generate_possible_moves(start_pos, 'p')).to match_array(expected_destinations)
       end
     end
 
@@ -3051,7 +3626,7 @@ describe Chess::MoveCalculator do
       let(:empty_position) { Chess::Position.from_algebraic('b5') }
 
       it 'returns no piece symbol' do
-        expect(described_class.generate_possible_moves(empty_position, nil)).to eq([])
+        expect(calculator.generate_possible_moves(empty_position, nil)).to eq([])
       end
     end
 
@@ -3059,7 +3634,7 @@ describe Chess::MoveCalculator do
       it 'returns 8 expected destination positions' do
         start_pos = Chess::Position.from_algebraic('d5')
         expected_destinations = %w[e7 f6 f4 e3 c3 b4 b6 c7].map { Chess::Position.from_algebraic(it) }
-        expect(described_class.generate_possible_moves(start_pos, 'N')).to match_array(expected_destinations)
+        expect(calculator.generate_possible_moves(start_pos, 'N')).to match_array(expected_destinations)
       end
     end
   end
@@ -3076,9 +3651,10 @@ require_relative '../../../lib/chess'
 # Tests for class Chess::Move Validator
 
 describe Chess::MoveValidator do
-  subject(:validator) { described_class.new }
+  subject(:validator) { described_class }
 
   let(:board) { Chess::Board.new }
+  let(:move_history) { Chess::MoveHistory.new }
 
   describe '.move_legal?' do
     context 'when a white knight in the middle of an empty board moves' do
@@ -3091,7 +3667,7 @@ describe Chess::MoveValidator do
       end
 
       it 'returns true when the destination square is empty' do
-        result = described_class.move_legal?(board, move)
+        result = validator.move_legal?(board, move)
         expect(result).to be true
       end
     end
@@ -3102,7 +3678,7 @@ describe Chess::MoveValidator do
         rook_destination = Chess::Position.from_algebraic('f7')
         move = Chess::Move.new(from_position: rook_start, to_position: rook_destination, piece: 'N')
         board.place_piece(rook_start, 'N')
-        expect(described_class.move_legal?(board, move)).to be false
+        expect(validator.move_legal?(board, move)).to be false
       end
     end
 
@@ -3117,12 +3693,12 @@ describe Chess::MoveValidator do
 
       it 'returns true for a white pawn' do
         board.place_piece(knight_destination, 'P')
-        expect(described_class.move_legal?(board, move)).to be true
+        expect(validator.move_legal?(board, move)).to be true
       end
 
       it 'returns false for a black pawn' do
         board.place_piece(knight_destination, 'p')
-        expect(described_class.move_legal?(board, move)).to be false
+        expect(validator.move_legal?(board, move)).to be false
       end
     end
 
@@ -3133,14 +3709,14 @@ describe Chess::MoveValidator do
         bishop_start = Chess::Position.from_algebraic('c1')
         bishop_destination = Chess::Position.from_algebraic('e3')
         move = Chess::Move.new(from_position: bishop_start, to_position: bishop_destination, piece: 'B')
-        expect(described_class.move_legal?(start_board, move)).to be false
+        expect(validator.move_legal?(start_board, move)).to be false
       end
 
       it 'returns true for white knight which can leap over pieces' do
         knight_start = Chess::Position.from_algebraic('b1')
         knight_destination = Chess::Position.from_algebraic('c3')
         move = Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N')
-        expect(described_class.move_legal?(board, move)).to be true
+        expect(validator.move_legal?(board, move)).to be true
       end
     end
 
@@ -3160,10 +3736,10 @@ describe Chess::MoveValidator do
       end
 
       it 'sends valid_move? message to PawnMoveValidator service' do
-        expect(Chess::PawnMoveValidator).to receive(:valid_move?)
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
+        validator.move_legal?(board, white_pawn_move, move_history)
+        expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
           .with(white_pawn_move, move_history)
-
-        described_class.move_legal?(board, white_pawn_move, move_history)
       end
     end
 
@@ -3184,10 +3760,10 @@ describe Chess::MoveValidator do
       end
 
       it 'sends valid_move? message to PawnMoveValidator with correct arguments' do
-        expect(Chess::PawnMoveValidator).to receive(:valid_move?)
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
+        validator.move_legal?(board, black_pawn_move, move_history)
+        expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
           .with(black_pawn_move, move_history)
-
-        described_class.move_legal?(board, black_pawn_move, move_history)
       end
     end
 
@@ -3204,9 +3780,9 @@ describe Chess::MoveValidator do
       end
 
       it 'does not send valid_move? message to PawnMoveValidator' do
-        expect(Chess::PawnMoveValidator).not_to receive(:valid_move?)
-
-        described_class.move_legal?(board, knight_move, move_history)
+        allow(Chess::PawnMoveValidator).to receive(:valid_move?)
+        validator.move_legal?(board, knight_move, move_history)
+        expect(Chess::PawnMoveValidator).not_to have_received(:valid_move?)
       end
     end
 
@@ -3226,8 +3802,445 @@ describe Chess::MoveValidator do
       end
 
       it 'returns false when pawn validation fails' do
-        result = described_class.move_legal?(board, invalid_pawn_move, move_history)
+        result = validator.move_legal?(board, invalid_pawn_move, move_history)
         expect(result).to be false
+      end
+    end
+
+    context 'when validating king moves (triggers castling validation)' do
+      context 'with a regular white king move' do
+        let(:king_start) { Chess::Position.from_algebraic('e4') }
+        let(:king_destination) { Chess::Position.from_algebraic('e5') }
+        let(:king_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'K'
+          )
+        end
+
+        before do
+          board.place_piece(king_start, 'K')
+        end
+
+        it 'calls CastlingValidator for white king moves' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+            .and_call_original
+          validator.move_legal?(board, king_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, king_move, move_history)
+        end
+      end
+
+      context 'with a regular black king move' do
+        let(:king_start) { Chess::Position.from_algebraic('e5') }
+        let(:king_destination) { Chess::Position.from_algebraic('e4') }
+        let(:king_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'k'
+          )
+        end
+
+        before do
+          board.place_piece(king_start, 'k')
+        end
+
+        it 'calls CastlingValidator for black king moves' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+            .and_call_original
+          validator.move_legal?(board, king_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, king_move, move_history)
+        end
+      end
+
+      context 'with a king capturing move' do
+        let(:king_start) { Chess::Position.from_algebraic('e4') }
+        let(:king_destination) { Chess::Position.from_algebraic('e5') }
+        let(:capture_move) do
+          Chess::Move.new(
+            from_position: king_start,
+            to_position: king_destination,
+            piece: 'K'
+          )
+        end
+
+        before do
+          board.place_piece(king_start, 'K')
+          board.place_piece(king_destination, 'p') # Enemy pawn to capture
+        end
+
+        it 'still calls CastlingValidator even for capturing moves' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+            .and_call_original
+          validator.move_legal?(board, capture_move, move_history)
+          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
+            .with(board, capture_move, move_history)
+        end
+      end
+    end
+
+    context 'when validating non-king moves' do
+      context 'with a queen move' do
+        let(:queen_start) { Chess::Position.from_algebraic('d1') }
+        let(:queen_destination) { Chess::Position.from_algebraic('d4') }
+        let(:queen_move) do
+          Chess::Move.new(
+            from_position: queen_start,
+            to_position: queen_destination,
+            piece: 'Q'
+          )
+        end
+
+        before do
+          board.place_piece(queen_start, 'Q')
+        end
+
+        it 'does not call CastlingValidator' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+          validator.move_legal?(board, queen_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
+        end
+      end
+
+      context 'with a rook move' do
+        let(:rook_start) { Chess::Position.from_algebraic('a1') }
+        let(:rook_destination) { Chess::Position.from_algebraic('a5') }
+        let(:rook_move) do
+          Chess::Move.new(from_position: rook_start, to_position: rook_destination, piece: 'R')
+        end
+
+        before do
+          board.place_piece(rook_start, 'R')
+        end
+
+        it 'does not call CastlingValidator' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+          validator.move_legal?(board, rook_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
+        end
+      end
+
+      context 'with a pawn move' do
+        let(:pawn_start) { Chess::Position.from_algebraic('e2') }
+        let(:pawn_destination) { Chess::Position.from_algebraic('e4') }
+        let(:pawn_move) do
+          Chess::Move.new(from_position: pawn_start, to_position: pawn_destination, piece: 'P')
+        end
+
+        before do
+          board.place_piece(pawn_start, 'P')
+        end
+
+        it 'does not call CastlingValidator' do
+          allow(Chess::CastlingValidator).to receive(:castling_legal?)
+          validator.move_legal?(board, pawn_move, move_history)
+          expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
+        end
+      end
+    end
+
+    context 'when other validations fail before castling' do
+      let(:king_start) { Chess::Position.from_algebraic('e1') }
+      let(:impossible_destination) { Chess::Position.from_algebraic('a8') } # Invalid king move
+      let(:invalid_move) do
+        Chess::Move.new(from_position: king_start, to_position: impossible_destination, piece: 'K')
+      end
+
+      before do
+        board.place_piece(king_start, 'K')
+      end
+
+      it 'does not call CastlingValidator when move is impossible' do
+        allow(Chess::CastlingValidator).to receive(:castling_legal?)
+        result = validator.move_legal?(board, invalid_move, move_history)
+        expect(Chess::CastlingValidator).not_to have_received(:castling_legal?)
+        expect(result).to be false
+      end
+    end
+  end
+end
+
+
+================================================
+FILE: ./spec/chess/services/path_calculator_spec.rb
+================================================
+# frozen_string_literal: true
+
+require_relative '../../../lib/chess'
+
+describe Chess::PathCalculator do
+  subject(:calc) { described_class }
+
+  describe '.calculate_path_between' do
+    context 'when start and destination are the same position' do
+      it 'returns an empty array' do
+        start_pos = Chess::Position.new(4, 4)
+        end_pos = Chess::Position.new(4, 4)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when positions are adjacent' do
+      it 'returns an empty array for horizontally adjacent squares' do
+        start_pos = Chess::Position.new(4, 4)
+        end_pos = Chess::Position.new(4, 5)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+
+      it 'returns an empty array for vertically adjacent squares' do
+        start_pos = Chess::Position.new(4, 4)
+        end_pos = Chess::Position.new(5, 4)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+
+      it 'returns an empty array for diagonally adjacent squares' do
+        start_pos = Chess::Position.new(4, 4)
+        end_pos = Chess::Position.new(5, 5)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when positions form a horizontal line' do
+      it 'returns all squares between positions moving right' do
+        start_pos = Chess::Position.new(4, 2)
+        end_pos = Chess::Position.new(4, 6)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(4, 3),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(4, 5)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares between horizontal positions moving left' do
+        start_pos = Chess::Position.new(4, 6)
+        end_pos = Chess::Position.new(4, 2)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(4, 5),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(4, 3)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for a long horizontal path' do
+        start_pos = Chess::Position.new(0, 0)
+        end_pos = Chess::Position.new(0, 7)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(0, 1),
+          Chess::Position.new(0, 2),
+          Chess::Position.new(0, 3),
+          Chess::Position.new(0, 4),
+          Chess::Position.new(0, 5),
+          Chess::Position.new(0, 6)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+    end
+
+    context 'when positions form a vertical line' do
+      it 'returns all squares between positions moving up' do
+        start_pos = Chess::Position.new(2, 4)
+        end_pos = Chess::Position.new(6, 4)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(3, 4),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(5, 4)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares between positions from 2nd rank to 6th rank' do
+        start_pos = Chess::Position.new(6, 4)
+        end_pos = Chess::Position.new(2, 4)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(5, 4),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(3, 4)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for a long vertical path from 8th rank down to 1st rank' do
+        start_pos = Chess::Position.new(0, 3)
+        end_pos = Chess::Position.new(7, 3)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(1, 3),
+          Chess::Position.new(2, 3),
+          Chess::Position.new(3, 3),
+          Chess::Position.new(4, 3),
+          Chess::Position.new(5, 3),
+          Chess::Position.new(6, 3)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+    end
+
+    context 'when positions form a diagonal line' do
+      it 'returns all squares for diagonal up-right movement' do
+        start_pos = Chess::Position.new(2, 2)
+        end_pos = Chess::Position.new(6, 6)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(3, 3),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(5, 5)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for diagonal up-left movement from black perspective' do
+        start_pos = Chess::Position.new(2, 6)
+        end_pos = Chess::Position.new(6, 2)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(3, 5),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(5, 3)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for diagonal down-right movement from white perspective' do
+        start_pos = Chess::Position.new(6, 2)
+        end_pos = Chess::Position.new(2, 6)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(5, 3),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(3, 5)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for diagonal down-left movement from black perspective' do
+        start_pos = Chess::Position.new(6, 6)
+        end_pos = Chess::Position.new(2, 2)
+
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+
+        expected_positions = [
+          Chess::Position.new(5, 5),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(3, 3)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'returns all squares for a long diagonal path' do
+        start_pos = Chess::Position.new(0, 0)
+        end_pos = Chess::Position.new(7, 7)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(1, 1),
+          Chess::Position.new(2, 2),
+          Chess::Position.new(3, 3),
+          Chess::Position.new(4, 4),
+          Chess::Position.new(5, 5),
+          Chess::Position.new(6, 6)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+    end
+
+    context 'when positions do not form a valid line' do
+      it 'returns an empty array for knight-like moves' do
+        start_pos = Chess::Position.new(2, 2)
+        end_pos = Chess::Position.new(4, 3)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+
+      it 'returns an empty array for irregular moves' do
+        start_pos = Chess::Position.new(1, 1)
+        end_pos = Chess::Position.new(4, 6)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+
+      it 'returns an empty array for L-shaped moves' do
+        start_pos = Chess::Position.new(0, 0)
+        end_pos = Chess::Position.new(2, 1)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(result).to eq([])
+      end
+    end
+
+    context 'when dealing with board edge cases' do
+      it 'works correctly for paths along the first rank' do
+        start_pos = Chess::Position.new(0, 1)
+        end_pos = Chess::Position.new(0, 5)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(0, 2),
+          Chess::Position.new(0, 3),
+          Chess::Position.new(0, 4)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'works correctly for paths along the last rank' do
+        start_pos = Chess::Position.new(7, 1)
+        end_pos = Chess::Position.new(7, 5)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(7, 2),
+          Chess::Position.new(7, 3),
+          Chess::Position.new(7, 4)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'works correctly for paths along the first file' do
+        start_pos = Chess::Position.new(1, 0)
+        end_pos = Chess::Position.new(5, 0)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(2, 0),
+          Chess::Position.new(3, 0),
+          Chess::Position.new(4, 0)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+
+      it 'works correctly for corner-to-corner diagonal' do
+        start_pos = Chess::Position.new(0, 7)
+        end_pos = Chess::Position.new(7, 0)
+        result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expected_positions = [
+          Chess::Position.new(1, 6),
+          Chess::Position.new(2, 5),
+          Chess::Position.new(3, 4),
+          Chess::Position.new(4, 3),
+          Chess::Position.new(5, 2),
+          Chess::Position.new(6, 1)
+        ]
+        expect(result).to eq(expected_positions)
+      end
+    end
+  end
+
+  describe '#calculate_path' do
+    context 'when called as an instance method' do
+      it 'returns the same result as the class method' do
+        start_pos = Chess::Position.new(2, 2)
+        end_pos = Chess::Position.new(5, 5)
+        instance_result = calc.new(start: start_pos, destination: end_pos).calculate_path
+        class_result = calc.calculate_path_between(start: start_pos, destination: end_pos)
+        expect(instance_result).to eq(class_result)
       end
     end
   end

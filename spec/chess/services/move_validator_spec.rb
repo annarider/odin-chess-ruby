@@ -163,8 +163,8 @@ describe Chess::MoveValidator do
 
     context 'when validating king moves (triggers castling validation)' do
       context 'with a regular white king move' do
-        let(:king_start) { Chess::Position.from_algebraic('e4') }
-        let(:king_destination) { Chess::Position.from_algebraic('e5') }
+        let(:king_start) { Chess::Position.from_algebraic('e1') }
+        let(:king_destination) { Chess::Position.from_algebraic('g1') }
         let(:king_move) do
           Chess::Move.new(
             from_position: king_start,
@@ -187,8 +187,8 @@ describe Chess::MoveValidator do
       end
 
       context 'with a regular black king move' do
-        let(:king_start) { Chess::Position.from_algebraic('e5') }
-        let(:king_destination) { Chess::Position.from_algebraic('e4') }
+        let(:king_start) { Chess::Position.from_algebraic('e8') }
+        let(:king_destination) { Chess::Position.from_algebraic('g8') }
         let(:king_move) do
           Chess::Move.new(
             from_position: king_start,

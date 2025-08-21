@@ -88,7 +88,13 @@ module Chess
 
     def king_moves
       vectors = Directions::ROOK + Directions::BISHOP
+      vectors += Directions::KING_CASTLING if king_at_start_position?
       calculate_moves(vectors, 1)
+    end
+
+    def king_at_start_position?
+      (piece == 'K' && position == Position.from_algebraic('e1')) ||
+        (piece == 'k' && position == Position.from_algebraic('e8'))
     end
 
     # includes all possible move forward (1 square advance, 1 diagonal
