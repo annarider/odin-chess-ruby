@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require_relative 'chess/data/config'
-require_relative 'chess/data/directions_data'
-require_relative 'chess/data/piece_data'
+require_relative 'chess/data/directions'
+require_relative 'chess/data/piece'
 
 require_relative 'chess/helpers/chess_notation'
 require_relative 'chess/helpers/colorize_string'
