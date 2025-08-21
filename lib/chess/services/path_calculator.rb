@@ -28,7 +28,7 @@ module Chess
     end
 
     def adjacent_positions?
-      row_distance <= 1 && column_distance <= 1
+      start_position.adjacent?(end_position)
     end
 
     def valid_line?
@@ -44,7 +44,7 @@ module Chess
     end
 
     def diagonal_line?
-      row_distance == column_distance
+      start_position.diagonal_move?(end_position)
     end
 
     def build_path
@@ -75,14 +75,6 @@ module Chess
     def request_moves(direction_vector, steps)
       calculator = MoveCalculator.new(start_position, piece)
       calculator.calculate_moves([direction_vector], steps)
-    end
-
-    def row_distance
-      (start_position.row - end_position.row).abs
-    end
-
-    def column_distance
-      (start_position.column - end_position.column).abs
     end
   end
 end

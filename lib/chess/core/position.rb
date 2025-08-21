@@ -94,9 +94,19 @@ module Chess
     end
 
     def diagonal_move?(other)
-      row_delta = (row - other.row).abs
-      column_delta = (column - other.column).abs
-      (row_delta == column_delta) && row_delta.positive?
+      row_distance(other) == column_distance(other)
+    end
+
+    def adjacent?(other)
+      row_distance(other) <= 1 && column_distance(other) <= 1
+    end
+
+    def row_distance(other)
+      (row - other.row).abs
+    end
+
+    def column_distance(other)
+      (column - other.column).abs
     end
   end
 end

@@ -10,7 +10,7 @@ module Chess
   class Move
     attr_reader :from_position, :to_position, :piece, :captured_piece,
                 :castling, :en_passant_target, :promotion,
-                :double_pawn_move, :fen
+                :double_pawn_move, :fen, :opponent_last_move
 
     def initialize(
       from_position:,
@@ -21,7 +21,8 @@ module Chess
       en_passant_target: nil,
       promotion: nil,
       double_pawn_move: nil,
-      fen: nil
+      fen: nil,
+      opponent_last_move: nil
     )
       validate_position(from_position)
       validate_position(to_position)
@@ -35,6 +36,7 @@ module Chess
       @promotion = promotion
       @double_pawn_move = double_pawn_move
       @fen = fen
+      @opponent_last_move = opponent_last_move
     end
 
     private
