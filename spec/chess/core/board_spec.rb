@@ -73,7 +73,7 @@ describe Chess::Board do
       end
 
       it 'returns nil for en passant square' do
-        expect(starting_board.en_passant_square).to be_nil
+        expect(starting_board.en_passant_target).to be_nil
       end
     end
 
@@ -93,7 +93,7 @@ describe Chess::Board do
 
       it 'returns e3 for en passant square' do
         en_passant_pos = Chess::Position.from_algebraic('e3')
-        expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
+        expect(mid_game_board.en_passant_target).to eq(en_passant_pos)
       end
     end
 
@@ -112,7 +112,7 @@ describe Chess::Board do
       end
 
       it 'returns nil for en passant square' do
-        expect(end_game_board.en_passant_square).to be_nil
+        expect(end_game_board.en_passant_target).to be_nil
       end
     end
   end

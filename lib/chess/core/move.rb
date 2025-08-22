@@ -18,7 +18,6 @@ module Chess
       piece:,
       captured_piece: nil,
       castling: nil,
-      en_passant_target: nil,
       promotion: nil,
       double_pawn_move: nil,
       fen: nil,
@@ -32,7 +31,6 @@ module Chess
       @piece = piece
       @captured_piece = captured_piece
       @castling = castling
-      @en_passant_target = en_passant_target
       @promotion = promotion
       @double_pawn_move = double_pawn_move
       @fen = fen

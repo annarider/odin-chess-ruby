@@ -15,11 +15,11 @@ module Chess
       new(...).en_passant_legal?
     end
 
-    def initialize(move)
+    def initialize(move, en_passant_target)
       @piece = move.piece
       @start_position = move.from_position
       @end_position = move.to_position
-      @en_passant_target = move.en_passant_target
+      @en_passant_target = en_passant_target
       @double_pawn_move = move.double_pawn_move
       @opponent_last_move = move.opponent_last_move
     end

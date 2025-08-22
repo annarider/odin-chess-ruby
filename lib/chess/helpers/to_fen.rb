@@ -23,7 +23,7 @@ module Chess
       fen_string += "#{build_piece_placement(fen_data[:grid])} "
       fen_string += "#{convert_fen_active_color(fen_data[:active_color])} "
       fen_string += "#{build_castling_rights(fen_data[:castling_rights])} "
-      fen_string += "#{build_en_passant(fen_data[:en_passant_square])} "
+      fen_string += "#{build_en_passant(fen_data[:en_passant_target])} "
       fen_string += "#{fen_data[:half_move_clock]} "
       fen_string + fen_data[:full_move_number].to_s
     end

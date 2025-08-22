@@ -12,14 +12,14 @@ module Chess
   #
   class Board
     extend ChessNotation
-    attr_accessor :grid, :castling_rights, :en_passant_square
+    attr_accessor :grid, :castling_rights, :en_passant_target
 
     def initialize(grid: self.class.empty_grid,
                    castling_rights: self.class.default_castling_rights,
-                   en_passant_square: nil)
+                   en_passant_target: nil)
       @grid = grid
       @castling_rights = castling_rights
-      @en_passant_square = en_passant_square
+      @en_passant_target = en_passant_target
     end
 
     class << self
@@ -64,7 +64,7 @@ module Chess
       {
         grid: grid,
         castling_rights: castling_rights,
-        en_passant_square: en_passant_square
+        en_passant_target: en_passant_target
       }
     end
 
@@ -128,7 +128,7 @@ module Chess
     def play_move(move)
       update_position(move.from_position, move.to_position)
       update_castling_rights(move)
-      update_en_passant_square(move)
+      update_en_passant_target(move)
     end
 
     private
@@ -147,8 +147,8 @@ module Chess
       generate_possible_moves(position, piece_at(position))
     end
 
-    def update_en_passant_square(move)
-      @en_passant_square = nil # reset en passant square
+    def update_en_passant_target(move)
+      @en_passant_target = nil # reset en passant square
       if %w[p P].include?(move.piece) && pawn_advanced_two_squares?(move)
       end
     end

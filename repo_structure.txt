@@ -145,14 +145,14 @@ module Chess
   #
   class Board
     extend ChessNotation
-    attr_accessor :grid, :castling_rights, :en_passant_square
+    attr_accessor :grid, :castling_rights, :en_passant_target
 
     def initialize(grid: self.class.empty_grid,
                    castling_rights: self.class.default_castling_rights,
-                   en_passant_square: nil)
+                   en_passant_target: nil)
       @grid = grid
       @castling_rights = castling_rights
-      @en_passant_square = en_passant_square
+      @en_passant_target = en_passant_target
     end
 
     class << self
@@ -197,7 +197,7 @@ module Chess
       {
         grid: grid,
         castling_rights: castling_rights,
-        en_passant_square: en_passant_square
+        en_passant_target: en_passant_target
       }
     end
 
@@ -261,7 +261,7 @@ module Chess
     def play_move(move)
       update_position(move.from_position, move.to_position)
       update_castling_rights(move)
-      update_en_passant_square(move)
+      update_en_passant_target(move)
     end
 
     private
@@ -280,8 +280,8 @@ module Chess
       generate_possible_moves(position, piece_at(position))
     end
 
-    def update_en_passant_square(move)
-      @en_passant_square = nil # reset en passant square
+    def update_en_passant_target(move)
+      @en_passant_target = nil # reset en passant square
       if %w[p P].include?(move.piece) && pawn_advanced_two_squares?(move)
       end
     end
@@ -989,7 +989,7 @@ module Chess
         grid: parse_piece_placement(fen_fields[0]),
         active_color: convert_fen_active_color(fen_fields[1]),
         castling_rights: build_castling_rights(castling_rights),
-        en_passant_square: en_passant_to_position(fen_fields[3]),
+        en_passant_target: en_passant_to_position(fen_fields[3]),
         half_move_clock: fen_fields[4].to_i,
         full_move_number: fen_fields[5].to_i
       }
@@ -1195,7 +1195,7 @@ module Chess
       fen_string += "#{build_piece_placement(fen_data[:grid])} "
       fen_string += "#{convert_fen_active_color(fen_data[:active_color])} "
       fen_string += "#{build_castling_rights(fen_data[:castling_rights])} "
-      fen_string += "#{build_en_passant(fen_data[:en_passant_square])} "
+      fen_string += "#{build_en_passant(fen_data[:en_passant_target])} "
       fen_string += "#{fen_data[:half_move_clock]} "
       fen_string + fen_data[:full_move_number].to_s
     end
@@ -1959,7 +1959,7 @@ describe Chess::Board do
       end
 
       it 'returns nil for en passant square' do
-        expect(starting_board.en_passant_square).to be_nil
+        expect(starting_board.en_passant_target).to be_nil
       end
     end
 
@@ -1979,7 +1979,7 @@ describe Chess::Board do
 
       it 'returns e3 for en passant square' do
         en_passant_pos = Chess::Position.from_algebraic('e3')
-        expect(mid_game_board.en_passant_square).to eq(en_passant_pos)
+        expect(mid_game_board.en_passant_target).to eq(en_passant_pos)
       end
     end
 
@@ -1998,7 +1998,7 @@ describe Chess::Board do
       end
 
       it 'returns nil for en passant square' do
-        expect(end_game_board.en_passant_square).to be_nil
+        expect(end_game_board.en_passant_target).to be_nil
       end
     end
   end
