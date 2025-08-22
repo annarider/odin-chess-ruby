@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # En Passant Manager validates
   # en passant moves.
@@ -9,7 +11,7 @@ module Chess
   class EnPassantManager
     PAWN_PIECES = %w[p P].freeze
     attr_reader :piece, :start_position, :end_position, :en_passant_target,
-    :double_pawn_move, :opponent_last_move
+                :double_pawn_move, :opponent_last_move
 
     def self.en_passant_legal?(...)
       new(...).en_passant_legal?

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../../../lib/chess'
 
 # Tests for EnPassantManager
@@ -44,7 +46,8 @@ describe Chess::EnPassantManager do
       )
     end
 
-    def create_double_pawn_move(from_square:, to_square:, piece:, fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
+    def create_double_pawn_move(from_square:, to_square:, piece:,
+                                fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')
       create_move(
         from_square: from_square,
         to_square: to_square,
@@ -63,7 +66,7 @@ describe Chess::EnPassantManager do
         )
         en_passant_target = nil
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -75,7 +78,7 @@ describe Chess::EnPassantManager do
         )
         en_passant_target = nil
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -87,7 +90,7 @@ describe Chess::EnPassantManager do
         )
         en_passant_target = nil
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -99,9 +102,9 @@ describe Chess::EnPassantManager do
           to_square: 'e4',
           piece: 'P'
         )
-        en_passant_target = position('e3')        
+        en_passant_target = position('e3')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -111,9 +114,9 @@ describe Chess::EnPassantManager do
           to_square: 'e5',
           piece: 'p'
         )
-        en_passant_target = position('e6')        
+        en_passant_target = position('e6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -128,14 +131,14 @@ describe Chess::EnPassantManager do
 
         move = create_en_passant_move(
           from_square: 'e5',
-          to_square: 'f6',  # Moving to f6
+          to_square: 'f6', # Moving to f6
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('d6')  # But target is d6
-        
+        en_passant_target = position('d6') # But target is d6
+
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -150,7 +153,7 @@ describe Chess::EnPassantManager do
         )
         en_passant_target = position('d6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -170,9 +173,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('d6')        
+        en_passant_target = position('d6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -190,9 +193,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('d6')                
+        en_passant_target = position('d6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -212,9 +215,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('d6')        
+        en_passant_target = position('d6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
@@ -235,9 +238,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('d6')        
+        en_passant_target = position('d6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be true
       end
 
@@ -256,9 +259,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('f6')        
+        en_passant_target = position('f6')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be true
       end
 
@@ -277,9 +280,9 @@ describe Chess::EnPassantManager do
           piece: 'p',
           opponent_last_move: opponent_move
         )
-        en_passant_target = position('c3')        
+        en_passant_target = position('c3')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be true
       end
 
@@ -300,7 +303,7 @@ describe Chess::EnPassantManager do
         )
         en_passant_target = position('e3')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be true
       end
     end
@@ -312,9 +315,9 @@ describe Chess::EnPassantManager do
           to_square: 'e4',
           piece: nil
         )
-        en_passant_target = position('e3')        
+        en_passant_target = position('e3')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -324,9 +327,9 @@ describe Chess::EnPassantManager do
           to_square: 'e4',
           piece: ''
         )
-                en_passant_target = position('e3')        
+        en_passant_target = position('e3')
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
 
@@ -343,9 +346,9 @@ describe Chess::EnPassantManager do
           piece: 'P',
           opponent_last_move: opponent_move
         )
-        en_passant_target = nil        
+        en_passant_target = nil
         result = described_class.en_passant_legal?(move, en_passant_target)
-        
+
         expect(result).to be false
       end
     end
