@@ -48,5 +48,7 @@ module Chess
       [7, 6] => 'N',
       [7, 7] => 'R'
     }.freeze
+    PAWN_PIECES = %w[p P].freeze
+    KING_PIECES = %w[k K].freeze
   end
 end

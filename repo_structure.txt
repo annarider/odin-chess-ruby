@@ -282,7 +282,7 @@ module Chess
 
     def update_en_passant_target(move)
       @en_passant_target = nil # reset en passant square
-      if %w[p P].include?(move.piece) && pawn_advanced_two_squares?(move)
+      if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
       end
     end
 
@@ -1409,8 +1409,8 @@ module Chess
 
     def generate_possible_moves
       # move direction of pawn depends on color
-      return pawn_moves if %w[p P].include?(piece)
-      return king_moves if %w[k K].include?(piece)
+      return pawn_moves if Piece::PAWN_PIECES.include?(piece)
+      return king_moves if Piece::KING_PIECES.include?(piece)
       # empty square
       return [] if piece.nil?
 
@@ -1517,7 +1517,7 @@ module Chess
       return false unless valid_destination?
       return false unless clear_path?
       return false unless valid_piece_moves?
-      return validate_castling if %w[k K].include?(piece)
+      return validate_castling if Piece::KING_PIECES.include?(piece)
 
       true
     end
@@ -1551,7 +1551,7 @@ module Chess
     end
 
     def valid_piece_moves?
-      return PawnMoveValidator.valid_move?(move, move_history) if %w[P p].include?(piece)
+      return PawnMoveValidator.valid_move?(move, move_history) if Piece::PAWN_PIECES.include?(piece)
 
       # other pieces return true as they don't have piece-specific moves
       true

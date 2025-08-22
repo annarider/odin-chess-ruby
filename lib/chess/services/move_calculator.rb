@@ -32,8 +32,8 @@ module Chess
 
     def generate_possible_moves
       # move direction of pawn depends on color
-      return pawn_moves if %w[p P].include?(piece)
-      return king_moves if %w[k K].include?(piece)
+      return pawn_moves if Piece::PAWN_PIECES.include?(piece)
+      return king_moves if Piece::KING_PIECES.include?(piece)
       # empty square
       return [] if piece.nil?
 

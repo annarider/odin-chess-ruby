@@ -12,7 +12,6 @@ module Chess
   # for telling Board to update
   # piece positions.
   class EnPassantValidator
-    PAWN_PIECES = %w[p P].freeze
     attr_reader :piece, :start_position, :end_position, :en_passant_target,
                 :double_pawn_move, :opponent_last_move
 
@@ -30,7 +29,7 @@ module Chess
     end
 
     def en_passant_legal?
-      return false unless PAWN_PIECES.include?(piece)
+      return false unless Piece::PAWN_PIECES.include?(piece)
       return false if double_pawn_move
       return false unless end_position_matches_target?
       return false unless opponent_last_move_double_pawn_advance?

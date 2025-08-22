@@ -34,7 +34,7 @@ module Chess
       return false unless valid_destination?
       return false unless clear_path?
       return false unless valid_piece_moves?
-      return validate_castling if %w[k K].include?(piece)
+      return validate_castling if Piece::KING_PIECES.include?(piece)
 
       true
     end
@@ -68,7 +68,7 @@ module Chess
     end
 
     def valid_piece_moves?
-      return PawnMoveValidator.valid_move?(move, move_history) if %w[P p].include?(piece)
+      return PawnMoveValidator.valid_move?(move, move_history) if Piece::PAWN_PIECES.include?(piece)
 
       # other pieces return true as they don't have piece-specific moves
       true

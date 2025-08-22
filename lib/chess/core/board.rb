@@ -149,7 +149,7 @@ module Chess
 
     def update_en_passant_target(move)
       @en_passant_target = nil # reset en passant square
-      if %w[p P].include?(move.piece) && pawn_advanced_two_squares?(move)
+      if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
       end
     end
 
