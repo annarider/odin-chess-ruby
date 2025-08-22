@@ -2,9 +2,9 @@
 
 require_relative '../../../lib/chess'
 
-# Tests for EnPassantManager
+# Tests for EnPassantValidator
 
-describe Chess::EnPassantManager do
+describe Chess::EnPassantValidator do
   describe '.en_passant_legal?' do
     # Helper methods to create real Position and Move objects
     def position(square)

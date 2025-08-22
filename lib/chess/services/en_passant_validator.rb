@@ -8,7 +8,7 @@ module Chess
   # make piece position updates
   # if the en passant move is
   # considered valid.
-  class EnPassantManager
+  class EnPassantValidator
     PAWN_PIECES = %w[p P].freeze
     attr_reader :piece, :start_position, :end_position, :en_passant_target,
                 :double_pawn_move, :opponent_last_move
