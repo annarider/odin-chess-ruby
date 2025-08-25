@@ -19,6 +19,7 @@ require_relative 'chess/services/path_calculator'
 require_relative 'chess/services/move_validator'
 require_relative 'chess/services/pawn_move_validator'
 require_relative 'chess/services/en_passant_validator'
+require_relative 'chess/services/promotion_validator'
 
 require_relative 'chess/core/board'
 require_relative 'chess/core/game'
