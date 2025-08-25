@@ -20,13 +20,11 @@ module Chess
     end
 
     def checkmate?
-      return false unless CheckDetector.in_check?(
-        board,
-        active_color,
-        king_position
-      )
+      return false unless CheckDetector.in_check?(board, active_color,
+                                                  king_position)
       return false if king_evade_check?
       return false if capture_attacker?
+      return false if friendly_piece_block_king?
 
       true
     end
@@ -38,37 +36,37 @@ module Chess
     end
 
     def king_evade_check?
-      king_moves = MoveCalculator.generate_possible_moves(
-        king_position,
-        query_piece
-      )
-      check_detection = king_moves.map do |coordinates|
-        position = Position.new(coordinates.first, coordinates.last)
+      king_moves = MoveCalculator.generate_possible_moves(king_position,
+                                                          query_piece)
+      check_detection = king_moves.map do |position|
         CheckDetector.in_check?(board, active_color, position)
       end
       check_detection.any? { |check_status| check_status == false }
     end
 
     def capture_attacker?
-      opponent_moves = CheckDetector.find_opponent_moves(
-        board,
-        active_color,
-        king_position
-        )
-      attacker_moves = opponent_moves.select do |piece_hash|
-        piece_hash[:position] == king_position
-      end
-      friendly_pieces = board.find_all_pieces(active_color)
-      friendly_moves = friendly_pieces.map do |piece_hash|
-        MoveCalculator.generate_possible_moves(
-          piece_hash[:position],
-          piece_hash[:piece]
-        )
-      end
+      attacker_moves = find_attacker_moves
+      friendly_moves = find_friendly_moves
       friendly_moves.any? do |friendly_piece_hash|
         attacker_moves.each do |opponent_piece_hash|
           friendly_piece_hash[:position] == opponent_piece_hash[:position]
         end
+      end
+    end
+
+    def find_attacker_moves
+      opponent_moves = CheckDetector.find_opponent_moves(board, active_color,
+                                                         king_position)
+      opponent_moves.select do |piece_hash|
+        piece_hash[:position] == king_position
+      end
+    end
+
+    def find_friendly_moves
+      friendly_pieces = board.find_all_pieces(active_color)
+      friendly_pieces.map do |piece_hash|
+        MoveCalculator.generate_possible_moves(piece_hash[:position],
+                                               piece_hash[:piece])
       end
     end
 
