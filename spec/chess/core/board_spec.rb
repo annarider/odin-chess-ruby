@@ -7,17 +7,17 @@ require_relative '../../../lib/chess'
 describe Chess::Board do
   subject(:start_board) { described_class.start_positions }
 
-  let(:first_rank) { 7 }
-  let(:second_rank) { 6 }
-  let(:seventh_rank) { 1 }
-  let(:eighth_rank) { 0 }
-  let(:a_file) { 0 }
-  let(:c_file) { 2 }
-  let(:e_file) { 4 }
-  let(:h_file) { 7 }
-
   describe '.start_positions' do
     context 'when the board is created' do
+      let(:first_rank) { 7 }
+      let(:second_rank) { 6 }
+      let(:seventh_rank) { 1 }
+      let(:eighth_rank) { 0 }
+      let(:a_file) { 0 }
+      let(:c_file) { 2 }
+      let(:e_file) { 4 }
+      let(:h_file) { 7 }
+
       it 'adds white pawns to the second rank (row)' do
         start_pos = Chess::Position.from_algebraic('a2')
         expect(start_board.piece_at(start_pos)).to eq('P')
@@ -182,8 +182,10 @@ describe Chess::Board do
     let(:move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
 
     it 'delegates to MoveValidator' do
-      expect(Chess::MoveValidator).to receive(:move_legal?).with(start_board, move)
+      allow(Chess::MoveValidator).to receive(:move_legal?)
+        .with(start_board, move)
       start_board.valid_move?(move)
+      expect(Chess::MoveValidator).to have_received(:move_legal?)
     end
   end
 
@@ -244,6 +246,63 @@ describe Chess::Board do
           white_pieces = start_board.find_all_pieces(Chess::ChessNotation::WHITE_PLAYER)
           expect(white_pieces.length).to eq(16)
           expect(white_pieces.map { |data| data[:piece] }).to all(match(/[A-Z]/))
+        end
+      end
+    end
+
+    describe '#deep_copy' do
+      context 'when board has all starting pieces in a new game' do
+        it 'returns a different object compared to original board' do
+          board_copy = start_board.deep_copy
+          expect(board_copy).not_to be(start_board)
+        end
+        it 'returns the same data as the original board' do          
+          board_copy = start_board.deep_copy
+          expect(board_copy.to_fen).to eq(start_board.to_fen)
+        end
+      end
+      context 'when copying a mid game' do
+        let(:original_board) { described_class.from_fen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq e3 0 1') }
+         it 'creates independent copy of grid' do
+          copy = original_board.deep_copy
+          original_board.place_piece(Chess::Position.from_algebraic('e4'), 'Q')
+          expect(copy.piece_at(Chess::Position.from_algebraic('e4'))).to be_nil
+        end
+
+        it 'copies castling rights independently' do
+          copy = original_board.deep_copy
+          original_board.castling_rights[:white_castle_kingside] = false
+
+          expect(copy.castling_rights[:white_castle_kingside]).to be true
+        end
+
+        it 'copies en passant target independently' do
+          copy = original_board.deep_copy
+          original_board.en_passant_target = Chess::Position.from_algebraic('d6')
+
+          expect(copy.en_passant_target).to eq(Chess::Position.from_algebraic('e3'))
+        end
+
+        it 'maintains all piece positions accurately' do
+          copy = original_board.deep_copy
+
+          expect(copy.piece_at(Chess::Position.from_algebraic('e1'))).to eq('K')
+          expect(copy.piece_at(Chess::Position.from_algebraic('e8'))).to eq('k')
+          expect(copy.piece_at(Chess::Position.from_algebraic('a1'))).to eq('R')
+        end
+
+        it 'creates completely independent board' do
+          copy = original_board.deep_copy
+
+          # Modify original
+          original_board.update_position(
+            Chess::Position.from_algebraic('e1'),
+            Chess::Position.from_algebraic('f1')
+          )
+
+          # Copy should be unchanged
+          expect(copy.piece_at(Chess::Position.from_algebraic('e1'))).to eq('K')
+          expect(copy.piece_at(Chess::Position.from_algebraic('f1'))).to be_nil
         end
       end
     end

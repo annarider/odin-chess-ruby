@@ -68,6 +68,21 @@ module Chess
       }
     end
 
+    def deep_copy
+      new_board = Board.new(
+        castling_rights: castling_rights.dup,
+        en_passant_target: en_passant_target
+      )
+      grid.each_with_index do |row, row_index|
+        row.each_with_index do |_, column_index|
+          position = Position.new(row_index, column_index)
+          piece = piece_at(position)
+          new_board.place_piece(position, piece) if piece
+        end
+      end
+      new_board
+    end
+
     def piece_at(position)
       grid[position.row][position.column]
     end
