@@ -7,7 +7,7 @@ module Chess
   # Then it decides if there are any
   # legal moves for the king to take.
   class CheckmateDetector
-    attr_reader :board
+    attr_reader :board, :active_color, :king_position
 
     def self.checkmate?(...)
       new(...).checkmate?
@@ -50,7 +50,7 @@ module Chess
     end
 
     def capture_attacker?
-      opponent_moves = CheckDetector.in_check?(
+      opponent_moves = CheckDetector.find_opponent_moves(
         board,
         active_color,
         king_position
@@ -64,6 +64,7 @@ module Chess
           piece_hash[:position],
           piece_hash[:piece]
         )
+      end
       friendly_moves.any? do |friendly_piece_hash|
         attacker_moves.each do |opponent_piece_hash|
           friendly_piece_hash[:position] == opponent_piece_hash[:position]
