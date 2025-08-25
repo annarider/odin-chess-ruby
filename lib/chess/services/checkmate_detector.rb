@@ -24,7 +24,7 @@ module Chess
                                                   king_position)
       return false if king_evade_check?
       return false if capture_attacker?
-      return false if friendly_piece_block_king?
+      return false if friendly_shield_king?
 
       true
     end
@@ -45,8 +45,11 @@ module Chess
     end
 
     def capture_attacker?
+      # get all opponent pieces giving check
       attacker_moves = find_attacker_moves
+      # get all friendly pieces and their possible moves
       friendly_moves = find_friendly_moves
+      # can friendly pieces move to capture attacking piece?
       friendly_moves.any? do |friendly_piece_hash|
         attacker_moves.each do |opponent_piece_hash|
           friendly_piece_hash[:position] == opponent_piece_hash[:position]
@@ -68,6 +71,12 @@ module Chess
         MoveCalculator.generate_possible_moves(piece_hash[:position],
                                                piece_hash[:piece])
       end
+    end
+
+    def friendly_shield_king?
+      # get all friendly pieces and their possible moves
+      friendly_moves = find_friendly_moves
+      # can any of these friendly moves defend the king from attackers?
     end
 
     def query_piece
