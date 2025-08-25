@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # Promotion Validator checks
   # if a pawn should be promoted
