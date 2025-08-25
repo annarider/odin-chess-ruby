@@ -8,6 +8,10 @@ module Chess
       new(...).in_check?
     end
 
+    def self.find_opponent_moves(...)
+      new(...).find_opponent_moves
+    end
+
     def initialize(board, active_color, king_position = nil)
       @board = board
       @active_color = active_color
@@ -15,12 +19,16 @@ module Chess
     end
 
     def in_check?
+      opponent_moves = find_opponent_moves
+      find_king_in_opponent_moves?(king_position, opponent_moves)
+    end
+
+    def find_opponent_moves
       opponent_color = PieceHelpers.opponent_color(active_color)
       # retrieve data on all of opponent's pieces & their positions
       opponent_pieces = board.find_all_pieces(opponent_color)
       # calculate all moves possible from opponent pieces
-      opponent_moves = find_all_pieces_moves(opponent_pieces)
-      find_king_in_opponent_moves?(king_position, opponent_moves)
+      find_all_pieces_moves(opponent_pieces)
     end
 
     private

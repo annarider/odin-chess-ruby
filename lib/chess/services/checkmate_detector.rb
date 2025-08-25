@@ -26,6 +26,7 @@ module Chess
         king_position
       )
       return false if king_evade_check?
+      return false if capture_attacker?
 
       true
     end
@@ -46,6 +47,28 @@ module Chess
         CheckDetector.in_check?(board, active_color, position)
       end
       check_detection.any? { |check_status| check_status == false }
+    end
+
+    def capture_attacker?
+      opponent_moves = CheckDetector.in_check?(
+        board,
+        active_color,
+        king_position
+        )
+      attacker_moves = opponent_moves.select do |piece_hash|
+        piece_hash[:position] == king_position
+      end
+      friendly_pieces = board.find_all_pieces(active_color)
+      friendly_moves = friendly_pieces.map do |piece_hash|
+        MoveCalculator.generate_possible_moves(
+          piece_hash[:position],
+          piece_hash[:piece]
+        )
+      friendly_moves.any? do |friendly_piece_hash|
+        attacker_moves.each do |opponent_piece_hash|
+          friendly_piece_hash[:position] == opponent_piece_hash[:position]
+        end
+      end
     end
 
     def query_piece
