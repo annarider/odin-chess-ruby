@@ -22,6 +22,8 @@ module Chess
       new(...).build_board_for_display
     end
 
+    # board_data is the grid information only from Board class
+    # expect to receive board.to_display as board_data
     def initialize(board_data)
       @board_data = board_data
     end

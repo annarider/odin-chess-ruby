@@ -36,47 +36,64 @@ module Chess
     end
 
     def king_evade_check?
-      king_moves = MoveCalculator.generate_possible_moves(king_position,
-                                                          query_piece)
-      check_detection = king_moves.map do |position|
-        CheckDetector.in_check?(board, active_color, position)
+      valid_moves = valid_moves(king_position, query_piece)
+      # stalemate: king has no legal moves and not in check
+      return false if valid_moves.empty?
+
+      valid_moves.any? do |test_position|
+        !CheckDetector.in_check?(board, active_color, test_position)
       end
-      check_detection.any? { |check_status| check_status == false }
     end
 
     def capture_attacker?
       # get all opponent pieces giving check
-      attacker_moves = find_attacker_moves
+      attacker_positions = find_attacker_positions
       # get all friendly pieces and their possible moves
-      friendly_moves = find_friendly_moves
+      friendly_pieces_moves = find_friendly_moves
       # can friendly pieces move to capture attacking piece?
-      friendly_moves.any? do |friendly_piece_hash|
-        attacker_moves.each do |opponent_piece_hash|
-          friendly_piece_hash[:position] == opponent_piece_hash[:position]
+      friendly_pieces_moves.any? do |piece_moves|
+        piece_moves.any? do |move|
+          attacker_positions.each do |opponent_position|
+            move.to_position == opponent_position
+          end
         end
       end
     end
 
-    def find_attacker_moves
-      opponent_moves = CheckDetector.find_opponent_moves(board, active_color,
+    def find_attacker_positions
+      opponent_positions = CheckDetector.find_opponent_moves(board, active_color,
                                                          king_position)
-      opponent_moves.select do |piece_hash|
-        piece_hash[:position] == king_position
+      opponent_positions.select do |opponent_position|
+        opponent_position == king_position
       end
     end
 
     def find_friendly_moves
       friendly_pieces = board.find_all_pieces(active_color)
       friendly_pieces.map do |piece_hash|
-        MoveCalculator.generate_possible_moves(piece_hash[:position],
-                                               piece_hash[:piece])
+        valid_moves(piece_hash[:position], piece_hash[:piece])
       end
+    end
+
+    def valid_moves(start_position, piece)
+      positions = MoveCalculator.generate_possible_moves(start_position, piece)
+      moves = positions.map do |end_position|
+        Move.new(from_position: start_position,
+                        to_position: end_position, piece: piece)
+      end
+      moves.select { |move| MoveValidator.move_legal?(board, move) }
     end
 
     def friendly_shield_king?
       # get all friendly pieces and their possible moves
       friendly_moves = find_friendly_moves
-      # can any of these friendly moves defend the king from attackers?
+      friendly_moves.none? do |from_pos, to_pos|
+        # deep copy board to play out move scenarios
+        test_board = board.deep_copy
+        test_board.update_position(from_pos, to_pos)
+        CheckDetector.in_check?(test_board, active_color, king_position)
+      end
+      false
     end
 
     def query_piece

@@ -51,8 +51,8 @@ describe Chess::CheckmateDetector do
       it 'returns true for fools mate' do
         # Fastest checkmate in chess
         board = Chess::Board.from_fen('rnb1kbnr/pppp1ppp/8/4p3/6Pq/8/PPPPP2P/RNBQKBNR w KQkq - 1 3')
-
-        result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
+        Chess::Display.show_board(board.to_display)
+        p result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
 
         expect(result).to be true
       end
