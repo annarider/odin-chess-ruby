@@ -16,7 +16,6 @@ module Chess
       from_position:,
       to_position:,
       piece:,
-      captured_piece: nil,
       castling: nil,
       promotion: nil,
       double_pawn_move: nil,
@@ -29,7 +28,6 @@ module Chess
       @from_position = from_position
       @to_position = to_position
       @piece = piece
-      @captured_piece = captured_piece
       @castling = castling
       @promotion = promotion
       @double_pawn_move = double_pawn_move
@@ -44,7 +42,5 @@ module Chess
 
       raise ArgumentError, "#{position.coordinates} is out of bounds" unless position.in_bound?
     end
-
-    def validate_capture(opponent_piece); end
   end
 end
