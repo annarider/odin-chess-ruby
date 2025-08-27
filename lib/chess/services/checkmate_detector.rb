@@ -36,41 +36,48 @@ module Chess
     end
 
     def king_evade_check?
-      valid_moves = valid_moves(king_position, query_piece)
+      king_moves = valid_moves(king_position, query_piece)
       # stalemate: king has no legal moves and not in check
-      return false if valid_moves.empty?
+      return false if king_moves.empty?
 
-      valid_moves.any? do |test_position|
+      king_moves.any? do |test_position|
         !CheckDetector.in_check?(board, active_color, test_position)
       end
     end
 
     def capture_attacker?
       # get all opponent pieces giving check
-      attacker_positions = find_attacker_positions
-      # get all friendly pieces and their possible moves
+      attacker_pieces_data = find_attacker_positions
+      # get all friendly pieces and their validated moves
       friendly_pieces_moves = find_friendly_moves
       # can friendly pieces move to capture attacking piece?
-      friendly_pieces_moves.any? do |piece_moves|
-        piece_moves.any? do |move|
-          attacker_positions.each do |opponent_position|
-            move.to_position == opponent_position
-          end
+      friendly_pieces_moves.any? do |move|
+        attacker_pieces_data.any? do |attacker_position|
+          move.to_position == attacker_position
         end
       end
     end
 
     def find_attacker_positions
-      opponent_positions = CheckDetector.find_opponent_moves(board, active_color,
-                                                         king_position)
-      opponent_positions.select do |opponent_position|
-        opponent_position == king_position
+      opponent_color = PieceHelpers.opponent_color(active_color)
+      # retrieve data on all of opponent's pieces & their positions
+      opponent_pieces_data = board.find_all_pieces(opponent_color)
+      # get all valid opponent moves
+      opponent_moves = opponent_pieces_data.flat_map do |piece_data|
+        valid_moves(piece_data[:position], piece_data[:piece])
       end
+      # filter only opponent positions that can attack the king
+      # return piece positions
+      attacking_moves = opponent_moves.select do |move|
+        move.to_position == king_position
+      end
+      attacking_moves.map(&:from_position).uniq
     end
 
     def find_friendly_moves
       friendly_pieces = board.find_all_pieces(active_color)
-      friendly_pieces.map do |piece_hash|
+      # get all valid friendly moves
+      friendly_pieces.flat_map do |piece_hash|
         valid_moves(piece_hash[:position], piece_hash[:piece])
       end
     end
