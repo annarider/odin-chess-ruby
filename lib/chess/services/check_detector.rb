@@ -23,18 +23,18 @@ module Chess
       find_king_in_opponent_moves?(king_position, opponent_moves)
     end
 
+    private
+
+    def setup_king
+      board.find_king(active_color)
+    end
+
     def find_opponent_moves
       opponent_color = PieceHelpers.opponent_color(active_color)
       # retrieve data on all of opponent's pieces & their positions
       opponent_pieces = board.find_all_pieces(opponent_color)
       # calculate all moves possible from opponent pieces
       find_all_pieces_moves(opponent_pieces)
-    end
-
-    private
-
-    def setup_king
-      board.find_king(active_color)
     end
 
     def find_all_pieces_moves(piece_data)
