@@ -78,9 +78,9 @@ describe Chess::MoveValidator do
       let(:white_pawn_start) { Chess::Position.from_algebraic('e2') }
       let(:white_pawn_destination) { Chess::Position.from_algebraic('e4') }
       let(:white_pawn_move) do
-        Chess::Move.new(from_position: white_pawn_start, to_position: white_pawn_destination, piece: 'P')
+        Chess::Move.new(from_position: white_pawn_start,
+                        to_position: white_pawn_destination, piece: 'P')
       end
-      let(:move_history) { [] }
 
       before do
         board.place_piece(white_pawn_start, 'P')
@@ -93,7 +93,7 @@ describe Chess::MoveValidator do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, white_pawn_move, move_history)
         expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
-          .with(white_pawn_move, move_history)
+          .with(board, white_pawn_move, move_history)
       end
     end
 
@@ -103,7 +103,6 @@ describe Chess::MoveValidator do
       let(:black_pawn_move) do
         Chess::Move.new(from_position: black_pawn_start, to_position: black_pawn_destination, piece: 'p')
       end
-      let(:move_history) { [] }
 
       before do
         board.place_piece(black_pawn_start, 'p')
@@ -117,7 +116,7 @@ describe Chess::MoveValidator do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, black_pawn_move, move_history)
         expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
-          .with(black_pawn_move, move_history)
+          .with(board, black_pawn_move, move_history)
       end
     end
 
@@ -125,7 +124,6 @@ describe Chess::MoveValidator do
       let(:knight_start) { Chess::Position.from_algebraic('b1') }
       let(:knight_destination) { Chess::Position.from_algebraic('c3') }
       let(:knight_move) { Chess::Move.new(from_position: knight_start, to_position: knight_destination, piece: 'N') }
-      let(:move_history) { [] }
 
       before do
         board.place_piece(knight_start, 'N')
@@ -146,7 +144,6 @@ describe Chess::MoveValidator do
       let(:invalid_pawn_move) do
         Chess::Move.new(from_position: invalid_pawn_start, to_position: invalid_pawn_destination, piece: 'P')
       end
-      let(:move_history) { [] }
 
       before do
         board.place_piece(invalid_pawn_start, 'P')
