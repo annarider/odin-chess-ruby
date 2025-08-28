@@ -6,153 +6,158 @@ require_relative '../../../lib/chess'
 
 describe Chess::PawnMoveValidator do
   describe '.valid_move?' do
-    let(:move) { instance_double(Chess::Move) }
-    let(:move_history) { instance_double(Chess::MoveHistory) }
-    let(:start_position) { double('start_position') }
-    let(:end_position) { double('end_position') }
-
-    before do
-      allow(move).to receive_messages(from_position: start_position, to_position: end_position, piece: 'P',
-                                      captured_piece: nil)
-      allow(move_history).to receive(:has_moved?).and_return(false)
+    # Helper methods to create real objects (following EnPassantValidator pattern)
+    def position(square)
+      Chess::Position.from_algebraic(square)
     end
 
-    context 'when white pawn advances 1 rank to an empty square' do
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(false)
-        allow(start_position).to receive(:two_rank_move?)
-          .with(end_position).and_return(false)
-      end
+    def create_move(from_square:, to_square:, piece_symbol:)
+      Chess::Move.new(
+        from_position: position(from_square),
+        to_position: position(to_square),
+        piece: piece_symbol
+      )
+    end
 
-      it 'returns true' do
-        result = described_class.valid_move?(move, move_history)
+    def setup_board_with_pieces(white_pieces: {}, black_pieces: {})
+      board = Chess::Board.new
+      white_pieces.each { |square, piece| board.place_piece(position(square), piece) }
+      black_pieces.each { |square, piece| board.place_piece(position(square), piece) }
+      board
+    end
+
+    let(:empty_board) { Chess::Board.new }
+    let(:move_history) { Chess::MoveHistory.new }
+
+    context 'when pawn makes forward moves to empty squares' do
+      it 'allows white pawn to move one square forward from starting position' do
+        board = setup_board_with_pieces(white_pieces: { 'e2' => 'P' })
+        move = create_move(from_square: 'e2', to_square: 'e3', piece_symbol: 'P')
+
+        result = described_class.valid_move?(board, move, move_history)
+
         expect(result).to be true
       end
-    end
 
-    context 'when white pawn advances 2 ranks to an empty square' do
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(false)
-        allow(start_position).to receive(:two_rank_move?)
-          .with(end_position).and_return(true)
-        allow(move_history).to receive(:has_moved?)
-          .with(start_position).and_return(false)
-      end
+      it 'allows black pawn to move one square forward from starting position' do
+        board = setup_board_with_pieces(black_pieces: { 'e7' => 'p' })
+        move = create_move(from_square: 'e7', to_square: 'e6', piece_symbol: 'p')
 
-      it 'returns true when pawn has not moved' do
-        result = described_class.valid_move?(move, move_history)
+        result = described_class.valid_move?(board, move, move_history)
+
         expect(result).to be true
       end
-    end
 
-    context 'when white pawn advances 2 ranks to an empty square' do
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(false)
-        allow(start_position).to receive(:two_rank_move?)
-          .with(end_position).and_return(true)
-        allow(move_history).to receive(:has_moved?)
-          .with(start_position).and_return(true)
+      it 'allows white pawn to move two squares from starting position when unmoved' do
+        board = setup_board_with_pieces(white_pieces: { 'e2' => 'P' })
+        move = create_move(from_square: 'e2', to_square: 'e4', piece_symbol: 'P')
+
+        result = described_class.valid_move?(board, move, move_history)
+
+        expect(result).to be true
       end
 
-      it 'returns false when pawn has moved' do
-        result = described_class.valid_move?(move, move_history)
+      it 'allows black pawn to move two squares from starting position when unmoved' do
+        board = setup_board_with_pieces(black_pieces: { 'e7' => 'p' })
+        move = create_move(from_square: 'e7', to_square: 'e5', piece_symbol: 'p')
+
+        result = described_class.valid_move?(board, move, move_history)
+
+        expect(result).to be true
+      end
+
+      it 'rejects white pawn two-square move when pawn has already moved' do
+        board = setup_board_with_pieces(white_pieces: { 'e3' => 'P' })
+        move = create_move(from_square: 'e3', to_square: 'e5', piece_symbol: 'P')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be false
+      end
+
+      it 'rejects black pawn two-square move when pawn has already moved' do
+        board = setup_board_with_pieces(black_pieces: { 'e6' => 'p' })
+        move = create_move(from_square: 'e6', to_square: 'e4', piece_symbol: 'p')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be false
+      end
+    end
+
+    context 'when pawn makes diagonal capture moves' do
+      it 'allows white pawn to capture black piece diagonally' do
+        board = setup_board_with_pieces(
+          white_pieces: { 'e5' => 'P' },
+          black_pieces: { 'd6' => 'p' }
+        )
+        move = create_move(from_square: 'e5', to_square: 'd6', piece_symbol: 'P')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be true
+      end
+
+      it 'allows black pawn to capture white piece diagonally' do
+        board = setup_board_with_pieces(
+          white_pieces: { 'd3' => 'P' },
+          black_pieces: { 'e4' => 'p' }
+        )
+        move = create_move(from_square: 'e4', to_square: 'd3', piece_symbol: 'p')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be true
+      end
+
+      it 'rejects white pawn trying to capture own piece' do
+        board = setup_board_with_pieces(
+          white_pieces: { 'e5' => 'P', 'd6' => 'N' }
+        )
+        move = create_move(from_square: 'e5', to_square: 'd6', piece_symbol: 'P')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be false
+      end
+
+      it 'rejects black pawn trying to capture own piece' do
+        board = setup_board_with_pieces(
+          black_pieces: { 'e4' => 'p', 'd3' => 'n' }
+        )
+        move = create_move(from_square: 'e4', to_square: 'd3', piece_symbol: 'p')
+
+        expect(described_class.valid_move?(board, move, move_history)).to be false
+      end
+
+      it 'rejects diagonal move to empty square' do
+        board = setup_board_with_pieces(white_pieces: { 'e5' => 'P' })
+        move = create_move(from_square: 'e5', to_square: 'd6', piece_symbol: 'P')
+
+        result = described_class.valid_move?(board, move, move_history)
+
         expect(result).to be false
       end
     end
 
-    context 'when white pawn moves diagonally to capture' do
-      let(:attacking_piece) { 'attacking_piece' }
+    context 'when handling edge cases' do
+      it 'handles move from edge of board' do
+        board = setup_board_with_pieces(white_pieces: { 'a5' => 'P' })
+        move = create_move(from_square: 'a5', to_square: 'a6', piece_symbol: 'P')
 
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(true)
-        allow(move).to receive(:piece).and_return(attacking_piece)
+        expect(described_class.valid_move?(board, move, move_history)).to be true
       end
 
-      context 'when capturing an enemy piece' do
-        let(:enemy_piece) { 'enemy_piece' }
+      it 'allows capture on edge of board' do
+        board = setup_board_with_pieces(
+          white_pieces: { 'a5' => 'P' },
+          black_pieces: { 'b6' => 'p' }
+        )
+        move = create_move(from_square: 'a5', to_square: 'b6', piece_symbol: 'P')
 
-        before do
-          allow(move).to receive(:captured_piece).and_return(enemy_piece)
-        end
-
-        it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:opponent_color?)
-            .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
-          result = described_class.valid_move?(move, move_history)
-          expect(result).to be true
-        end
-      end
-
-      context 'when trying to capture a friendly piece' do
-        let(:friendly_piece) { 'friendly_piece' }
-
-        before do
-          allow(move).to receive(:captured_piece).and_return(friendly_piece)
-        end
-
-        it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:opponent_color?)
-            .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
-          result = described_class.valid_move?(move, move_history)
-          expect(result).to be false
-        end
+        expect(described_class.valid_move?(board, move, move_history)).to be true
       end
     end
 
-    context 'when white pawn moves diagonally to an empty square' do
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(true)
-        allow(start_position).to receive(:captured_piece).and_return(nil)
-      end
+    context 'when testing realistic game scenarios' do
+      it 'validates standard opening pawn moves' do
+        board = Chess::Board.start_positions(add_pieces: true)
 
-      it 'returns false' do
-        result = described_class.valid_move?(move, move_history)
-        expect(result).to be false
-      end
-    end
+        white_move = create_move(from_square: 'e2', to_square: 'e4', piece_symbol: 'P')
+        expect(described_class.valid_move?(board, white_move, move_history)).to be true
 
-    context 'when black pawn moves diagonally to capture' do
-      let(:attacking_piece) { 'attacking_piece' }
-
-      before do
-        allow(start_position).to receive(:diagonal_move?)
-          .with(end_position).and_return(true)
-        allow(move).to receive(:piece).and_return(attacking_piece)
-      end
-
-      context 'when capturing an enemy piece' do
-        let(:enemy_piece) { 'enemy_piece' }
-
-        before do
-          allow(move).to receive(:captured_piece).and_return(enemy_piece)
-        end
-
-        it 'returns true' do
-          expect(Chess::PieceHelpers).to receive(:opponent_color?)
-            .with(attack_piece: attacking_piece, captured_piece: enemy_piece).and_return(true)
-          result = described_class.valid_move?(move, move_history)
-          expect(result).to be true
-        end
-      end
-
-      context 'when capturing a friendly piece' do
-        let(:friendly_piece) { 'friendly_piece' }
-
-        before do
-          allow(move).to receive(:captured_piece).and_return(friendly_piece)
-        end
-
-        it 'returns false' do
-          expect(Chess::PieceHelpers).to receive(:opponent_color?)
-            .with(attack_piece: attacking_piece, captured_piece: friendly_piece).and_return(false)
-          result = described_class.valid_move?(move, move_history)
-          expect(result).to be false
-        end
+        black_move = create_move(from_square: 'd7', to_square: 'd5', piece_symbol: 'p')
+        expect(described_class.valid_move?(board, black_move, move_history)).to be true
       end
     end
   end

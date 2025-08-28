@@ -39,7 +39,7 @@ module Chess
     def capture_move_valid?
       # Pawns move diagonally only for capturing opponent pieces
       return false unless captured_piece &&
-      # must only capture enemy pieces
+      # Pawn must only capture enemy pieces
         PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: captured_piece)
 
       true
@@ -48,6 +48,8 @@ module Chess
     def forward_move_valid?
       # If pawn tries to move 2 squares, it must not have moved before
       return false if start_position.two_rank_move?(end_position) && pawn_has_moved?
+      # Two square advance is invalid if 
+      return false unless board.piece_at(end_position).nil?
 
       # Pawn can move 1 square forward. Move directions limited in MoveCalculator
       # Destination is empty is checked in MoveValidator
@@ -55,7 +57,9 @@ module Chess
     end
 
     def pawn_has_moved?
-      move_history.has_moved?(start_position)
+      # white pawns start on rank 2; black pawns start on rank 7
+      starting_rank = piece == 'P' ? '2' : '7'
+      start_position.rank != starting_rank
     end
   end
 end
