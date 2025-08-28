@@ -74,7 +74,7 @@ module Chess
         en_passant_target: en_passant_target
       )
       grid.each_with_index do |row, row_index|
-        row.each_with_index do |_, column_index|
+        row.each_with_index do |_piece, column_index|
           position = Position.new(row_index, column_index)
           piece = piece_at(position)
           new_board.place_piece(position, piece) if piece

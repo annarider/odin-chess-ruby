@@ -94,10 +94,10 @@ module Chess
     def friendly_shield_king?
       # get all friendly pieces and their possible moves
       friendly_moves = find_friendly_moves
-      friendly_moves.none? do |from_pos, to_pos|
+      friendly_moves.none? do |move|
         # deep copy board to play out move scenarios
         test_board = board.deep_copy
-        test_board.update_position(from_pos, to_pos)
+        test_board.update_position(move.from_position, move.to_position)
         CheckDetector.in_check?(test_board, active_color, king_position)
       end
       false
