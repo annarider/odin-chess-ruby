@@ -52,6 +52,7 @@ module Chess
 
       # Pawn can move 1 square forward. Move directions limited in MoveCalculator
       # Destination is empty is checked in MoveValidator
+      # Path clearing for 2-square moves is handled by MoveValidator#clear_path?
       true
     end
 
