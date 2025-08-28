@@ -16,7 +16,6 @@ describe Chess::Move do
             from_position: valid_from_position,
             to_position: valid_to_position,
             piece: 'P',
-            captured_piece: 'p',
             double_pawn_move: true
           )
         end.not_to raise_error
