@@ -69,7 +69,7 @@ module Chess
 
     def valid_piece_moves?
       if Piece::PAWN_PIECES.include?(piece)
-        return PawnMoveValidator.valid_move?(board, move, move_history)
+        return PawnMoveValidator.valid_move?(board, move)
       end
 
       # other pieces return true as they don't have piece-specific moves
