@@ -77,7 +77,7 @@ describe Chess::CheckmateDetector do
 
       it 'returns true for queen and king endgame mate' do
         # Queen supported by king delivers mate
-        board = Chess::Board.from_fen('8/8/8/8/8/6k1/8/5QK1 b - - 0 1')
+        board = Chess::Board.from_fen('8/8/8/8/8/6k1/6Q1/6K1 b - - 0 1')
 
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
 
