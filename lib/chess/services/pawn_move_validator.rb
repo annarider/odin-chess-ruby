@@ -11,19 +11,18 @@ module Chess
   # - Forward moves only to empty squares
   class PawnMoveValidator
     attr_reader :board, :start_position, :end_position, :piece,
-                :captured_piece, :move_history
+                :captured_piece
 
     def self.valid_move?(...)
       new(...).valid_move?
     end
 
-    def initialize(board, move, move_history = [])
+    def initialize(board, move)
       @board = board
       @start_position = move.from_position
       @end_position = move.to_position
       @piece = move.piece
       @captured_piece = board.piece_at(move.to_position)
-      @move_history = move_history
     end
 
     def valid_move?
@@ -48,7 +47,7 @@ module Chess
     def forward_move_valid?
       # If pawn tries to move 2 squares, it must not have moved before
       return false if start_position.two_rank_move?(end_position) && pawn_has_moved?
-      # Two square advance is invalid if 
+      # Two square advance is valid if not capturing a piece
       return false unless board.piece_at(end_position).nil?
 
       # Pawn can move 1 square forward. Move directions limited in MoveCalculator
