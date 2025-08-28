@@ -91,9 +91,9 @@ describe Chess::MoveValidator do
 
       it 'sends valid_move? message to PawnMoveValidator service' do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
-        validator.move_legal?(board, white_pawn_move, move_history)
+        validator.move_legal?(board, white_pawn_move)
         expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
-          .with(board, white_pawn_move, move_history)
+          .with(board, white_pawn_move)
       end
     end
 
@@ -114,9 +114,9 @@ describe Chess::MoveValidator do
 
       it 'sends valid_move? message to PawnMoveValidator with correct arguments' do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
-        validator.move_legal?(board, black_pawn_move, move_history)
+        validator.move_legal?(board, black_pawn_move)
         expect(Chess::PawnMoveValidator).to have_received(:valid_move?)
-          .with(board, black_pawn_move, move_history)
+          .with(board, black_pawn_move)
       end
     end
 
