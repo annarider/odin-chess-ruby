@@ -45,7 +45,7 @@ module Chess
     end
 
     def forward_move_valid?
-      # Two square advance is valid if not capturing a piece
+      # Advance forward is valid if not capturing a piece
       return false unless board.piece_at(end_position).nil?
       # If pawn tries to move 2 squares, it must not have moved before
       return false if start_position.two_rank_move?(end_position) && pawn_has_moved?
