@@ -149,7 +149,7 @@ describe Chess::CastlingValidator do
 
       it 'returns false' do
         # f8 square under attack - king cannot pass through (cleared board + rook on f1)
-        current_fen = 'r3k2r/pppppppp/8/8/8/8/PPPPPPPP/R3KR1R b KQkq - 0 1'
+        current_fen = 'r3k2r/pppppppp/z8/8/8/8/PPPPPPPP/R3KR1R b KQkq - 0 1'
         move = create_castling_move('e8', 'g8', 'K', 'h8', current_fen)
         result = validator.castling_legal?(board, move, move_history)
         expect(result).to be false
@@ -172,17 +172,14 @@ describe Chess::CastlingValidator do
     end
 
     context 'when queenside castling path square is under attack' do
-      before do
+      it 'returns false when d1 square is attacked' do
         # Place a black bishop that attacks d1:
         # king passes through this square during queenside castling
-        board.place_piece(position('a4'), 'b')
-      end
-
-      it 'returns false when d1 square is attacked' do
         # d1 square under attack - king cannot pass through check during queenside castling
         current_fen = 'r3k2r/pppppppp/8/8/b7/8/PP1PPPPP/R3K2R w KQkq - 0 1'
         move = create_castling_move('e1', 'c1', 'K', 'a1', current_fen)
-        result = validator.castling_legal?(board, move, move_history)
+        result = validator.castling_legal?(Chess::Board.from_fen(current_fen),
+                                           move, move_history)
         expect(result).to be false
       end
     end
