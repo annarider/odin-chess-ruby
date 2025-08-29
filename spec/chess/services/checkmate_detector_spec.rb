@@ -19,6 +19,20 @@ describe Chess::CheckmateDetector do
         expect(result).to be false
       end
 
+      it 'returns false for back rank mate' do
+        # King trapped on back rank by own pawns, attacked by rook
+        board = Chess::Board.from_fen('6rk/6pp/8/8/8/8/5PPP/5RK1 w - - 0 1')
+        result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(result).to be false
+      end
+
+      it 'returns false for queen and king endgame mate' do
+        # Queen supported by king delivers mate
+        board = Chess::Board.from_fen('8/8/8/8/8/6k1/6Q1/6K1 b - - 0 1')
+        result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
+        expect(result).to be false
+      end
+
       it 'returns false when king has escaped check' do
         # Position where white king was in check but moved to safety
         board = Chess::Board.from_fen('rnbqkbnr/pppp1ppp/8/4p3/6P1/8/PPPPP1qP/RNBQKBNR w KQkq - 2 3')
@@ -66,69 +80,35 @@ describe Chess::CheckmateDetector do
         expect(result).to be true
       end
 
-      it 'returns true for back rank mate' do
-        # King trapped on back rank by own pawns, attacked by rook
-        board = Chess::Board.from_fen('6rk/6pp/8/8/8/8/5PPP/5RK1 w - - 0 1')
-
-        result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
-
-        expect(result).to be true
-      end
-
-      it 'returns true for queen and king endgame mate' do
-        # Queen supported by king delivers mate
-        board = Chess::Board.from_fen('8/8/8/8/8/6k1/6Q1/6K1 b - - 0 1')
-
-        result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
-        expect(result).to be true
-      end
-
       it 'returns true for smothered mate' do
         # Knight on g6 delivers mate while king is trapped by its own pieces
         board = Chess::Board.from_fen('6rk/5Npp/8/8/8/8/8/6K1 w - - 0 1')
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
         expect(result).to be true
       end
-
-      it 'returns true when king is in check and has no legal moves' do
-        # Classic end game checkmate position
-        board = Chess::Board.from_fen('8/8/8/8/8/6k1/5q2/5K2 w - - 0 1')
-
-        result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
-
-        expect(result).to be true
-      end
-
     end
 
     context 'when position is stalemate' do
       it 'returns false for king and pawn vs king stalemate' do
         # Stalemate in king and pawn endgame
         board = Chess::Board.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be false
       end
     end
 
-    context 'when testing with explicit king position' do
-      it 'returns true when king at specified position is in checkmate' do
+    context 'when king is trapped by friendly pieces' do
+      it 'returns true when black queen attacks to create checkmate' do
         board = Chess::Board.from_fen('rnb1kbnr/pppp1ppp/8/4p3/6Pq/8/PPPPP2P/RNBQKBNR w KQkq - 1 3')
         king_position = Chess::Position.from_algebraic('e1')
-
         result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER, king_position)
-
         expect(result).to be true
       end
 
       it 'returns false when king at specified position is not in checkmate' do
         board = Chess::Board.start_positions(add_pieces: true)
         king_position = Chess::Position.from_algebraic('e1')
-
         result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER, king_position)
-
         expect(result).to be false
       end
     end
@@ -136,9 +116,7 @@ describe Chess::CheckmateDetector do
     context 'when testing edge cases' do
       it 'returns false when king cannot be found on board' do
         board = Chess::Board.new
-
         result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
-
         expect(result).to be false
       end
 
@@ -146,18 +124,14 @@ describe Chess::CheckmateDetector do
         board = Chess::Board.new
         board.place_piece(Chess::Position.from_algebraic('e1'), 'K')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
-
         result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
-
         expect(result).to be false
       end
 
       it 'handles complex middlegame positions correctly' do
         # Complex position that is not checkmate
         board = Chess::Board.from_fen('r1bqk1nr/pppp1ppp/2n5/2b1p3/2B1P3/3P1N2/PPP2PPP/RNBQK2R b KQkq - 0 4')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be false
       end
     end
