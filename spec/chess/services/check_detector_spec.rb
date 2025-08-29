@@ -52,19 +52,19 @@ describe Chess::CheckDetector do
       end
     end
 
-    context 'when white king is in check by black bishop' do
-      # White king in check by black bishop on diagonal
+    context 'when black bishop attack is blocked by pawn' do
+      # Black bishop on a5 cannot check white king due to pawn on d2 blocking diagonal
       let(:bishop_start) { Chess::Position.from_algebraic('f8') }
       let(:bishop_end) { Chess::Position.from_algebraic('a5') }
 
       before do
-        # Move black bishop to attack white king position
+        # Move black bishop to a5 (attack blocked by d2 pawn)
         board.update_position(bishop_start, bishop_end)
       end
 
-      it 'returns true for white king' do
+      it 'returns false for white king when attack is blocked' do
         white_check = detector.in_check?(board, Chess::ChessNotation::WHITE_PLAYER)
-        expect(white_check).to be true
+        expect(white_check).to be false
       end
 
       it 'returns false for black king' do

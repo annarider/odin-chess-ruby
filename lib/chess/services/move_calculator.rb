@@ -68,28 +68,26 @@ module Chess
     private
 
     def knight_moves
-      KNIGHT.map do |vector|
-        position + Position.from_directional_vector(vector)
-      end
+      MovePatterns.single_moves(position, Directions::KNIGHT)
     end
 
     def rook_moves
-      calculate_moves(Directions::ROOK)
+      MovePatterns.linear_moves(position, Directions::ROOK, max_distance: 7)
     end
 
     def bishop_moves
-      calculate_moves(Directions::BISHOP)
+      MovePatterns.linear_moves(position, Directions::BISHOP, max_distance: 7)
     end
 
     def queen_moves
       vectors = Directions::ROOK + Directions::BISHOP
-      calculate_moves(vectors)
+      MovePatterns.linear_moves(position, vectors, max_distance: 7)
     end
 
     def king_moves
       vectors = Directions::ROOK + Directions::BISHOP
       vectors += Directions::KING_CASTLING if king_at_start_position?
-      calculate_moves(vectors, 1)
+      MovePatterns.single_moves(position, vectors)
     end
 
     def king_at_start_position?
@@ -101,7 +99,7 @@ module Chess
     # square capture, 2 squares advance)
     def pawn_moves
       vectors = piece == 'p' ? Directions::PAWN_BLACK : Directions::PAWN_WHITE
-      calculate_moves(vectors, 1)
+      MovePatterns.single_moves(position, vectors)
     end
   end
 end

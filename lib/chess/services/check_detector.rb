@@ -39,9 +39,10 @@ module Chess
 
     def find_all_pieces_moves(piece_data)
       piece_data.flat_map do |piece_hash|
-        MoveCalculator.generate_possible_moves(
+        AttackCalculator.generate_attack_squares(
           piece_hash[:position],
-          piece_hash[:piece]
+          piece_hash[:piece],
+          board
         )
       end
     end
