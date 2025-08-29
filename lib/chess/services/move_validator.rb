@@ -34,7 +34,7 @@ module Chess
       return false unless valid_destination?
       return false unless clear_path?
       return false unless valid_piece_moves?
-      return validate_castling if Piece::KING_PIECES.include?(piece)
+      return validate_castling if Piece::KING_PIECES.include?(piece) && castling_move?
 
       true
     end
@@ -74,6 +74,16 @@ module Chess
 
       # other pieces return true as they don't have piece-specific moves
       true
+    end
+
+    def castling_move?
+      # Castling is when king moves 2 squares horizontally
+      return false unless Piece::KING_PIECES.include?(piece)
+      
+      horizontal_distance = (end_position.column - start_position.column).abs
+      vertical_distance = (end_position.row - start_position.row).abs
+      
+      horizontal_distance == 2 && vertical_distance == 0
     end
 
     def validate_castling
