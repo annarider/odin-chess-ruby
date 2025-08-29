@@ -46,11 +46,26 @@ module Chess
     end
 
     def king_can_escape_to?(end_position, move)
-      # simulate the king's move on a test board
+      # king escapes if it's NOT in check after the move
+      move_leaves_king_safe?(move, end_position)
+    end
+
+    def move_leaves_king_safe?(move, king_final_position = nil)
+      # Simulate the move on a test board
       test_board = board.deep_copy
       test_board.update_position(move.from_position, move.to_position)
-      # king escapes if it's NOT in check after the move
-      CheckDetector.in_check?(test_board, active_color, end_position) == false
+      
+      # Determine where the king will be after the move
+      final_king_position = if king_final_position
+                              king_final_position
+                            elsif Piece::KING_PIECES.include?(move.piece)
+                              move.to_position  # King moved to new position
+                            else
+                              king_position     # King stayed in same position
+                            end
+      
+      # Check if king is safe after the move
+      CheckDetector.in_check?(test_board, active_color, final_king_position) == false
     end
 
     def capture_attacker?
@@ -58,10 +73,12 @@ module Chess
       attacker_pieces_data = find_attacker_positions
       # get all friendly pieces and their validated moves
       friendly_pieces_moves = find_friendly_moves
-      # can friendly pieces move to capture attacking piece?
+      # can friendly pieces move to capture attacking piece AND leave king safe?
       friendly_pieces_moves.any? do |move|
-        attacker_pieces_data.any? do |attacker_position|
-          move.to_position == attacker_position
+        if attacker_pieces_data.include?(move.to_position)
+          move_leaves_king_safe?(move)
+        else
+          false
         end
       end
     end
