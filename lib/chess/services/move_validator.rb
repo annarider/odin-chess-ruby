@@ -79,11 +79,27 @@ module Chess
     def castling_move?
       # Castling is when king moves 2 squares horizontally
       return false unless Piece::KING_PIECES.include?(piece)
+      return false unless king_on_starting_rank?
       
       horizontal_distance = (end_position.column - start_position.column).abs
       vertical_distance = (end_position.row - start_position.row).abs
       
       horizontal_distance == 2 && vertical_distance == 0
+    end
+
+    def king_on_starting_rank?
+      return false if start_position != end_position
+
+      if piece == 'K'
+        # white king start on rank 1
+        end_position.rank == '1'
+      elsif piece == 'k'
+        # black pawns start on rank 7, last rank is 1
+        end_position.rank == '8'
+      else
+        false
+      end
+
     end
 
     def validate_castling
