@@ -50,6 +50,12 @@ module Chess
       col_to_file(column)
     end
 
+    def to_algebraic
+      return nil unless in_bound?
+
+      "#{file}#{rank}"
+    end
+
     def square
       return nil unless in_bound?
 
