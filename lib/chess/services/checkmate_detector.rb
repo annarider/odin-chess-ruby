@@ -40,9 +40,17 @@ module Chess
       # stalemate: king has no legal moves and not in check
       return false if king_moves.empty?
 
-      king_moves.any? do |test_position|
-        !CheckDetector.in_check?(board, active_color, test_position)
+      king_moves.any? do |move|
+        king_can_escape_to?(move.to_position, move)
       end
+    end
+
+    def king_can_escape_to?(end_position, move)
+      # simulate the king's move on a test board
+      test_board = board.deep_copy
+      test_board.update_position(move.from_position, move.to_position)
+      # king escapes if it's NOT in check after the move
+      CheckDetector.in_check?(test_board, active_color, end_position) == false
     end
 
     def capture_attacker?
