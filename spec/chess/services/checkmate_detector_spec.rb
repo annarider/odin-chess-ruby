@@ -12,6 +12,13 @@ describe Chess::CheckmateDetector do
         expect(result).to be false
       end
 
+      it 'returns false for this position - white king is not in checkmate' do
+        # White king on g1 is not in check, has legal moves available
+        board = Chess::Board.from_fen('6rk/6pp/8/8/8/8/5PPP/5RK1 w - - 0 1')
+        result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
+        expect(result).to be false
+      end
+
       it 'returns false when king has escaped check' do
         # Position where white king was in check but moved to safety
         board = Chess::Board.from_fen('rnbqkbnr/pppp1ppp/8/4p3/6P1/8/PPPPP1qP/RNBQKBNR w KQkq - 2 3')
@@ -31,18 +38,14 @@ describe Chess::CheckmateDetector do
       it 'returns false when attacking piece can be captured' do
         # White queen attacks black king but can be captured by black pieces
         board = Chess::Board.from_fen('rnbqkbnr/ppp2ppp/8/3Qp3/4P3/8/PPPP1PPP/RNB1KBNR b KQkq - 1 3')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be false
       end
 
       it 'returns false when check can be blocked' do
         # Rook gives check but can be blocked
         board = Chess::Board.from_fen('r3k3/8/8/8/8/8/4R3/4K3 b - - 0 1')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be false
       end
     end
@@ -53,16 +56,13 @@ describe Chess::CheckmateDetector do
         board = Chess::Board.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
         Chess::Display.show_board(board.to_display)
         result = detector.checkmate?(board, Chess::ChessNotation::WHITE_PLAYER)
-
         expect(result).to be true
       end
 
       it 'returns true for scholars mate' do
         # Classic four-move checkmate
         board = Chess::Board.from_fen('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be true
       end
 
@@ -85,11 +85,9 @@ describe Chess::CheckmateDetector do
       end
 
       it 'returns true for smothered mate' do
-        # Knight on f7 delivers mate while king is trapped by its own pieces
+        # Knight on g6 delivers mate while king is trapped by its own pieces
         board = Chess::Board.from_fen('6rk/5Npp/8/8/8/8/8/6K1 w - - 0 1')
-
         result = detector.checkmate?(board, Chess::ChessNotation::BLACK_PLAYER)
-
         expect(result).to be true
       end
 
