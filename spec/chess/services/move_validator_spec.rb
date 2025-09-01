@@ -88,7 +88,7 @@ describe Chess::MoveValidator do
           .and_return([white_pawn_destination])
         allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(true)
       end
-
+ 
       it 'sends valid_move? message to PawnMoveValidator service' do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, white_pawn_move)
@@ -207,30 +207,6 @@ describe Chess::MoveValidator do
         end
       end
 
-      context 'with a king capturing move' do
-        let(:king_start) { Chess::Position.from_algebraic('e4') }
-        let(:king_destination) { Chess::Position.from_algebraic('e5') }
-        let(:capture_move) do
-          Chess::Move.new(
-            from_position: king_start,
-            to_position: king_destination,
-            piece: 'K'
-          )
-        end
-
-        before do
-          board.place_piece(king_start, 'K')
-          board.place_piece(king_destination, 'p') # Enemy pawn to capture
-        end
-
-        it 'still calls CastlingValidator even for capturing moves' do
-          allow(Chess::CastlingValidator).to receive(:castling_legal?)
-            .and_call_original
-          validator.move_legal?(board, capture_move, move_history)
-          expect(Chess::CastlingValidator).to have_received(:castling_legal?)
-            .with(board, capture_move, move_history)
-        end
-      end
     end
 
     context 'when validating non-king moves' do

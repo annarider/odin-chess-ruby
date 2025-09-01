@@ -88,18 +88,15 @@ module Chess
     end
 
     def king_on_starting_rank?
-      return false if start_position != end_position
-
       if piece == 'K'
-        # white king start on rank 1
-        end_position.rank == '1'
+        # white king starts on rank 1
+        start_position.rank == '1'
       elsif piece == 'k'
-        # black pawns start on rank 7, last rank is 1
-        end_position.rank == '8'
+        # black king starts on rank 8
+        start_position.rank == '8'
       else
         false
       end
-
     end
 
     def validate_castling
