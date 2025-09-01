@@ -7,6 +7,7 @@ module Chess
   # Then it decides if there are any
   # legal moves for the king to take.
   class CheckmateDetector
+    include GameAnalysis
     attr_reader :board, :active_color, :king_position
 
     def self.checkmate?(...)
@@ -31,9 +32,6 @@ module Chess
 
     private
 
-    def locate_king
-      board.find_king(active_color)
-    end
 
     def king_evade_check?
       king_moves = valid_moves(king_position, query_piece)
@@ -101,23 +99,6 @@ module Chess
         move.to_position == king_position
       end
       attacking_moves.map(&:from_position).uniq
-    end
-
-    def find_friendly_moves
-      friendly_pieces = board.find_all_pieces(active_color)
-      # get all valid friendly moves
-      friendly_pieces.flat_map do |piece_hash|
-        valid_moves(piece_hash[:position], piece_hash[:piece])
-      end
-    end
-
-    def valid_moves(start_position, piece)
-      positions = MoveCalculator.generate_possible_moves(start_position, piece)
-      moves = positions.map do |end_position|
-        Move.new(from_position: start_position,
-                        to_position: end_position, piece: piece)
-      end
-      moves.select { |move| MoveValidator.move_legal?(board, move) }
     end
 
     def friendly_shield_king?
