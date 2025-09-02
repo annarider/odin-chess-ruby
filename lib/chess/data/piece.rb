@@ -50,5 +50,6 @@ module Chess
     }.freeze
     PAWN_PIECES = %w[p P].freeze
     KING_PIECES = %w[k K].freeze
+    ROOK_PIECES = %w[r R].freeze
   end
 end

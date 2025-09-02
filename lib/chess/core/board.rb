@@ -123,27 +123,8 @@ module Chess
       @grid[position.row][position.column] = nil
     end
 
-    # 4 steps to a move:
-    # 1. check move is valid
-    # 2. create new position
-    # 3. update board state (grid, flags, etc.)
-    # 4. return status
-    def try_move(move)
-      return :no_piece if possible_move.empty?
-      return :illegal_move unless valid_move?(move)
-
-      play_move(move)
-      :success
-    end
-
     def valid_move?(move)
       MoveValidator.move_legal?(self, move)
-    end
-
-    def play_move(move)
-      update_position(move.from_position, move.to_position)
-      update_castling_rights(move)
-      update_en_passant_target(move)
     end
 
     private
@@ -165,9 +146,20 @@ module Chess
     def update_en_passant_target(move)
       @en_passant_target = nil # reset en passant square
       if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
+        target_row = move.from_position.row + ((move.to_position.row - move.from_position.row) / 2)
+        @en_passant_target = Position.new(target_row, move.to_position.column)
       end
     end
 
-    def pawn_advanced_two_squares?(move); end
+    def update_castling_rights(move)
+      # Implementation will be added when needed
+    end
+
+    def pawn_advanced_two_squares?(move)
+      return false unless Piece::PAWN_PIECES.include?(move.piece)
+      
+      row_diff = (move.to_position.row - move.from_position.row).abs
+      row_diff == 2
+    end
   end
 end
