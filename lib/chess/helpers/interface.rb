@@ -18,66 +18,79 @@ module Chess
       WELCOME
     end
 
-    def self.show(grid)
-      grid.each do |row|
-        puts "| #{row.map { |cell| cell.nil? ? '  ' : map_color(cell) }.join(' ')} |"
-      end
-    end
+    def self.request_move
+      puts "Enter your move (e.g., 'e2 e4' or 'e2-e4'), or type 'quit', 'save', or 'load':"
+      input = gets.chomp.strip
 
-    def self.announce_turn(name)
-      puts "#{name}, it's your turn."
-    end
-
-    def self.request_column
-      puts <<~MESSAGE
-        🔮 Which column do you want drop a piece into?
-      MESSAGE
-      column = gets.chomp.delete(' ').to_i
-      valid_column?(column) ? column : request_column_again
-    end
-
-    def self.display_invalid_column_message
-      puts '❌ Invalid column number. Please pick again.'
-    end
-
-    def self.request_name
-      puts "What's your name?"
-      gets.chomp
-    end
-
-    def self.valid_column?(input)
-      input.between?(1, 7)
-    end
-
-    def self.request_symbol
-      puts 'What color do you want? 🔴 🔵 🟡 🟣'
-      puts "Type #{COLORS.split.join('  ')}"
-      symbol = gets.chomp.delete(' ')
-      valid_color?(symbol) ? symbol : request_color_again
-    end
-
-    def self.valid_color?(symbol)
-      return false unless symbol.length == 1
-
-      COLORS.include?(symbol)
-    end
-
-    def self.map_color(symbol)
-      case symbol
-      when 'r'
-        '🔴'
-      when 'b'
-        '🔵'
-      when 'y'
-        '🟡'
+      case input.downcase
+      when 'quit', 'q'
+        { action: :quit }
+      when 'save', 's'
+        { action: :save }
+      when 'load', 'l'
+        { action: :load }
       else
-        '🟣'
+        move_data = parse_move_input(input)
+        move_data ? { action: :move, **move_data } : { action: :invalid }
       end
     end
 
-    def self.request_color_again
-      puts '❌ Invalid symbol color.'
-      request_symbol
+    def self.announce_turn(color)
+      color_name = color == ChessNotation::WHITE_PLAYER ? 'White' : 'Black'
+      puts "#{color_name}'s turn."
+    end
+
+    def self.announce_check(color)
+      color_name = color == ChessNotation::WHITE_PLAYER ? 'White' : 'Black'
+      puts "#{color_name} is in check!"
+    end
+
+    def self.announce_invalid_move
+      puts '❌ Invalid move. Please try again.'
+    end
+
+    def self.request_save_filename
+      puts 'Enter filename to save (without extension):'
+      filename = gets.chomp.strip
+      filename.empty? ? "chess_game_#{Time.now.strftime('%Y%m%d_%H%M%S')}" : filename
+    end
+
+    def self.request_load_filename
+      puts 'Enter filename to load (without extension):'
+      gets.chomp.strip
+    end
+
+    def self.confirm_quit
+      puts 'Are you sure you want to quit? (y/n)'
+      response = gets.chomp.downcase
+      %w[y yes].include?(response)
+    end
+
+    class << self
+      private
+
+      def parse_move_input(input)
+        normalized = input.downcase.gsub(/[\s\-]/, ' ').strip
+        parts = normalized.split
+
+        return nil unless parts.length == 2
+        return nil unless valid_square?(parts[0]) && valid_square?(parts[1])
+
+        {
+          from: Position.from_algebraic(parts[0]),
+          to: Position.from_algebraic(parts[1]),
+          raw_input: input
+        }
+      end
+
+      def valid_square?(square)
+        return false unless square.length == 2
+        return false unless square[0].between?('a', 'h')
+        return false unless square[1].between?('1', '8')
+
+        position = Position.from_algebraic(square)
+        position.in_bound?
+      end
     end
   end
 end
