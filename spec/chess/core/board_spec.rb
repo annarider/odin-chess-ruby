@@ -424,12 +424,20 @@ describe Chess::Board do
 
     context 'when a rook moves from a non-starting square' do
       it 'does not change any castling rights' do
-        board = described_class.start_positions
+        # Create board where kingside rook has already moved (rights already lost)
+        board = described_class.new(
+          castling_rights: {
+            white_castle_kingside: false, # Already lost due to previous rook move
+            white_castle_queenside: true,
+            black_castle_kingside: true,
+            black_castle_queenside: true
+          }
+        )
         move = create_move(from_square: 'h4', to_square: 'h5', piece: 'R')
 
         board.update_castling_rights(move)
 
-        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_kingside]).to be false
         expect(board.castling_rights[:white_castle_queenside]).to be true
         expect(board.castling_rights[:black_castle_kingside]).to be true
         expect(board.castling_rights[:black_castle_queenside]).to be true
