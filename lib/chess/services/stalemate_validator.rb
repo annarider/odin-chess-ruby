@@ -32,7 +32,10 @@ module Chess
     private
 
     def no_legal_moves?
-      find_friendly_moves.empty?
+      moves = find_friendly_moves
+      return true if moves.empty?
+
+      moves.none? { |move| move_leaves_king_safe?(move) }
     end
   end
 end
