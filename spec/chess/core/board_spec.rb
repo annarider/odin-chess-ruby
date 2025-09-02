@@ -437,6 +437,95 @@ describe Chess::Board do
     end
   end
 
+  describe '#update_en_passant_target' do
+    def position(square)
+      Chess::Position.from_algebraic(square)
+    end
+
+    def create_move(from_square:, to_square:, piece:)
+      Chess::Move.new(
+        from_position: position(from_square),
+        to_position: position(to_square),
+        piece: piece
+      )
+    end
+
+    context 'when white pawn moves two squares' do
+      it 'sets en passant target to square behind pawn' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'e2', to_square: 'e4', piece: 'P')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to eq(position('e3'))
+      end
+    end
+
+    context 'when black pawn moves two squares' do
+      it 'sets en passant target to square behind pawn' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'd7', to_square: 'd5', piece: 'p')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to eq(position('d6'))
+      end
+    end
+
+    context 'when white pawn moves one square' do
+      it 'resets en passant target to nil' do
+        board = described_class.new(en_passant_target: position('e6'))
+        move = create_move(from_square: 'e3', to_square: 'e4', piece: 'P')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to be_nil
+      end
+    end
+
+    context 'when black pawn moves one square' do
+      it 'resets en passant target to nil' do
+        board = described_class.new(en_passant_target: position('d3'))
+        move = create_move(from_square: 'd6', to_square: 'd5', piece: 'p')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to be_nil
+      end
+    end
+
+    context 'when non-pawn piece moves' do
+      it 'resets en passant target to nil for knight move' do
+        board = described_class.new(en_passant_target: position('e6'))
+        move = create_move(from_square: 'b1', to_square: 'c3', piece: 'N')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to be_nil
+      end
+
+      it 'resets en passant target to nil for rook move' do
+        board = described_class.new(en_passant_target: position('a3'))
+        move = create_move(from_square: 'a1', to_square: 'a4', piece: 'R')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to be_nil
+      end
+    end
+
+    context 'when board has no initial en passant target' do
+      it 'remains nil for non-double pawn move' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'b1', to_square: 'c3', piece: 'N')
+
+        board.update_en_passant_target(move)
+
+        expect(board.en_passant_target).to be_nil
+      end
+    end
+  end
+
   private
 
     def starting_positions(active_color)
