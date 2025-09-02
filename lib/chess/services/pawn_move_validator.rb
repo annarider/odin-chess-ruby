@@ -38,8 +38,8 @@ module Chess
     def capture_move_valid?
       # Pawns move diagonally only for capturing opponent pieces
       return false unless captured_piece &&
-      # Pawn must only capture enemy pieces
-        PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: captured_piece)
+                          # Pawn must only capture enemy pieces
+                          PieceHelpers.opponent_color?(attack_piece: piece, captured_piece: captured_piece)
 
       true
     end

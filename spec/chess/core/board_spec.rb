@@ -256,14 +256,17 @@ describe Chess::Board do
           board_copy = start_board.deep_copy
           expect(board_copy).not_to be(start_board)
         end
-        it 'returns the same data as the original board' do          
+
+        it 'returns the same data as the original board' do
           board_copy = start_board.deep_copy
           expect(board_copy.to_fen).to eq(start_board.to_fen)
         end
       end
+
       context 'when copying a mid game' do
         let(:original_board) { described_class.from_fen('r3k2r/8/8/8/8/8/8/R3K2R w KQkq e3 0 1') }
-         it 'creates independent copy of grid' do
+
+        it 'creates independent copy of grid' do
           copy = original_board.deep_copy
           original_board.place_piece(Chess::Position.from_algebraic('e4'), 'Q')
           expect(copy.piece_at(Chess::Position.from_algebraic('e4'))).to be_nil

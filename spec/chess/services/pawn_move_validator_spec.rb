@@ -6,6 +6,7 @@ require_relative '../../../lib/chess'
 
 describe Chess::PawnMoveValidator do
   subject(:validator) { described_class }
+
   describe '.valid_move?' do
     # Helper methods to create real objects (following EnPassantValidator pattern)
     def position(square)

@@ -4,6 +4,7 @@ require_relative '../../../lib/chess'
 
 describe Chess::CheckmateDetector do
   subject(:detector) { described_class }
+
   describe '.checkmate?' do
     context 'when king is not in check' do
       it 'returns false for starting position' do

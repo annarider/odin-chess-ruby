@@ -4,7 +4,7 @@ require_relative '../../../lib/chess'
 
 describe Chess::StalemateValidator do
   subject(:validator) { described_class }
-  
+
   describe '.stalemate?' do
     context 'when king is in check' do
       it 'returns false for check position' do

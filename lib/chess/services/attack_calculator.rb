@@ -17,7 +17,7 @@ module Chess
 
     def generate_attack_squares
       return [] if piece.nil?
-      
+
       case piece.downcase
       when 'p'
         pawn_attacks

@@ -9,20 +9,20 @@ module Chess
       directions.each do |dr, dc|
         delta = Position.from_directional_vector([dr, dc])
         current_pos = position
-        
+
         distance = 0
         loop do
           distance += 1
           break if distance > max_distance
-          
-          current_pos = current_pos + delta
+
+          current_pos += delta
           break unless current_pos # Out of bounds
-          
+
           moves << current_pos
-          
+
           # If board provided, stop at pieces (for attacks)
           # If no board, continue to max_distance (for moves)
-          break if board && board.piece_at(current_pos)
+          break if board&.piece_at(current_pos)
         end
       end
       moves

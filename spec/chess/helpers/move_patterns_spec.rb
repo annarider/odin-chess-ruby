@@ -22,8 +22,8 @@ describe Chess::MovePatterns do
         moves = described_class.linear_moves(position('d4'), Chess::Directions::ROOK)
         expected_squares = %w[d1 d2 d3 d5 d6 d7 d8 a4 b4 c4 e4 f4 g4 h4]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'returns 14 squares from corner position a1' do
@@ -32,8 +32,8 @@ describe Chess::MovePatterns do
         up_file = %w[a2 a3 a4 a5 a6 a7 a8]
         across_rank = %w[b1 c1 d1 e1 f1 g1 h1]
         expected_positions = (up_file + across_rank).map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
 
@@ -42,8 +42,8 @@ describe Chess::MovePatterns do
         moves = described_class.linear_moves(position('d4'), Chess::Directions::BISHOP)
         diagonal_squares = %w[a1 b2 c3 e5 f6 g7 h8 a7 b6 c5 e3 f2 g1]
         expected_positions = diagonal_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
 
@@ -51,23 +51,23 @@ describe Chess::MovePatterns do
       it 'stops at piece but includes that square' do
         board = create_board_with_piece('d6', 'P')
         moves = described_class.linear_moves(position('d4'), Chess::Directions::ROOK, board: board)
-        
+
         # Up direction should stop at d6, other directions unblocked
         expected_squares = %w[d1 d2 d3 d5 d6 a4 b4 c4 e4 f4 g4 h4]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'continues in unblocked directions when piece blocks one path' do
         board = create_board_with_piece('f4', 'p')
         moves = described_class.linear_moves(position('d4'), Chess::Directions::ROOK, board: board)
-        
+
         # Right direction stops at f4, others continue
         expected_squares = %w[d1 d2 d3 d5 d6 d7 d8 a4 b4 c4 e4 f4]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
   end
@@ -78,16 +78,16 @@ describe Chess::MovePatterns do
         moves = described_class.single_moves(position('d4'), Chess::Directions::KNIGHT)
         expected_squares = %w[c6 e6 f5 f3 e2 c2 b3 b5]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'returns only valid moves from corner position a1' do
         moves = described_class.single_moves(position('a1'), Chess::Directions::KNIGHT)
         expected_squares = %w[b3 c2]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
 
@@ -97,8 +97,8 @@ describe Chess::MovePatterns do
         moves = described_class.single_moves(position('d4'), king_directions)
         expected_squares = %w[c3 c4 c5 d3 d5 e3 e4 e5]
         expected_positions = expected_squares.map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
   end
@@ -108,22 +108,22 @@ describe Chess::MovePatterns do
       it 'returns both diagonal attacks from d4' do
         moves = described_class.pawn_diagonals(position('d4'), 'P')
         expected_positions = %w[c5 e5].map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'returns only valid diagonal from a-file' do
         moves = described_class.pawn_diagonals(position('a4'), 'P')
         expected_positions = %w[b5].map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'returns promotion diagonals from 7th rank' do
         moves = described_class.pawn_diagonals(position('g7'), 'P')
         expected_positions = %w[f8 h8].map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
 
@@ -131,15 +131,15 @@ describe Chess::MovePatterns do
       it 'returns both diagonal attacks from d5' do
         moves = described_class.pawn_diagonals(position('d5'), 'p')
         expected_positions = %w[c4 e4].map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
 
       it 'returns promotion diagonals from 2nd rank' do
         moves = described_class.pawn_diagonals(position('b2'), 'p')
         expected_positions = %w[a1 c1].map { position(it) }
-        
-        expect(moves).to contain_exactly(*expected_positions)
+
+        expect(moves).to match_array(expected_positions)
       end
     end
   end

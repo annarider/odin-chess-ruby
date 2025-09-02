@@ -68,9 +68,7 @@ module Chess
     end
 
     def valid_piece_moves?
-      if Piece::PAWN_PIECES.include?(piece)
-        return PawnMoveValidator.valid_move?(board, move)
-      end
+      return PawnMoveValidator.valid_move?(board, move) if Piece::PAWN_PIECES.include?(piece)
 
       # other pieces return true as they don't have piece-specific moves
       true
@@ -80,11 +78,11 @@ module Chess
       # Castling is when king moves 2 squares horizontally
       return false unless Piece::KING_PIECES.include?(piece)
       return false unless king_on_starting_rank?
-      
+
       horizontal_distance = (end_position.column - start_position.column).abs
       vertical_distance = (end_position.row - start_position.row).abs
-      
-      horizontal_distance == 2 && vertical_distance == 0
+
+      horizontal_distance == 2 && vertical_distance.zero?
     end
 
     def king_on_starting_rank?

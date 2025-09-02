@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Chess
   # Checkmate Detector checks whether
   # checkmate conditions are achieved.
@@ -32,7 +34,6 @@ module Chess
 
     private
 
-
     def king_evade_check?
       king_moves = valid_moves(king_position, query_piece)
       # stalemate: king has no legal moves and not in check
@@ -47,7 +48,6 @@ module Chess
       # king escapes if it's NOT in check after the move
       move_leaves_king_safe?(move, end_position)
     end
-
 
     def capture_attacker?
       # get all opponent pieces giving check

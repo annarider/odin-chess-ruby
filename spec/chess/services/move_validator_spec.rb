@@ -88,7 +88,7 @@ describe Chess::MoveValidator do
           .and_return([white_pawn_destination])
         allow(Chess::PawnMoveValidator).to receive(:valid_move?).and_return(true)
       end
- 
+
       it 'sends valid_move? message to PawnMoveValidator service' do
         allow(Chess::PawnMoveValidator).to receive(:valid_move?)
         validator.move_legal?(board, white_pawn_move)
@@ -206,7 +206,6 @@ describe Chess::MoveValidator do
             .with(board, king_move, move_history)
         end
       end
-
     end
 
     context 'when validating non-king moves' do
