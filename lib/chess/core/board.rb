@@ -162,8 +162,6 @@ module Chess
       end
     end
 
-    private
-
     def each_square
       grid.each_with_index do |rank, row_index|
         rank.each_with_index do |piece, col_index|
@@ -171,6 +169,8 @@ module Chess
         end
       end
     end
+
+    private
 
     def possible_moves(position)
       return [] if piece_at(position).nil?
