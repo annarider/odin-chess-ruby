@@ -29,22 +29,20 @@ describe Chess::MoveCommander do
       )
     end
 
-    def create_board_with_pieces(piece_positions)
+    def create_board_with_pieces(piece_positions, en_passant_target: nil)
       board = Chess::Board.empty_grid
       piece_positions.each do |square, piece|
         pos = position(square)
         board[pos.row][pos.column] = piece
       end
-      Chess::Board.new(grid: board)
+      Chess::Board.new(grid: board, en_passant_target: en_passant_target)
     end
 
     context 'when moving basic pieces' do
       it 'moves a white pawn from e2 to e4' do
         board = create_board_with_pieces({ 'e2' => 'P' })
         move = create_move(from_square: 'e2', to_square: 'e4', piece: 'P')
-
         described_class.execute_move(board, move)
-
         expect(board.piece_at(position('e2'))).to be_nil
         expect(board.piece_at(position('e4'))).to eq('P')
       end
@@ -52,9 +50,7 @@ describe Chess::MoveCommander do
       it 'moves a black knight from b8 to c6' do
         board = create_board_with_pieces({ 'b8' => 'n' })
         move = create_move(from_square: 'b8', to_square: 'c6', piece: 'n')
-
         described_class.execute_move(board, move)
-
         expect(board.piece_at(position('b8'))).to be_nil
         expect(board.piece_at(position('c6'))).to eq('n')
       end
@@ -62,9 +58,7 @@ describe Chess::MoveCommander do
       it 'captures an opponent piece' do
         board = create_board_with_pieces({ 'e4' => 'P', 'f5' => 'p' })
         move = create_move(from_square: 'e4', to_square: 'f5', piece: 'P')
-
         described_class.execute_move(board, move)
-
         expect(board.piece_at(position('e4'))).to be_nil
         expect(board.piece_at(position('f5'))).to eq('P')
       end
@@ -74,46 +68,35 @@ describe Chess::MoveCommander do
       it 'sets en passant target when white pawn moves from e2 to e4' do
         board = create_board_with_pieces({ 'e2' => 'P' })
         move = create_move(from_square: 'e2', to_square: 'e4', piece: 'P')
-
         described_class.execute_move(board, move)
-
         expect(board.en_passant_target).to eq(position('e3'))
       end
 
       it 'sets en passant target when black pawn moves from d7 to d5' do
         board = create_board_with_pieces({ 'd7' => 'p' })
         move = create_move(from_square: 'd7', to_square: 'd5', piece: 'p')
-
         described_class.execute_move(board, move)
-
         expect(board.en_passant_target).to eq(position('d6'))
       end
 
       it 'resets en passant target to nil before setting new one' do
-        board = create_board_with_pieces({ 'e2' => 'P' })
-        board.instance_variable_set(:@en_passant_target, position('a3')) # Set initial target
+        board = create_board_with_pieces({ 'e2' => 'P' }, en_passant_target: position('a3'))
         move = create_move(from_square: 'e2', to_square: 'e4', piece: 'P')
-
         described_class.execute_move(board, move)
-
         expect(board.en_passant_target).to eq(position('e3'))
       end
     end
 
     context 'when moving pawns one square' do
       it 'resets en passant target to nil for single pawn move' do
-        board = create_board_with_pieces({ 'e3' => 'P' })
-        board.instance_variable_set(:@en_passant_target, position('d6')) # Set initial target
+        board = create_board_with_pieces({ 'e3' => 'P' }, en_passant_target: position('d6'))
         move = create_move(from_square: 'e3', to_square: 'e4', piece: 'P')
-
         described_class.execute_move(board, move)
-
         expect(board.en_passant_target).to be_nil
       end
 
       it 'resets en passant target to nil for black pawn single move' do
-        board = create_board_with_pieces({ 'd6' => 'p' })
-        board.instance_variable_set(:@en_passant_target, position('e3')) # Set initial target
+        board = create_board_with_pieces({ 'd6' => 'p' }, en_passant_target: position('e3'))
         move = create_move(from_square: 'd6', to_square: 'd5', piece: 'p')
 
         described_class.execute_move(board, move)
@@ -124,8 +107,7 @@ describe Chess::MoveCommander do
 
     context 'when moving non-pawn pieces' do
       it 'resets en passant target to nil for knight move' do
-        board = create_board_with_pieces({ 'b1' => 'N' })
-        board.instance_variable_set(:@en_passant_target, position('e3')) # Set initial target
+        board = create_board_with_pieces({ 'b1' => 'N' }, en_passant_target: position('e3'))
         move = create_move(from_square: 'b1', to_square: 'c3', piece: 'N')
 
         described_class.execute_move(board, move)
@@ -134,8 +116,7 @@ describe Chess::MoveCommander do
       end
 
       it 'resets en passant target to nil for bishop move' do
-        board = create_board_with_pieces({ 'c1' => 'B' })
-        board.instance_variable_set(:@en_passant_target, position('d6')) # Set initial target
+        board = create_board_with_pieces({ 'c1' => 'B' }, en_passant_target: position('d6'))
         move = create_move(from_square: 'c1', to_square: 'e3', piece: 'B')
 
         described_class.execute_move(board, move)
@@ -144,8 +125,7 @@ describe Chess::MoveCommander do
       end
 
       it 'resets en passant target to nil for rook move' do
-        board = create_board_with_pieces({ 'a1' => 'R' })
-        board.instance_variable_set(:@en_passant_target, position('h6')) # Set initial target
+        board = create_board_with_pieces({ 'a1' => 'R' }, en_passant_target: position('h6'))
         move = create_move(from_square: 'a1', to_square: 'a4', piece: 'R')
 
         described_class.execute_move(board, move)
@@ -154,8 +134,7 @@ describe Chess::MoveCommander do
       end
 
       it 'resets en passant target to nil for queen move' do
-        board = create_board_with_pieces({ 'd1' => 'Q' })
-        board.instance_variable_set(:@en_passant_target, position('a3')) # Set initial target
+        board = create_board_with_pieces({ 'd1' => 'Q' }, en_passant_target: position('a3'))
         move = create_move(from_square: 'd1', to_square: 'd4', piece: 'Q')
 
         described_class.execute_move(board, move)
@@ -164,8 +143,7 @@ describe Chess::MoveCommander do
       end
 
       it 'resets en passant target to nil for king move' do
-        board = create_board_with_pieces({ 'e1' => 'K' })
-        board.instance_variable_set(:@en_passant_target, position('f6')) # Set initial target
+        board = create_board_with_pieces({ 'e1' => 'K' }, en_passant_target: position('f6'))
         move = create_move(from_square: 'e1', to_square: 'e2', piece: 'K')
 
         described_class.execute_move(board, move)

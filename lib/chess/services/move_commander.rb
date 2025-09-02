@@ -24,7 +24,7 @@ module Chess
     def execute_move
       update_piece_positions
       update_castling_rights if affects_castling?
-      update_en_passant_target if pawn_double_move?
+      update_en_passant_target
     end
 
     private
@@ -43,13 +43,6 @@ module Chess
 
     def affects_castling?
       Piece::KING_PIECES.include?(piece) || Piece::ROOK_PIECES.include?(piece)
-    end
-
-    def pawn_double_move?
-      return false unless Piece::PAWN_PIECES.include?(piece)
-
-      row_diff = (to_position.row - from_position.row).abs
-      row_diff == 2
     end
   end
 end
