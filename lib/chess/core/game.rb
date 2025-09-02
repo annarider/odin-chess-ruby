@@ -82,22 +82,34 @@ module Chess
     end
 
     def play_turn
-      move = Interface.request_move
-      move = Interface.request_move until board.try_move[:success]
-      update_game_state(move)
-      Display.show_board(board.to_display)
+      Interface.announce_turn(active_color)
+      input = Interface.request_move
+      
+      case input[:action]
+      when :quit
+        handle_quit
+      when :save
+        handle_save
+      when :load
+        handle_load
+      when :move
+        handle_move(input[:from], input[:to])
+      when :invalid
+        Interface.announce_invalid_move
+        play_turn
+      end
     end
 
     def checkmate?
-      false
+      CheckmateDetector.checkmate?(board, active_color)
     end
 
     def stalemate?
-      false
+      StalemateValidator.stalemate?(board, active_color)
     end
 
     def draw_by_rule?
-      threefold_repetition? || fifty_move_rule?
+      threefold_repetition? || fifty_move_rule? || insufficient_material?
     end
 
     def threefold_repetition?
@@ -106,6 +118,10 @@ module Chess
 
     def fifty_move_rule?
       half_move_clock >= 100
+    end
+
+    def insufficient_material?
+      InsufficientMaterialDetector.insufficient_material?(board)
     end
 
     def announce_game_end
