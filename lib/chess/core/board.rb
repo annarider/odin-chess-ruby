@@ -127,6 +127,18 @@ module Chess
       MoveValidator.move_legal?(self, move)
     end
 
+    def update_en_passant_target(move)
+      @en_passant_target = nil # reset en passant square
+      if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
+        target_row = move.from_position.row + ((move.to_position.row - move.from_position.row) / 2)
+        @en_passant_target = Position.new(target_row, move.to_position.column)
+      end
+    end
+
+    def update_castling_rights(move)
+      # Implementation will be added when needed
+    end
+
     private
 
     def each_square
@@ -141,18 +153,6 @@ module Chess
       return [] if piece_at(position).nil?
 
       generate_possible_moves(position, piece_at(position))
-    end
-
-    def update_en_passant_target(move)
-      @en_passant_target = nil # reset en passant square
-      if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
-        target_row = move.from_position.row + ((move.to_position.row - move.from_position.row) / 2)
-        @en_passant_target = Position.new(target_row, move.to_position.column)
-      end
-    end
-
-    def update_castling_rights(move)
-      # Implementation will be added when needed
     end
 
     def pawn_advanced_two_squares?(move)
