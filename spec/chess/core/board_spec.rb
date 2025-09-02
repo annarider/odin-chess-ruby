@@ -309,8 +309,135 @@ describe Chess::Board do
         end
       end
     end
+  end
 
-    private
+  describe '#update_castling_rights' do
+    def position(square)
+      Chess::Position.from_algebraic(square)
+    end
+
+    def create_move(from_square:, to_square:, piece:)
+      Chess::Move.new(
+        from_position: position(from_square),
+        to_position: position(to_square),
+        piece: piece
+      )
+    end
+
+    context 'when white king moves' do
+      it 'removes both white castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'e1', to_square: 'e2', piece: 'K')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:white_castle_kingside]).to be false
+        expect(board.castling_rights[:white_castle_queenside]).to be false
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+      end
+    end
+
+    context 'when black king moves' do
+      it 'removes both black castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'e8', to_square: 'e7', piece: 'k')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:black_castle_kingside]).to be false
+        expect(board.castling_rights[:black_castle_queenside]).to be false
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+      end
+    end
+
+    context 'when white kingside rook moves' do
+      it 'removes only white kingside castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'h1', to_square: 'h2', piece: 'R')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:white_castle_kingside]).to be false
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+      end
+    end
+
+    context 'when white queenside rook moves' do
+      it 'removes only white queenside castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'a1', to_square: 'a2', piece: 'R')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:white_castle_queenside]).to be false
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+      end
+    end
+
+    context 'when black kingside rook moves' do
+      it 'removes only black kingside castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'h8', to_square: 'h7', piece: 'r')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:black_castle_kingside]).to be false
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+      end
+    end
+
+    context 'when black queenside rook moves' do
+      it 'removes only black queenside castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'a8', to_square: 'a7', piece: 'r')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:black_castle_queenside]).to be false
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+      end
+    end
+
+    context 'when a non-king, non-rook piece moves' do
+      it 'does not change any castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'e2', to_square: 'e4', piece: 'P')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+      end
+    end
+
+    context 'when a rook moves from a non-starting square' do
+      it 'does not change any castling rights' do
+        board = described_class.start_positions
+        move = create_move(from_square: 'h4', to_square: 'h5', piece: 'R')
+
+        board.update_castling_rights(move)
+
+        expect(board.castling_rights[:white_castle_kingside]).to be true
+        expect(board.castling_rights[:white_castle_queenside]).to be true
+        expect(board.castling_rights[:black_castle_kingside]).to be true
+        expect(board.castling_rights[:black_castle_queenside]).to be true
+      end
+    end
+  end
+
+  private
 
     def starting_positions(active_color)
       regex = active_color == Chess::ChessNotation::WHITE_PLAYER ? /[A-Z]/ : /[a-z]/
@@ -325,4 +452,3 @@ describe Chess::Board do
            .map { |data| Chess::Position.new(data[:position].first, data[:position].last) }
     end
   end
-end

@@ -136,7 +136,30 @@ module Chess
     end
 
     def update_castling_rights(move)
-      # Implementation will be added when needed
+      piece = move.piece
+      from_position = move.from_position
+      
+      # King moves - lose all castling rights for that color
+      if piece == 'K' # White king
+        @castling_rights[:white_castle_kingside] = false
+        @castling_rights[:white_castle_queenside] = false
+      elsif piece == 'k' # Black king
+        @castling_rights[:black_castle_kingside] = false
+        @castling_rights[:black_castle_queenside] = false
+      # Rook moves from starting position - lose castling rights for that side
+      elsif piece == 'R' # White rook
+        if from_position.rank == '1' && from_position.file == 'a'
+          @castling_rights[:white_castle_queenside] = false
+        elsif from_position.rank == '1' && from_position.file == 'h'
+          @castling_rights[:white_castle_kingside] = false
+        end
+      elsif piece == 'r' # Black rook
+        if from_position.rank == '8' && from_position.file == 'a'
+          @castling_rights[:black_castle_queenside] = false
+        elsif from_position.rank == '8' && from_position.file == 'h'
+          @castling_rights[:black_castle_kingside] = false
+        end
+      end
     end
 
     private
