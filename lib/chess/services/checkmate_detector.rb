@@ -48,27 +48,6 @@ module Chess
       move_leaves_king_safe?(move, end_position)
     end
 
-    def move_leaves_king_safe?(move, king_final_position = nil)
-      # Simulate the move on a test board
-      test_board = board.deep_copy
-      test_board.update_position(move.from_position, move.to_position)
-      final_king_position = find_final_king_position(move, king_final_position)
-      # Check if king is safe after the move
-      CheckDetector.in_check?(test_board, active_color, final_king_position) == false
-    end
-
-    def find_final_king_position(move, king_final_position)
-            # Determine where the king will be after the move
-      if king_final_position
-                              king_final_position
-                            elsif Piece::KING_PIECES.include?(move.piece)
-                              move.to_position  # King moved to new position
-                            else
-                              king_position     # King stayed in same position
-                            end
-      
-
-    end
 
     def capture_attacker?
       # get all opponent pieces giving check

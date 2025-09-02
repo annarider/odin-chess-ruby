@@ -10,6 +10,7 @@ module Chess
   # legal moves for the active player.
   class StalemateValidator
     include GameAnalysis
+    include Piece
     attr_reader :board, :active_color, :king_position
 
     def self.stalemate?(...)
@@ -24,7 +25,7 @@ module Chess
 
     def stalemate?
       return false if CheckDetector.in_check?(board, active_color, king_position)
-      
+
       no_legal_moves?
     end
 
