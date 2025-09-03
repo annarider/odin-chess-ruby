@@ -1,12 +1,10 @@
 # frozen_string_literal: true
 
 module Chess
-  # Game defines a game object
-  # which handles game logic.
-  # It orchestrates creating board
-  # objects, switching player
-  # turns, checking for game over
-  # and win conditions, etc.
+  # Game represents the core chess game domain model.
+  # It manages game state (board, active player, move history)
+  # and enforces chess rules (checkmate, stalemate, draws).
+  # Game flow orchestration is handled by GameController.
   #
   # @example Create a new Game
   # game = Game.new
@@ -38,18 +36,13 @@ module Chess
       ToFEN.create_fen(build_fen_data)
     end
 
-    def play
-      start
-      until game_over?
-        play_turn
-        switch_turn unless game_over?
-      end
-      announce_game_end
-    end
+    def execute_move(move)
+      return false unless MoveValidator.valid_move?(board, move, active_color)
 
-    def start
-      Interface.welcome
-      Display.show_board(board.to_display)
+      MoveCommander.execute_move(board, move)
+      move_history.add_move(move)
+      update_counters_after_move(move)
+      true
     end
 
     def switch_turn
@@ -81,23 +74,14 @@ module Chess
       board.to_fen
     end
 
-    def play_turn
-      Interface.announce_turn(active_color)
-      input = Interface.request_move
-      
-      case input[:action]
-      when :quit
-        handle_quit
-      when :save
-        handle_save
-      when :load
-        handle_load
-      when :move
-        handle_move(input[:from], input[:to])
-      when :invalid
-        Interface.announce_invalid_move
-        play_turn
+    def update_counters_after_move(move)
+      if pawn_move_or_capture?(move)
+        self.half_move_clock = 0
+      else
+        self.half_move_clock += 1
       end
+
+      self.full_move_number += 1 if active_color == ChessNotation::BLACK_PLAYER
     end
 
     def checkmate?
@@ -124,20 +108,13 @@ module Chess
       InsufficientMaterialDetector.insufficient_material?(board)
     end
 
-    def announce_game_end
-      if winner
-        announce_winner
-      else
-        announce_end
-      end
+    def pawn_move_or_capture?(move)
+      piece = board.piece_at(move.from)
+      piece&.type == :pawn || capture_move?(move)
     end
 
-    def announce_winner
-      puts "Checkmate! Game over. #{winner == 'w' ? 'White' : 'Black'} won!"
-    end
-
-    def announce_end
-      puts "Game over. It's a draw."
+    def capture_move?(move)
+      board.piece_at(move.to)
     end
   end
 end
