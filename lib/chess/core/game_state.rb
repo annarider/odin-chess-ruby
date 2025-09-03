@@ -42,6 +42,7 @@ module Chess
       MoveCommander.execute_move(board, move)
       move_history.add_move(move)
       update_counters_after_move(move)
+      switch_turn
       true
     end
 

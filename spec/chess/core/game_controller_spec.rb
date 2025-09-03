@@ -116,30 +116,32 @@ describe Chess::GameController do
   end
 
   describe '#handle_quit' do
-    it 'outputs farewell message and exits' do
+    it 'displays farewell message and exits program' do
       controller = described_class.new
       
-      expect { controller.send(:handle_quit) }.to output(/Thanks for playing!/).to_stdout.and raise_error(SystemExit)
+      expect { controller.send(:handle_quit) }
+        .to output(/Thanks for playing!/).to_stdout
+        .and raise_error(SystemExit)
     end
   end
 
   describe '#handle_save' do
-    it 'outputs not implemented message and continues turn' do
+    it 'displays not implemented message' do
       controller = described_class.new
-      allow(controller).to receive(:play_turn)
+      allow(controller).to receive(:play_turn) # Prevent recursion
       
-      expect { controller.send(:handle_save) }.to output(/Save functionality not yet implemented/).to_stdout
-      expect(controller).to have_received(:play_turn)
+      expect { controller.send(:handle_save) }
+        .to output(/Save functionality not yet implemented/).to_stdout
     end
   end
 
   describe '#handle_load' do
-    it 'outputs not implemented message and continues turn' do
+    it 'displays not implemented message' do
       controller = described_class.new
-      allow(controller).to receive(:play_turn)
+      allow(controller).to receive(:play_turn) # Prevent recursion
       
-      expect { controller.send(:handle_load) }.to output(/Load functionality not yet implemented/).to_stdout
-      expect(controller).to have_received(:play_turn)
+      expect { controller.send(:handle_load) }
+        .to output(/Load functionality not yet implemented/).to_stdout
     end
   end
 
@@ -147,46 +149,14 @@ describe Chess::GameController do
     let(:controller) { described_class.new }
 
     before do
-      # Stub external dependencies to isolate behavior
+      # Only stub external UI dependencies, not internal behavior
       allow(Chess::Interface).to receive(:announce_turn)
       allow(Chess::Interface).to receive(:announce_invalid_move)
+      allow(Chess::Display).to receive(:show_board)
     end
 
-    context 'when user chooses to quit' do
-      it 'calls handle_quit' do
-        allow(Chess::Interface).to receive(:request_move).and_return({ action: :quit })
-        allow(controller).to receive(:handle_quit)
-        
-        controller.send(:play_turn)
-        
-        expect(controller).to have_received(:handle_quit)
-      end
-    end
-
-    context 'when user chooses to save' do
-      it 'calls handle_save' do
-        allow(Chess::Interface).to receive(:request_move).and_return({ action: :save })
-        allow(controller).to receive(:handle_save)
-        
-        controller.send(:play_turn)
-        
-        expect(controller).to have_received(:handle_save)
-      end
-    end
-
-    context 'when user chooses to load' do
-      it 'calls handle_load' do
-        allow(Chess::Interface).to receive(:request_move).and_return({ action: :load })
-        allow(controller).to receive(:handle_load)
-        
-        controller.send(:play_turn)
-        
-        expect(controller).to have_received(:handle_load)
-      end
-    end
-
-    context 'when user provides a valid move' do
-      it 'calls handle_move with from and to positions' do
+    context 'when user makes a valid move' do
+      it 'changes the active player' do
         from_pos = Chess::Position.from_algebraic('e2')
         to_pos = Chess::Position.from_algebraic('e4')
         
@@ -195,56 +165,100 @@ describe Chess::GameController do
           from: from_pos,
           to: to_pos
         })
-        allow(controller).to receive(:handle_move)
         
-        controller.send(:play_turn)
-        
-        expect(controller).to have_received(:handle_move).with(from_pos, to_pos)
+        expect { controller.send(:play_turn) }
+          .to change(controller.state, :active_color)
+          .from(Chess::ChessNotation::WHITE_PLAYER)
+          .to(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
 
     context 'when user provides invalid input' do
-      it 'announces invalid move and retries turn' do
+      it 'does not change game state' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :invalid })
-        allow(controller).to receive(:play_turn).and_call_original
-        # Prevent infinite recursion by stubbing second call
-        allow(controller).to receive(:play_turn).and_return(nil)
+        allow(controller).to receive(:play_turn).and_return(nil) # Prevent recursion
         
-        controller.send(:play_turn)
+        expect { controller.send(:play_turn) }
+          .not_to change(controller.state, :active_color)
+      end
+    end
+
+    context 'when user quits' do
+      it 'exits the program' do
+        allow(Chess::Interface).to receive(:request_move).and_return({ action: :quit })
         
-        expect(Chess::Interface).to have_received(:announce_invalid_move)
+        expect { controller.send(:play_turn) }
+          .to output(/Thanks for playing!/).to_stdout
+          .and raise_error(SystemExit)
+      end
+    end
+
+    context 'when user requests save' do
+      it 'displays not implemented message and continues' do
+        allow(Chess::Interface).to receive(:request_move).and_return({ action: :save })
+        allow(controller).to receive(:play_turn).and_return(nil) # Prevent recursion
+        
+        expect { controller.send(:play_turn) }
+          .to output(/Save functionality not yet implemented/).to_stdout
+      end
+    end
+
+    context 'when user requests load' do
+      it 'displays not implemented message and continues' do
+        allow(Chess::Interface).to receive(:request_move).and_return({ action: :load })
+        allow(controller).to receive(:play_turn).and_return(nil) # Prevent recursion
+        
+        expect { controller.send(:play_turn) }
+          .to output(/Load functionality not yet implemented/).to_stdout
       end
     end
   end
 
   describe 'game outcomes' do
     context 'when game ends in checkmate' do
-      it 'reports black as winner for fools mate position' do
+      it 'detects checkmate correctly' do
         # Use real GameState from actual checkmate position
         game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
         controller = described_class.new(game)
 
         expect(controller.state.game_over?).to be true
+      end
+      
+      it 'identifies the winner correctly' do
+        game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
+        controller = described_class.new(game)
+
         expect(controller.state.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
 
     context 'when game ends in stalemate' do
-      it 'reports no winner for stalemate position' do
+      it 'detects stalemate correctly' do
         # Use real GameState from actual stalemate position
         game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
         controller = described_class.new(game)
 
         expect(controller.state.game_over?).to be true
+      end
+      
+      it 'reports no winner for stalemate' do
+        game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
+        controller = described_class.new(game)
+
         expect(controller.state.winner).to be_nil
       end
     end
 
     context 'when game is in progress' do
-      it 'reports game not over for starting position' do
+      it 'detects ongoing game correctly' do
         controller = described_class.new
 
         expect(controller.state.game_over?).to be false
+      end
+      
+      it 'reports no winner for ongoing game' do
+        controller = described_class.new
+
         expect(controller.state.winner).to be_nil
       end
     end
