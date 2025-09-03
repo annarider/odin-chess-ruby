@@ -5,7 +5,7 @@ require_relative '../../../lib/chess'
 describe Chess::GameSerializer do
   subject(:serializer) { described_class.new }
   
-  let(:game) { Chess::Game.new }
+  let(:state) { Chess::GameState.new }
   let(:filename) { 'test_game' }
   let(:save_directory) { 'saved_games' }
   
@@ -17,7 +17,7 @@ describe Chess::GameSerializer do
   describe '#save_game' do
     context 'when saving a valid game' do
       it 'returns success with filename and path' do
-        result = serializer.save_game(game, filename)
+        result = serializer.save_game(state, filename)
         
         expect(result[:success]).to be true
         expect(result[:filename]).to eq(filename)
@@ -27,13 +27,13 @@ describe Chess::GameSerializer do
       it 'creates the save directory if it does not exist' do
         FileUtils.rm_rf(save_directory) if Dir.exist?(save_directory)
         
-        serializer.save_game(game, filename)
+        serializer.save_game(state, filename)
         
         expect(Dir.exist?(save_directory)).to be true
       end
       
       it 'creates a JSON file with game data' do
-        serializer.save_game(game, filename)
+        serializer.save_game(state, filename)
         file_path = File.join(save_directory, "#{filename}.json")
         
         expect(File.exist?(file_path)).to be true
@@ -48,7 +48,7 @@ describe Chess::GameSerializer do
       
       it 'sanitizes filename with special characters' do
         special_filename = 'test game!@#$%^&*()'
-        result = serializer.save_game(game, special_filename)
+        result = serializer.save_game(state, special_filename)
         
         expect(result[:success]).to be true
         expect(result[:path]).to include('test_game___________.json')
@@ -59,7 +59,7 @@ describe Chess::GameSerializer do
       it 'returns failure with error message' do
         allow(File).to receive(:write).and_raise(StandardError.new('Permission denied'))
         
-        result = serializer.save_game(game, filename)
+        result = serializer.save_game(state, filename)
         
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Permission denied')
@@ -69,7 +69,7 @@ describe Chess::GameSerializer do
 
   describe '#load_game' do
     context 'when loading an existing valid file' do
-      let(:game_data) do
+      let(:state_data) do
         {
           fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
           move_history: {
@@ -82,7 +82,7 @@ describe Chess::GameSerializer do
       
       before do
         FileUtils.mkdir_p(save_directory)
-        File.write(File.join(save_directory, "#{filename}.json"), JSON.pretty_generate(game_data))
+        File.write(File.join(save_directory, "#{filename}.json"), JSON.pretty_generate(state_data))
       end
       
       it 'returns success with loaded game' do
@@ -90,14 +90,14 @@ describe Chess::GameSerializer do
         
         expect(result[:success]).to be true
         expect(result[:filename]).to eq(filename)
-        expect(result[:game]).to be_a(Chess::Game)
+        expect(result[:game]).to be_a(Chess::GameState)
       end
       
       it 'loads game with correct FEN position' do
         result = serializer.load_game(filename)
         loaded_game = result[:game]
         
-        expect(loaded_game.to_fen).to eq(game_data[:fen])
+        expect(loaded_game.to_fen).to eq(state_data[:fen])
       end
     end
     
@@ -131,7 +131,7 @@ describe Chess::GameSerializer do
       end
       
       it 'returns failure with error message' do
-        allow(Chess::Game).to receive(:from_fen).and_raise(StandardError.new('Invalid FEN'))
+        allow(Chess::GameState).to receive(:from_fen).and_raise(StandardError.new('Invalid FEN'))
         
         result = serializer.load_game(filename)
         
@@ -143,8 +143,8 @@ describe Chess::GameSerializer do
 
   describe '.save_game' do
     it 'delegates to instance method' do
-      expect_any_instance_of(described_class).to receive(:save_game).with(game, filename)
-      described_class.save_game(game, filename)
+      expect_any_instance_of(described_class).to receive(:save_game).with(state, filename)
+      described_class.save_game(state, filename)
     end
   end
 
@@ -159,7 +159,7 @@ describe Chess::GameSerializer do
     context 'when saving and loading a complete game cycle' do
       it 'preserves game state through save and load cycle' do
         # Create a game with some moves
-        original_game = Chess::Game.new
+        original_game = Chess::GameState.new
         # Note: Not making actual moves as that would require complex setup
         # Instead testing with the initial position which is sufficient for behavior testing
         

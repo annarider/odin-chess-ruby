@@ -7,8 +7,8 @@ module Chess
   # Game flow orchestration is handled by GameController.
   #
   # @example Create a new Game
-  # game = Game.new
-  class Game
+  # state = GameState.new
+  class GameState
     attr_accessor :active_color, :half_move_clock,
                   :full_move_number
     attr_reader :board, :move_history
@@ -37,7 +37,7 @@ module Chess
     end
 
     def execute_move(move)
-      return false unless MoveValidator.valid_move?(board, move, active_color)
+      return false unless MoveValidator.move_legal?(board, move, active_color)
 
       MoveCommander.execute_move(board, move)
       move_history.add_move(move)
@@ -109,12 +109,12 @@ module Chess
     end
 
     def pawn_move_or_capture?(move)
-      piece = board.piece_at(move.from)
+      piece = board.piece_at(move.from_position)
       piece&.type == :pawn || capture_move?(move)
     end
 
     def capture_move?(move)
-      board.piece_at(move.to)
+      board.piece_at(move.to_position)
     end
   end
 end

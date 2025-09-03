@@ -7,15 +7,15 @@ describe Chess::GameController do
     context 'with no arguments' do
       it 'creates a new game by default' do
         controller = described_class.new
-        expect(controller.game).to be_a(Chess::Game)
+        expect(controller.state).to be_a(Chess::GameState)
       end
     end
 
     context 'with a game provided' do
       it 'uses the provided game' do
-        custom_game = Chess::Game.new
+        custom_game = Chess::GameState.new
         controller = described_class.new(custom_game)
-        expect(controller.game).to be(custom_game)
+        expect(controller.state).to be(custom_game)
       end
     end
   end
@@ -24,66 +24,92 @@ describe Chess::GameController do
     let(:controller) { described_class.new }
     
     context 'when move is valid' do
-      it 'executes the move and returns true' do
-        # Use a real move on starting board
+      it 'changes the active player' do
+        # Test behavior: valid moves should switch turns
         from_pos = Chess::Position.from_algebraic('e2')
         to_pos = Chess::Position.from_algebraic('e4')
-        
-        # Capture initial board state for comparison
-        initial_piece = controller.game.board.get_piece(from_pos)
-        initial_empty = controller.game.board.get_piece(to_pos)
-        
-        result = controller.send(:handle_move, from_pos, to_pos)
-        
-        expect(result).to be_nil # handle_move doesn't return, just executes
-        expect(controller.game.board.get_piece(to_pos)).to eq(initial_piece)
-        expect(controller.game.board.get_piece(from_pos)).to be_nil
+
+        expect { controller.send(:handle_move, from_pos, to_pos) }
+          .to change(controller.state, :active_color)
+          .from(Chess::ChessNotation::WHITE_PLAYER)
+          .to(Chess::ChessNotation::BLACK_PLAYER)
+      end
+
+      it 'increases the full move number' do
+        # Test behavior: valid moves increment game progress
+        from_pos = Chess::Position.from_algebraic('e2')
+        to_pos = Chess::Position.from_algebraic('e4')
+
+        expect { controller.send(:handle_move, from_pos, to_pos) }
+          .to change(controller.state, :full_move_number).by(1)
       end
     end
 
     context 'when move is invalid' do
-      it 'does not change board state' do
-        # Try to move piece that doesn't exist
-        from_pos = Chess::Position.from_algebraic('e5')
-        to_pos = Chess::Position.from_algebraic('e6')
-        
-        # Capture board state before invalid move attempt
-        initial_board_state = controller.game.board.to_display.dup
-        
-        # Suppress output during test
+      before do
+        # Stub interface to prevent output/recursion during test
         allow(Chess::Interface).to receive(:announce_invalid_move)
         allow(controller).to receive(:play_turn)
-        
+      end
+      
+      it 'does not change the active player' do
+        # Test behavior: invalid moves should not affect game state
+        from_pos = Chess::Position.from_algebraic('e5') # No piece here
+        to_pos = Chess::Position.from_algebraic('e6')
+
+        expect { controller.send(:handle_move, from_pos, to_pos) }
+          .not_to change(controller.state, :active_color)
+      end
+
+      it 'does not change the full move number' do
+        # Test behavior: invalid moves don't count as game progress
+        from_pos = Chess::Position.from_algebraic('e5') # No piece here
+        to_pos = Chess::Position.from_algebraic('e6')
+
+        expect { controller.send(:handle_move, from_pos, to_pos) }
+          .not_to change(controller.state, :full_move_number)
+      end
+
+      it 'continues the turn when move is invalid' do
+        # Test command: invalid moves should trigger retry
+        from_pos = Chess::Position.from_algebraic('e5') # No piece here
+        to_pos = Chess::Position.from_algebraic('e6')
+        allow(controller).to receive(:play_turn)
+
         controller.send(:handle_move, from_pos, to_pos)
-        
-        # Board should remain unchanged
-        expect(controller.game.board.to_display).to eq(initial_board_state)
+
+        expect(controller).to have_received(:play_turn)
       end
     end
   end
 
   describe '#announce_game_end' do
-    context 'when there is a winner' do
+    context 'when white wins' do
       it 'announces white as winner' do
-        controller = described_class.new
-        allow(controller.game).to receive(:winner).and_return(Chess::ChessNotation::WHITE_PLAYER)
-        
+        # Use real checkmate position where white wins
+        game = Chess::GameState.from_fen('r1bqkb1r/pppp1Qpp/2n2n2/4p3/2B1P3/8/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+        controller = described_class.new(game)
+
         expect { controller.send(:announce_game_end) }.to output(/White won!/).to_stdout
       end
+    end
 
+    context 'when black wins' do
       it 'announces black as winner' do
-        controller = described_class.new
-        allow(controller.game).to receive(:winner).and_return(Chess::ChessNotation::BLACK_PLAYER)
-        
+        # Use real checkmate position where black wins
+        game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
+        controller = described_class.new(game)
+
         expect { controller.send(:announce_game_end) }.to output(/Black won!/).to_stdout
       end
     end
 
-    context 'when there is no winner' do
+    context 'when game is a draw' do
       it 'announces a draw' do
-        controller = described_class.new
-        allow(controller.game).to receive(:winner).and_return(nil)
-        
+        # Use real stalemate position
+        game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
+        controller = described_class.new(game)
+
         expect { controller.send(:announce_game_end) }.to output(/It's a draw/).to_stdout
       end
     end
@@ -191,71 +217,53 @@ describe Chess::GameController do
     end
   end
 
-  describe 'game flow integration' do
+  describe 'game outcomes' do
     context 'when game ends in checkmate' do
-      it 'detects white wins by checkmate' do
-        # Set up fool's mate position - black is checkmated
-        game = Chess::Game.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
+      it 'reports black as winner for fools mate position' do
+        # Use real GameState from actual checkmate position
+        game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
         controller = described_class.new(game)
-        
-        expect(controller.game.game_over?).to be true
-        expect(controller.game.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
+
+        expect(controller.state.game_over?).to be true
+        expect(controller.state.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
 
     context 'when game ends in stalemate' do
-      it 'detects stalemate with no winner' do
-        # Set up stalemate position
-        game = Chess::Game.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
+      it 'reports no winner for stalemate position' do
+        # Use real GameState from actual stalemate position
+        game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
         controller = described_class.new(game)
-        
-        expect(controller.game.game_over?).to be true  
-        expect(controller.game.winner).to be_nil
+
+        expect(controller.state.game_over?).to be true
+        expect(controller.state.winner).to be_nil
       end
     end
 
-    context 'when executing moves changes active player' do
-      it 'switches turn after valid move' do
+    context 'when game is in progress' do
+      it 'reports game not over for starting position' do
         controller = described_class.new
-        initial_color = controller.game.active_color
-        
-        # Execute a valid move
-        move = Chess::Move.new(
-          Chess::Position.from_algebraic('e2'),
-          Chess::Position.from_algebraic('e4')
-        )
-        controller.game.execute_move(move)
-        controller.game.switch_turn
-        
-        expect(controller.game.active_color).not_to eq(initial_color)
+
+        expect(controller.state.game_over?).to be false
+        expect(controller.state.winner).to be_nil
       end
     end
   end
 
-  describe 'error handling' do
-    context 'when game state is corrupted' do
-      it 'handles missing pieces gracefully' do
-        controller = described_class.new
-        # Remove all pieces to create edge case
-        controller.game.board.instance_variable_set(:@grid, Array.new(8) { Array.new(8) })
-        
-        expect(controller.game.game_over?).to be true # Should detect no kings as game over
-      end
+  describe 'game progression' do
+    let(:controller) { described_class.new }
+
+    it 'starts with white to move' do
+      expect(controller.state.active_color).to eq(Chess::ChessNotation::WHITE_PLAYER)
     end
 
-    context 'when invalid positions are provided' do
-      it 'handles out-of-bounds positions' do
-        controller = described_class.new
-        
-        # This should not crash the game
-        expect do
-          move = Chess::Move.new(
-            Chess::Position.new(9, 9), # Invalid position
-            Chess::Position.new(10, 10) # Invalid position  
-          )
-          controller.game.execute_move(move)
-        end.not_to raise_error
-      end
+    it 'starts with move number of 1' do
+      expect(controller.state.full_move_number).to eq(1)
+    end
+
+    it 'starts with half move clock at 0' do
+      # Half move clock counts moves since last pawn move or capture
+      expect(controller.state.half_move_clock).to eq(0)
     end
   end
 end

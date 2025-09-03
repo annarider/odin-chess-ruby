@@ -12,10 +12,10 @@ module Chess
   # controller = GameController.new(game)
   # controller.play
   class GameController
-    attr_reader :game
+    attr_reader :state
 
-    def initialize(game = Game.new)
-      @game = game
+    def initialize(state = GameState.new)
+      @state = state
     end
 
     def play
@@ -28,18 +28,18 @@ module Chess
 
     def start_game
       Interface.welcome
-      Display.show_board(game.board.to_display)
+      Display.show_board(state.board.to_display)
     end
 
     def game_loop
-      until game.game_over?
+      until state.game_over?
         play_turn
-        game.switch_turn unless game.game_over?
+        state.switch_turn unless state.game_over?
       end
     end
 
     def play_turn
-      Interface.announce_turn(game.active_color)
+      Interface.announce_turn(state.active_color)
       input = Interface.request_move
       
       case input[:action]
@@ -73,10 +73,12 @@ module Chess
     end
 
     def handle_move(from, to)
-      move = Move.new(from, to)
+      piece = state.board.piece_at(from)
+      move = Move.new(from_position: from, to_position: to, piece: piece,
+                      fen: state.to_fen)
       
-      if game.execute_move(move)
-        Display.show_board(game.board.to_display)
+      if state.execute_move(move)
+        Display.show_board(state.board.to_display)
       else
         Interface.announce_invalid_move
         play_turn
@@ -84,7 +86,7 @@ module Chess
     end
 
     def announce_game_end
-      if game.winner
+      if state.winner
         announce_winner
       else
         announce_draw
@@ -92,7 +94,7 @@ module Chess
     end
 
     def announce_winner
-      winner_name = game.winner == ChessNotation::WHITE_PLAYER ? 'White' : 'Black'
+      winner_name = state.winner == ChessNotation::WHITE_PLAYER ? 'White' : 'Black'
       puts "Checkmate! Game over. #{winner_name} won!"
     end
 

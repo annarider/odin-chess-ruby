@@ -9,8 +9,8 @@ module Chess
   class GameSerializer
     SAVE_DIRECTORY = 'saved_games'
 
-    def self.save_game(game, filename)
-      new.save_game(game, filename)
+    def self.save_game(state, filename)
+      new.save_game(state, filename)
     end
 
     def self.load_game(filename)
@@ -21,9 +21,9 @@ module Chess
       ensure_save_directory_exists
     end
 
-    def save_game(game, filename)
+    def save_game(state, filename)
       file_path = build_file_path(filename)
-      game_data = serialize_game(game)
+      game_data = serialize_game(state)
       
       File.write(file_path, JSON.pretty_generate(game_data))
       { success: true, filename: filename, path: file_path }
@@ -39,7 +39,7 @@ module Chess
       game_data = JSON.parse(json_data, symbolize_names: true)
       game = deserialize_game(game_data)
       
-      { success: true, game: game, filename: filename }
+      { success: true, state: state, filename: filename }
     rescue JSON::ParserError
       { success: false, error: 'Invalid JSON format' }
     rescue StandardError => e
@@ -61,10 +61,10 @@ module Chess
       filename.gsub(/[^\w\-_]/, '_')
     end
 
-    def serialize_game(game)
+    def serialize_game(state)
       {
-        fen: game.to_fen,
-        move_history: serialize_move_history(game.move_history),
+        fen: state.to_fen,
+        move_history: serialize_move_history(state.move_history),
         saved_at: Time.now.iso8601
       }
     end

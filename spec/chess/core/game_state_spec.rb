@@ -4,7 +4,7 @@ require_relative '../../../lib/chess'
 
 # Tests for the Chess Game class
 
-describe Chess::Game do
+describe Chess::GameState do
   let(:start_game) { described_class.new }
   let(:end_game) { described_class.new }
 
