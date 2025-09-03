@@ -92,10 +92,10 @@ module Chess
       castling_symbol.include?(castle_type)
     end
 
-    def en_passant_to_position(field)
-      return nil if field == '-'
+    def en_passant_to_position(square)
+      return nil if square == '-'
 
-      Position.from_algebraic(field)
+      square
     end
 
     def convert_fen_active_color(fen_string)
