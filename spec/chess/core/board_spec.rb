@@ -175,7 +175,13 @@ describe Chess::Board do
       end
     end
   end
-
+describe 'GameState debugging' do
+  it 'checks GameState' do
+    puts "MoveValidator: #{Chess::MoveValidator}"
+    puts "GameState: #{Chess::GameState}"
+    puts "GameState methods: #{Chess::GameState.methods.grep(/play/)}"
+  end
+end
   describe '#valid_move?' do
     let(:knight_start) { Chess::Position.from_algebraic('d5') }
     let(:knight_destination) { Chess::Position.from_algebraic('c3') }

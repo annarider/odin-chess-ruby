@@ -77,7 +77,7 @@ module Chess
       move = Move.new(from_position: from, to_position: to, piece: piece,
                       fen: state.to_fen)
       
-      if state.execute_move(move)
+      if state.play_move(move)
         Display.show_board(state.board.to_display)
       else
         Interface.announce_invalid_move

@@ -3,10 +3,13 @@
 require_relative '../../../lib/chess'
 
 describe Chess::GameController do
+  let(:start_board) { Chess::Board.start_positions }
+  let(:state) { Chess::GameState.new }
+  subject(:controller) { described_class.new }
+
   describe '#initialize' do
     context 'with no arguments' do
       it 'creates a new game by default' do
-        controller = described_class.new
         expect(controller.state).to be_a(Chess::GameState)
       end
     end
@@ -20,10 +23,18 @@ describe Chess::GameController do
     end
   end
 
-  describe '#handle_move' do
-    let(:controller) { described_class.new }
-    
+  describe '#handle_move' do    
     context 'when move is valid' do
+      it 'sends a message to GameState' do
+        # Set up test with positions
+        from_pos = Chess::Position.from_algebraic('e2')
+        to_pos = Chess::Position.from_algebraic('e4')
+
+        allow(Chess::GameState).to_receive(:play_move).with(start_board, move)
+        controller.handle_move(from_pos, to_pos)
+        expect(Chess::GameState).to have_received(:play_move)
+      end
+
       it 'changes the active player' do
         # Test behavior: valid moves should switch turns
         from_pos = Chess::Position.from_algebraic('e2')
@@ -35,12 +46,26 @@ describe Chess::GameController do
           .to(Chess::ChessNotation::BLACK_PLAYER)
       end
 
-      it 'increases the full move number' do
+      it 'does not increases the full move number after white plays' do
         # Test behavior: valid moves increment game progress
         from_pos = Chess::Position.from_algebraic('e2')
         to_pos = Chess::Position.from_algebraic('e4')
 
         expect { controller.send(:handle_move, from_pos, to_pos) }
+          .to change(controller.state, :full_move_number).by(0)
+      end
+
+      it 'increases the full move number by 1 after black plays' do
+        # Test behavior: complete move cycle (white + black) increments counter
+        # Set up: White moves first
+        white_from = Chess::Position.from_algebraic('e2')
+        white_to = Chess::Position.from_algebraic('e4')
+        controller.send(:handle_move, white_from, white_to)
+        
+        # Test: Black's move should increment the full move counter
+        black_from = Chess::Position.from_algebraic('e7')
+        black_to = Chess::Position.from_algebraic('e5')
+        expect { controller.send(:handle_move, black_from, black_to) }
           .to change(controller.state, :full_move_number).by(1)
       end
     end

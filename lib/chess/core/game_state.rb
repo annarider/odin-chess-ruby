@@ -36,7 +36,7 @@ module Chess
       ToFEN.create_fen(build_fen_data)
     end
 
-    def execute_move(move)
+    def play_move(move)
       return false unless MoveValidator.move_legal?(board, move, active_color)
 
       MoveCommander.execute_move(board, move)
