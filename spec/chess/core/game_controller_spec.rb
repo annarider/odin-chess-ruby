@@ -25,14 +25,18 @@ describe Chess::GameController do
 
   describe '#handle_move' do    
     context 'when move is valid' do
-      it 'sends a message to GameState' do
-        # Set up test with positions
+      it 'sends play_move message to game state instance' do
+        # Arrange
         from_pos = Chess::Position.from_algebraic('e2')
         to_pos = Chess::Position.from_algebraic('e4')
+        allow(controller.state).to receive(:play_move).and_return(true)
+        allow(Chess::Display).to receive(:show_board)
 
-        allow(Chess::GameState).to_receive(:play_move).with(start_board, move)
-        controller.handle_move(from_pos, to_pos)
-        expect(Chess::GameState).to have_received(:play_move)
+        # Act
+        controller.send(:handle_move, from_pos, to_pos)
+
+        # Assert
+        expect(controller.state).to have_received(:play_move)
       end
 
       it 'changes the active player' do
