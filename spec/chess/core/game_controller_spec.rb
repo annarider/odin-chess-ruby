@@ -31,10 +31,8 @@ describe Chess::GameController do
         to_pos = Chess::Position.from_algebraic('e4')
         allow(controller.state).to receive(:play_move).and_return(true)
         allow(Chess::Display).to receive(:show_board)
-
         # Act
         controller.send(:handle_move, from_pos, to_pos)
-
         # Assert
         expect(controller.state).to have_received(:play_move)
       end

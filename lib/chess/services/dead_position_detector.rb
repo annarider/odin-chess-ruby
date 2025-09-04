@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Chess
-  # InsufficientMaterialDetector checks whether
+  # DeadPositionDetector checks whether
   # there is insufficient material on the board
   # to achieve checkmate, resulting in a draw.
   #
@@ -10,19 +10,19 @@ module Chess
   # - King + Bishop vs King
   # - King + Knight vs King  
   # - King + Bishop vs King + Bishop (same color squares)
-  class InsufficientMaterialDetector
+  class DeadPositionDetector
     include Piece
     attr_reader :board
 
-    def self.insufficient_material?(board)
-      new(board).insufficient_material?
+    def self.dead_position?(board)
+      new(board).dead_position?
     end
 
     def initialize(board)
       @board = board
     end
 
-    def insufficient_material?
+    def dead_position?
       pieces = collect_all_pieces
       return true if king_vs_king?(pieces)
       return true if king_and_minor_vs_king?(pieces)

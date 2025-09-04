@@ -2,15 +2,15 @@
 
 require_relative '../../../lib/chess'
 
-describe Chess::InsufficientMaterialDetector do
+describe Chess::DeadPositionDetector do
   subject(:detector) { described_class }
 
-  describe '.insufficient_material?' do
+  describe '.dead_position?' do
     context 'when there is sufficient material for checkmate' do
       it 'returns false for starting position' do
         board = Chess::Board.start_positions(add_pieces: true)
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -21,7 +21,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('d1'), 'Q')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -32,7 +32,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('a1'), 'R')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -43,7 +43,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e2'), 'P')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -55,7 +55,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('c8'), 'b') # dark square
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -67,7 +67,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e1'), 'K')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -78,7 +78,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('c1'), 'B')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -89,7 +89,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('b1'), 'N')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -100,7 +100,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('c8'), 'b')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -111,7 +111,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('b8'), 'n')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -123,7 +123,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('a1'), 'b') # light square (0+0=0, even)
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -137,7 +137,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('g1'), 'N')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -149,7 +149,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('b1'), 'N')
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -163,7 +163,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('h8'), 'b') # dark square
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -175,7 +175,7 @@ describe Chess::InsufficientMaterialDetector do
         board.place_piece(Chess::Position.from_algebraic('e8'), 'k')
         board.place_piece(Chess::Position.from_algebraic('a8'), 'b') # light square
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
@@ -186,7 +186,7 @@ describe Chess::InsufficientMaterialDetector do
         board = Chess::Board.from_fen('8/8/8/3k4/8/3K4/4B3/8 w - - 0 50')
         board.place_piece(Chess::Position.from_algebraic('f8'), 'b')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -194,7 +194,7 @@ describe Chess::InsufficientMaterialDetector do
       it 'returns true for drawn king and knight vs king endgame' do
         board = Chess::Board.from_fen('8/8/8/3k4/8/3KN3/8/8 w - - 0 50')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -205,7 +205,7 @@ describe Chess::InsufficientMaterialDetector do
         # King and bishop vs king - insufficient
         board = Chess::Board.from_fen('8/8/8/3k4/8/3KB3/8/8 w - - 0 50')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be true
       end
@@ -214,20 +214,20 @@ describe Chess::InsufficientMaterialDetector do
         # King and queen vs king - sufficient
         board = Chess::Board.from_fen('8/8/8/3k4/8/3KQ3/8/8 w - - 0 50')
         
-        result = detector.insufficient_material?(board)
+        result = detector.dead_position?(board)
         
         expect(result).to be false
       end
     end
   end
 
-  describe '#insufficient_material?' do
+  describe '#dead_position?' do
     it 'delegates to class method' do
       board = Chess::Board.new
       detector_instance = described_class.new(board)
       
-      expect(described_class).to receive(:insufficient_material?).with(board)
-      described_class.insufficient_material?(board)
+      expect(described_class).to receive(:dead_position?).with(board)
+      described_class.dead_position?(board)
     end
   end
 end

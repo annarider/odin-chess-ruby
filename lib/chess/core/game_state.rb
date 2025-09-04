@@ -94,7 +94,7 @@ module Chess
     end
 
     def draw_by_rule?
-      threefold_repetition? || fifty_move_rule? || insufficient_material?
+      threefold_repetition? || fifty_move_rule? || dead_position?
     end
 
     def threefold_repetition?
@@ -105,8 +105,8 @@ module Chess
       half_move_clock >= 100
     end
 
-    def insufficient_material?
-      InsufficientMaterialDetector.insufficient_material?(board)
+    def dead_position?
+      DeadPositionDetector.dead_position?(board)
     end
 
     def pawn_move_or_capture?(move)
