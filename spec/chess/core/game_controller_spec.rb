@@ -341,20 +341,17 @@ describe Chess::GameController do
       it 'calls handle_save and continues' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :save })
         allow(controller).to receive(:handle_save).and_return(nil) # Prevent recursion from handle_save
-        
         controller.send(:play_turn)
-        
         expect(controller).to have_received(:handle_save)
       end
     end
 
     context 'when user requests load' do
-      it 'displays not implemented message and continues' do
+      it 'calls handles_load and continues' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :load })
-        allow(controller).to receive(:play_turn).and_return(nil) # Prevent recursion
-        
-        expect { controller.send(:play_turn) }
-          .to output(/Load functionality not yet implemented/).to_stdout
+        allow(controller).to receive(:handle_load).and_return(nil) # Prevent recursion
+        controller.send(:play_turn)
+        expect(controller).to have_received(:handle_load)
       end
     end
   end
