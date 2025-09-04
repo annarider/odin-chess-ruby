@@ -153,22 +153,156 @@ describe Chess::GameController do
   end
 
   describe '#handle_save' do
-    it 'displays not implemented message' do
-      controller = described_class.new
+    let(:controller) { described_class.new }
+    
+    before do
       allow(controller).to receive(:play_turn) # Prevent recursion
-      
-      expect { controller.send(:handle_save) }
-        .to output(/Save functionality not yet implemented/).to_stdout
+    end
+
+    context 'when save succeeds' do
+      it 'outputs success message with filename' do
+        allow(Chess::Interface).to receive(:request_save_filename).and_return('test_game')
+        allow(Chess::GameSerializer).to receive(:save_game).and_return({
+          success: true,
+          filename: 'test_game'
+        })
+
+        expect { controller.send(:handle_save) }
+          .to output(/Game saved successfully as 'test_game.json'/).to_stdout
+      end
+    end
+
+    context 'when save fails' do
+      it 'outputs failure message with error' do
+        allow(Chess::Interface).to receive(:request_save_filename).and_return('invalid')
+        allow(Chess::GameSerializer).to receive(:save_game).and_return({
+          success: false,
+          error: 'Permission denied'
+        })
+
+        expect { controller.send(:handle_save) }
+          .to output(/Failed to save game: Permission denied/).to_stdout
+      end
+    end
+
+    context 'when user provides filename' do
+      it 'passes filename to GameSerializer' do
+        allow(Chess::Interface).to receive(:request_save_filename).and_return('my_game')
+        allow(Chess::GameSerializer).to receive(:save_game).and_return({
+          success: true,
+          filename: 'my_game'
+        })
+
+        controller.send(:handle_save)
+
+        expect(Chess::GameSerializer).to have_received(:save_game)
+          .with(controller.state, 'my_game')
+      end
     end
   end
 
   describe '#handle_load' do
-    it 'displays not implemented message' do
-      controller = described_class.new
+    let(:controller) { described_class.new }
+    let(:initial_state) { controller.state }
+    
+    before do
       allow(controller).to receive(:play_turn) # Prevent recursion
-      
-      expect { controller.send(:handle_load) }
-        .to output(/Load functionality not yet implemented/).to_stdout
+    end
+
+    context 'when load succeeds' do
+      it 'outputs success message with filename' do
+        loaded_state = Chess::GameState.new
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: true,
+          filename: 'saved_game',
+          state: loaded_state
+        })
+        allow(Chess::Display).to receive(:show_board)
+
+        expect { controller.send(:handle_load) }
+          .to output(/Game loaded successfully from 'saved_game.json'/).to_stdout
+      end
+
+      it 'replaces game state with loaded state' do
+        loaded_state = Chess::GameState.new
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: true,
+          filename: 'saved_game',
+          state: loaded_state
+        })
+        allow(Chess::Display).to receive(:show_board)
+
+        expect { controller.send(:handle_load) }
+          .to change(controller, :state).from(initial_state).to(loaded_state)
+      end
+
+      it 'displays the loaded board' do
+        loaded_state = Chess::GameState.new
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: true,
+          filename: 'saved_game',
+          state: loaded_state
+        })
+
+        controller.send(:handle_load)
+
+        expect(Chess::Display).to have_received(:show_board).with(loaded_state.board.to_display)
+      end
+    end
+
+    context 'when load fails' do
+      it 'outputs failure message with error' do
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('nonexistent')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: false,
+          error: 'File not found'
+        })
+
+        expect { controller.send(:handle_load) }
+          .to output(/Failed to load game: File not found/).to_stdout
+      end
+
+      it 'does not change game state when load fails' do
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('nonexistent')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: false,
+          error: 'File not found'
+        })
+
+        expect { controller.send(:handle_load) }
+          .not_to change(controller, :state)
+      end
+    end
+
+    context 'when user provides empty filename' do
+      it 'does not attempt to load and does not change state' do
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('')
+
+        expect { controller.send(:handle_load) }
+          .not_to change(controller, :state)
+        
+        expect(Chess::GameSerializer).not_to have_received(:load_game)
+      end
+    end
+
+    context 'when user provides filename' do
+      it 'passes filename to GameSerializer' do
+        loaded_state = Chess::GameState.new
+        allow(Chess::Interface).to receive(:request_load_filename).and_return('my_saved_game')
+        allow(Chess::GameSerializer).to receive(:load_game).and_return({
+          success: true,
+          filename: 'my_saved_game',
+          state: loaded_state
+        })
+        allow(Chess::Display).to receive(:show_board)
+
+        controller.send(:handle_load)
+
+        expect(Chess::GameSerializer).to have_received(:load_game).with('my_saved_game')
+      end
     end
   end
 
