@@ -78,7 +78,17 @@ module Chess
     end
 
     def handle_load
-      puts 'Load functionality not yet implemented.'
+      filename = Interface.request_load_filename
+      return play_turn if filename.empty?
+
+      result = GameSerializer.load_game(filename)
+      if result[:success]
+        @state = result[:state]
+        puts "Game loaded successfully from '#{result[:filename]}.json'"
+        Display.show_board(state.board.to_display)
+      else
+        puts "Failed to load game: #{result[:error]}"
+      end
       play_turn
     end
 

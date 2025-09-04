@@ -37,7 +37,7 @@ module Chess
 
       json_data = File.read(file_path)
       game_data = JSON.parse(json_data, symbolize_names: true)
-      game = deserialize_game(game_data)
+      state = deserialize_game(game_data)
       
       { success: true, state: state, filename: filename }
     rescue JSON::ParserError
