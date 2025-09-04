@@ -259,17 +259,32 @@ describe Chess::GameController do
       end
     end
 
-    context 'when game ends in stalemate' do
-      it 'detects stalemate correctly' do
-        # Use real GameState from actual stalemate position
-        game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
+    context 'when game ends in a draw due to a stalemate' do
+      let(:game) { Chess::GameState.from_fen('8/8/8/8/8/6q1/5k2/7K w - - 0 1') }
+      it 'returns game over correctly' do
+        # Arrange stalemate position
         controller = described_class.new(game)
 
         expect(controller.state.game_over?).to be true
       end
       
       it 'reports no winner for stalemate' do
-        game = Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1')
+        controller = described_class.new(game)
+
+        expect(controller.state.winner).to be_nil
+      end
+    end
+
+    context 'when game ends in a draw due to dead position ' do
+      let(:game) { Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1') }
+      it 'returns game over correctly' do
+        # Arrange real dead position board position
+        controller = described_class.new(game)
+
+        expect(controller.state.game_over?).to be true
+      end
+      
+      it 'reports no winner for dead position' do
         controller = described_class.new(game)
 
         expect(controller.state.winner).to be_nil
