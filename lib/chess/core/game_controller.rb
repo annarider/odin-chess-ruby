@@ -58,17 +58,27 @@ module Chess
     end
 
     def handle_quit
-      puts "Thanks for playing!"
-      exit
+      if Interface.confirm_quit
+        puts 'Thanks for playing!'
+        exit
+      else
+        play_turn
+      end
     end
 
     def handle_save
-      puts "Save functionality not yet implemented."
+      filename = Interface.request_save_filename
+      result = GameSerializer.save_game(state, filename)
+      if result[:success]
+        puts "Game saved successfully as '#{result[:filename]}.json'"
+      else
+        puts "Failed to save game: #{result[:error]}"
+      end
       play_turn
     end
 
     def handle_load
-      puts "Load functionality not yet implemented."
+      puts 'Load functionality not yet implemented.'
       play_turn
     end
 
@@ -76,7 +86,6 @@ module Chess
       piece = state.board.piece_at(from)
       move = Move.new(from_position: from, to_position: to, piece: piece,
                       fen: state.to_fen)
-      
       if state.play_move(move)
         Display.show_board(state.board.to_display)
       else
