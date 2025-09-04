@@ -43,7 +43,7 @@ module Chess
       game_data = JSON.parse(json_data, symbolize_names: true)
       state = deserialize_game(game_data)
       
-      { success: true, state: state, filename: filename }
+      { success: true, game: state, filename: filename }
     rescue JSON::ParserError
       { success: false, error: 'Invalid JSON format' }
     rescue StandardError => e
@@ -81,7 +81,7 @@ module Chess
     end
 
     def deserialize_game(game_data)
-      Game.from_fen(game_data[:fen])
+      GameState.from_fen(game_data[:fen])
     end
   end
 end
