@@ -237,24 +237,19 @@ describe Chess::GameController do
     end
 
     context 'when load fails' do
-      it 'outputs failure message with error' do
+      before do
         allow(Chess::Interface).to receive(:request_load_filename).and_return('nonexistent')
         allow(Chess::GameSerializer).to receive(:load_game).and_return({
           success: false,
           error: 'File not found'
         })
-
+      end
+      it 'outputs failure message with error' do
         expect { controller.send(:handle_load) }
           .to output(/Failed to load game: File not found/).to_stdout
       end
 
       it 'does not change game state when load fails' do
-        allow(Chess::Interface).to receive(:request_load_filename).and_return('nonexistent')
-        allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: false,
-          error: 'File not found'
-        })
-
         expect { controller.send(:handle_load) }
           .not_to change(controller, :state)
       end
@@ -262,11 +257,13 @@ describe Chess::GameController do
 
     context 'when user provides empty filename' do
       it 'does not attempt to load and does not change state' do
+        # Arrange: set up stubs and spies
         allow(Chess::Interface).to receive(:request_load_filename).and_return('')
-
+        allow(Chess::GameSerializer).to receive(:load_game)
+        # Act: perform the action
         expect { controller.send(:handle_load) }
           .not_to change(controller, :state)
-        
+        # Assert: observe the expected outcome
         expect(Chess::GameSerializer).not_to have_received(:load_game)
       end
     end
