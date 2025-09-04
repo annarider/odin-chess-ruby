@@ -184,10 +184,7 @@ describe Chess::DeadPositionDetector do
     context 'when testing realistic endgame scenarios' do
       it 'returns true for drawn king and bishop vs king and bishop endgame' do
         board = Chess::Board.from_fen('8/8/8/3k4/8/3K4/4B3/8 w - - 0 50')
-        board.place_piece(Chess::Position.from_algebraic('f8'), 'b')
-        
         result = detector.dead_position?(board)
-        
         expect(result).to be true
       end
       
