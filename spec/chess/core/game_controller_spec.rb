@@ -143,9 +143,10 @@ describe Chess::GameController do
   end
 
   describe '#handle_quit' do
+    before do
+      allow(Chess::Interface).to receive(:confirm_quit).and_return('y')
+    end
     it 'displays farewell message and exits program' do
-      controller = described_class.new
-      
       expect { controller.send(:handle_quit) }
         .to output(/Thanks for playing!/).to_stdout
         .and raise_error(SystemExit)
@@ -345,6 +346,9 @@ describe Chess::GameController do
     end
 
     context 'when user quits' do
+      before do
+        allow(Chess::Interface).to receive(:confirm_quit).and_return('y')
+      end
       it 'exits the program' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :quit })
         
