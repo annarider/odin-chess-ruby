@@ -372,9 +372,9 @@ describe Chess::GameController do
     end
 
     context 'when game ends in a draw due to a stalemate' do
+      # Arrange stalemate position
       let(:game) { Chess::GameState.from_fen('8/8/8/8/8/6q1/5k2/7K w - - 0 1') }
       it 'returns game over correctly' do
-        # Arrange stalemate position
         controller = described_class.new(game)
 
         expect(controller.state.game_over?).to be true
@@ -388,19 +388,31 @@ describe Chess::GameController do
     end
 
     context 'when game ends in a draw due to dead position ' do
-      let(:game) { Chess::GameState.from_fen('8/8/8/8/8/1k6/1P6/1K6 b - - 0 1') }
-      it 'returns game over correctly' do
-        # Arrange real dead position board position
-        controller = described_class.new(game)
+      context 'with only kings remaining' do
+        let(:state) { Chess::GameState.from_fen('8/8/8/8/3k4/8/3K4/8 w - - 0 1') }
+        it 'returns game over correctly' do
+          # Arrange dead position board position
+          # Act
+          controller = described_class.new(state)
+          # Assert
+          expect(controller.state.game_over?).to be true
+        end
+        
+        it 'returns no winner for dead position' do
+          controller = described_class.new(state)
 
-        expect(controller.state.game_over?).to be true
+          expect(controller.state.winner).to be_nil
+        end
       end
-      
-      it 'reports no winner for dead position' do
-        controller = described_class.new(game)
 
-        expect(controller.state.winner).to be_nil
-      end
+      context 'with insufficient material for checkmate' do
+          let(:state) { Chess::GameState.from_fen('8/8/8/8/3k4/8/2BK4/8 w - - 0 1') }
+          
+          it 'recognizes as game over' do
+            controller = described_class.new(state)
+            expect(controller.state.game_over?).to be true
+          end
+        end
     end
 
     context 'when game is in progress' do
