@@ -203,16 +203,15 @@ describe Chess::GameController do
   end
 
   describe '#handle_load' do
-    let(:controller) { described_class.new }
     let(:initial_state) { controller.state }
-    
+
     before do
       allow(controller).to receive(:play_turn) # Prevent recursion
     end
 
     context 'when load succeeds' do
-      it 'outputs success message with filename' do
-        loaded_state = Chess::GameState.new
+      let(:loaded_state) { Chess::GameState.new }
+      before do
         allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
         allow(Chess::GameSerializer).to receive(:load_game).and_return({
           success: true,
@@ -220,36 +219,19 @@ describe Chess::GameController do
           state: loaded_state
         })
         allow(Chess::Display).to receive(:show_board)
-
+      end
+      it 'outputs success message with filename' do
         expect { controller.send(:handle_load) }
           .to output(/Game loaded successfully from 'saved_game.json'/).to_stdout
       end
 
       it 'replaces game state with loaded state' do
-        loaded_state = Chess::GameState.new
-        allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
-        allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: true,
-          filename: 'saved_game',
-          state: loaded_state
-        })
-        allow(Chess::Display).to receive(:show_board)
-
         expect { controller.send(:handle_load) }
           .to change(controller, :state).from(initial_state).to(loaded_state)
       end
 
       it 'displays the loaded board' do
-        loaded_state = Chess::GameState.new
-        allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
-        allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: true,
-          filename: 'saved_game',
-          state: loaded_state
-        })
-
         controller.send(:handle_load)
-
         expect(Chess::Display).to have_received(:show_board).with(loaded_state.board.to_display)
       end
     end
