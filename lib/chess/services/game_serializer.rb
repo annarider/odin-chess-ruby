@@ -28,7 +28,7 @@ module Chess
     def save_game
       file_path = build_file_path
       game_data = serialize_game
-      
+
       File.write(file_path, JSON.pretty_generate(game_data))
       { success: true, filename: filename, path: file_path }
     rescue StandardError => e
@@ -42,7 +42,7 @@ module Chess
       json_data = File.read(file_path)
       game_data = JSON.parse(json_data, symbolize_names: true)
       state = deserialize_game(game_data)
-      
+
       { success: true, game: state, filename: filename }
     rescue JSON::ParserError
       { success: false, error: 'Invalid JSON format' }
@@ -53,7 +53,7 @@ module Chess
     private
 
     def ensure_save_directory_exists
-      FileUtils.mkdir_p(SAVE_DIRECTORY) unless Dir.exist?(SAVE_DIRECTORY)
+      FileUtils.mkdir_p(SAVE_DIRECTORY)
     end
 
     def build_file_path

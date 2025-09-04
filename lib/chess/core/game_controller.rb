@@ -41,7 +41,7 @@ module Chess
     def play_turn
       Interface.announce_turn(state.active_color)
       input = Interface.request_move
-      
+
       case input[:action]
       when :quit
         handle_quit

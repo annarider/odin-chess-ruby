@@ -129,31 +129,32 @@ module Chess
 
     def update_en_passant_target(move)
       @en_passant_target = nil # reset en passant square
-      if Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
-        target_row = move.from_position.row + ((move.to_position.row - move.from_position.row) / 2)
-        @en_passant_target = Position.new(target_row, move.to_position.column)
-      end
+      return unless Piece::PAWN_PIECES.include?(move.piece) && pawn_advanced_two_squares?(move)
+
+      target_row = move.from_position.row + ((move.to_position.row - move.from_position.row) / 2)
+      @en_passant_target = Position.new(target_row, move.to_position.column)
     end
 
     def update_castling_rights(move)
       piece = move.piece
       from_position = move.from_position
-      
+
       # King moves - lose all castling rights for that color
-      if piece == 'K' # White king
+      case piece
+      when 'K' # White king
         @castling_rights[:white_castle_kingside] = false
         @castling_rights[:white_castle_queenside] = false
-      elsif piece == 'k' # Black king
+      when 'k' # Black king
         @castling_rights[:black_castle_kingside] = false
         @castling_rights[:black_castle_queenside] = false
       # Rook moves from starting position - lose castling rights for that side
-      elsif piece == 'R' # White rook
+      when 'R' # White rook
         if from_position.rank == '1' && from_position.file == 'a'
           @castling_rights[:white_castle_queenside] = false
         elsif from_position.rank == '1' && from_position.file == 'h'
           @castling_rights[:white_castle_kingside] = false
         end
-      elsif piece == 'r' # Black rook
+      when 'r' # Black rook
         if from_position.rank == '8' && from_position.file == 'a'
           @castling_rights[:black_castle_queenside] = false
         elsif from_position.rank == '8' && from_position.file == 'h'
@@ -180,7 +181,7 @@ module Chess
 
     def pawn_advanced_two_squares?(move)
       return false unless Piece::PAWN_PIECES.include?(move.piece)
-      
+
       row_diff = (move.to_position.row - move.from_position.row).abs
       row_diff == 2
     end

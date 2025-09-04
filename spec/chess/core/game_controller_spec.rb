@@ -3,9 +3,10 @@
 require_relative '../../../lib/chess'
 
 describe Chess::GameController do
+  subject(:controller) { described_class.new }
+
   let(:start_board) { Chess::Board.start_positions }
   let(:state) { Chess::GameState.new }
-  subject(:controller) { described_class.new }
 
   describe '#initialize' do
     context 'with no arguments' do
@@ -23,7 +24,7 @@ describe Chess::GameController do
     end
   end
 
-  describe '#handle_move' do    
+  describe '#handle_move' do
     context 'when move is valid' do
       it 'sends play_move message to game state instance' do
         # Arrange
@@ -54,7 +55,7 @@ describe Chess::GameController do
         to_pos = Chess::Position.from_algebraic('e4')
 
         expect { controller.send(:handle_move, from_pos, to_pos) }
-          .to change(controller.state, :full_move_number).by(0)
+          .not_to change(controller.state, :full_move_number)
       end
 
       it 'increases the full move number by 1 after black plays' do
@@ -63,7 +64,7 @@ describe Chess::GameController do
         white_from = Chess::Position.from_algebraic('e2')
         white_to = Chess::Position.from_algebraic('e4')
         controller.send(:handle_move, white_from, white_to)
-        
+
         # Test: Black's move should increment the full move counter
         black_from = Chess::Position.from_algebraic('e7')
         black_to = Chess::Position.from_algebraic('e5')
@@ -78,7 +79,7 @@ describe Chess::GameController do
         allow(Chess::Interface).to receive(:announce_invalid_move)
         allow(controller).to receive(:play_turn)
       end
-      
+
       it 'does not change the active player' do
         # Test behavior: invalid moves should not affect game state
         from_pos = Chess::Position.from_algebraic('e5') # No piece here
@@ -146,6 +147,7 @@ describe Chess::GameController do
     before do
       allow(Chess::Interface).to receive(:confirm_quit).and_return('y')
     end
+
     it 'displays farewell message and exits program' do
       expect { controller.send(:handle_quit) }
         .to output(/Thanks for playing!/).to_stdout
@@ -155,7 +157,7 @@ describe Chess::GameController do
 
   describe '#handle_save' do
     let(:controller) { described_class.new }
-    
+
     before do
       allow(controller).to receive(:play_turn) # Prevent recursion
     end
@@ -164,9 +166,9 @@ describe Chess::GameController do
       it 'outputs success message with filename' do
         allow(Chess::Interface).to receive(:request_save_filename).and_return('test_game')
         allow(Chess::GameSerializer).to receive(:save_game).and_return({
-          success: true,
-          filename: 'test_game'
-        })
+                                                                         success: true,
+                                                                         filename: 'test_game'
+                                                                       })
 
         expect { controller.send(:handle_save) }
           .to output(/Game saved successfully as 'test_game.json'/).to_stdout
@@ -177,9 +179,9 @@ describe Chess::GameController do
       it 'outputs failure message with error' do
         allow(Chess::Interface).to receive(:request_save_filename).and_return('invalid')
         allow(Chess::GameSerializer).to receive(:save_game).and_return({
-          success: false,
-          error: 'Permission denied'
-        })
+                                                                         success: false,
+                                                                         error: 'Permission denied'
+                                                                       })
 
         expect { controller.send(:handle_save) }
           .to output(/Failed to save game: Permission denied/).to_stdout
@@ -190,9 +192,9 @@ describe Chess::GameController do
       it 'passes filename to GameSerializer' do
         allow(Chess::Interface).to receive(:request_save_filename).and_return('my_game')
         allow(Chess::GameSerializer).to receive(:save_game).and_return({
-          success: true,
-          filename: 'my_game'
-        })
+                                                                         success: true,
+                                                                         filename: 'my_game'
+                                                                       })
 
         controller.send(:handle_save)
 
@@ -211,15 +213,17 @@ describe Chess::GameController do
 
     context 'when load succeeds' do
       let(:loaded_state) { Chess::GameState.new }
+
       before do
         allow(Chess::Interface).to receive(:request_load_filename).and_return('saved_game')
         allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: true,
-          filename: 'saved_game',
-          state: loaded_state
-        })
+                                                                         success: true,
+                                                                         filename: 'saved_game',
+                                                                         state: loaded_state
+                                                                       })
         allow(Chess::Display).to receive(:show_board)
       end
+
       it 'outputs success message with filename' do
         expect { controller.send(:handle_load) }
           .to output(/Game loaded successfully from 'saved_game.json'/).to_stdout
@@ -240,10 +244,11 @@ describe Chess::GameController do
       before do
         allow(Chess::Interface).to receive(:request_load_filename).and_return('nonexistent')
         allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: false,
-          error: 'File not found'
-        })
+                                                                         success: false,
+                                                                         error: 'File not found'
+                                                                       })
       end
+
       it 'outputs failure message with error' do
         expect { controller.send(:handle_load) }
           .to output(/Failed to load game: File not found/).to_stdout
@@ -273,10 +278,10 @@ describe Chess::GameController do
         loaded_state = Chess::GameState.new
         allow(Chess::Interface).to receive(:request_load_filename).and_return('my_saved_game')
         allow(Chess::GameSerializer).to receive(:load_game).and_return({
-          success: true,
-          filename: 'my_saved_game',
-          state: loaded_state
-        })
+                                                                         success: true,
+                                                                         filename: 'my_saved_game',
+                                                                         state: loaded_state
+                                                                       })
         allow(Chess::Display).to receive(:show_board)
 
         controller.send(:handle_load)
@@ -300,13 +305,13 @@ describe Chess::GameController do
       it 'changes the active player' do
         from_pos = Chess::Position.from_algebraic('e2')
         to_pos = Chess::Position.from_algebraic('e4')
-        
+
         allow(Chess::Interface).to receive(:request_move).and_return({
-          action: :move,
-          from: from_pos,
-          to: to_pos
-        })
-        
+                                                                       action: :move,
+                                                                       from: from_pos,
+                                                                       to: to_pos
+                                                                     })
+
         expect { controller.send(:play_turn) }
           .to change(controller.state, :active_color)
           .from(Chess::ChessNotation::WHITE_PLAYER)
@@ -318,7 +323,7 @@ describe Chess::GameController do
       it 'does not change game state' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :invalid })
         allow(controller).to receive(:play_turn).and_return(nil) # Prevent recursion
-        
+
         expect { controller.send(:play_turn) }
           .not_to change(controller.state, :active_color)
       end
@@ -328,9 +333,10 @@ describe Chess::GameController do
       before do
         allow(Chess::Interface).to receive(:confirm_quit).and_return('y')
       end
+
       it 'exits the program' do
         allow(Chess::Interface).to receive(:request_move).and_return({ action: :quit })
-        
+
         expect { controller.send(:play_turn) }
           .to output(/Thanks for playing!/).to_stdout
           .and raise_error(SystemExit)
@@ -360,11 +366,12 @@ describe Chess::GameController do
     context 'when game ends in checkmate' do
       # Use checkmate position
       let(:game) { Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3') }
+
       it 'detects checkmate correctly' do
         controller = described_class.new(game)
         expect(controller.state.game_over?).to be true
       end
-      
+
       it 'identifies the winner correctly' do
         controller = described_class.new(game)
         expect(controller.state.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
@@ -374,12 +381,13 @@ describe Chess::GameController do
     context 'when game ends in a draw due to a stalemate' do
       # Arrange stalemate position
       let(:game) { Chess::GameState.from_fen('8/8/8/8/8/6q1/5k2/7K w - - 0 1') }
+
       it 'returns game over correctly' do
         controller = described_class.new(game)
 
         expect(controller.state.game_over?).to be true
       end
-      
+
       it 'reports no winner for stalemate' do
         controller = described_class.new(game)
 
@@ -387,9 +395,10 @@ describe Chess::GameController do
       end
     end
 
-    context 'when game ends in a draw due to dead position ' do
+    context 'when game ends in a draw due to dead position' do
       context 'with only kings remaining' do
         let(:state) { Chess::GameState.from_fen('8/8/8/8/3k4/8/3K4/8 w - - 0 1') }
+
         it 'returns game over correctly' do
           # Arrange dead position board position
           # Act
@@ -397,7 +406,7 @@ describe Chess::GameController do
           # Assert
           expect(controller.state.game_over?).to be true
         end
-        
+
         it 'returns no winner for dead position' do
           controller = described_class.new(state)
 
@@ -406,13 +415,13 @@ describe Chess::GameController do
       end
 
       context 'with insufficient material for checkmate' do
-          let(:state) { Chess::GameState.from_fen('8/8/8/8/3k4/8/2BK4/8 w - - 0 1') }
-          
-          it 'recognizes as game over' do
-            controller = described_class.new(state)
-            expect(controller.state.game_over?).to be true
-          end
+        let(:state) { Chess::GameState.from_fen('8/8/8/8/3k4/8/2BK4/8 w - - 0 1') }
+
+        it 'recognizes as game over' do
+          controller = described_class.new(state)
+          expect(controller.state.game_over?).to be true
         end
+      end
     end
 
     context 'when game is in progress' do
@@ -421,7 +430,7 @@ describe Chess::GameController do
 
         expect(controller.state.game_over?).to be false
       end
-      
+
       it 'reports no winner for ongoing game' do
         controller = described_class.new
 

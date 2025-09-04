@@ -175,13 +175,15 @@ describe Chess::Board do
       end
     end
   end
-describe 'GameState debugging' do
-  it 'checks GameState' do
-    puts "MoveValidator: #{Chess::MoveValidator}"
-    puts "GameState: #{Chess::GameState}"
-    puts "GameState methods: #{Chess::GameState.methods.grep(/play/)}"
+
+  describe 'GameState debugging' do
+    it 'checks GameState' do
+      puts "MoveValidator: #{Chess::MoveValidator}"
+      puts "GameState: #{Chess::GameState}"
+      puts "GameState methods: #{Chess::GameState.methods.grep(/play/)}"
+    end
   end
-end
+
   describe '#valid_move?' do
     let(:knight_start) { Chess::Position.from_algebraic('d5') }
     let(:knight_destination) { Chess::Position.from_algebraic('c3') }
@@ -542,16 +544,16 @@ end
 
   private
 
-    def starting_positions(active_color)
-      regex = active_color == Chess::ChessNotation::WHITE_PLAYER ? /[A-Z]/ : /[a-z]/
-      # Use existing Piece data about starting positions
-      Chess::Piece::START_POSITIONS.select { |_, symbol| symbol.match?(regex) }
-                                   .keys # gets the position info in array
-                                   .map { |pos| Chess::Position.new(pos.first, pos.last) }
-    end
-
-    def positions_for_color(board, active_color)
-      board.find_all_pieces(active_color)
-           .map { |data| Chess::Position.new(data[:position].first, data[:position].last) }
-    end
+  def starting_positions(active_color)
+    regex = active_color == Chess::ChessNotation::WHITE_PLAYER ? /[A-Z]/ : /[a-z]/
+    # Use existing Piece data about starting positions
+    Chess::Piece::START_POSITIONS.select { |_, symbol| symbol.match?(regex) }
+                                 .keys # gets the position info in array
+                                 .map { |pos| Chess::Position.new(pos.first, pos.last) }
   end
+
+  def positions_for_color(board, active_color)
+    board.find_all_pieces(active_color)
+         .map { |data| Chess::Position.new(data[:position].first, data[:position].last) }
+  end
+end

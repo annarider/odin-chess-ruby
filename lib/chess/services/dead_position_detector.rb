@@ -8,7 +8,7 @@ module Chess
   # Insufficient material cases:
   # - King vs King
   # - King + Bishop vs King
-  # - King + Knight vs King  
+  # - King + Knight vs King
   # - King + Bishop vs King + Bishop (same color squares)
   class DeadPositionDetector
     include Piece
@@ -36,7 +36,7 @@ module Chess
     def collect_all_pieces
       white_pieces = board.find_all_pieces(ChessNotation::WHITE_PLAYER)
       black_pieces = board.find_all_pieces(ChessNotation::BLACK_PLAYER)
-      
+
       {
         white: white_pieces.map { |piece_data| piece_data[:piece].downcase },
         black: black_pieces.map { |piece_data| piece_data[:piece].downcase }
@@ -50,26 +50,26 @@ module Chess
     def king_and_minor_vs_king?(pieces)
       white_pieces = pieces[:white].sort
       black_pieces = pieces[:black].sort
-      
+
       (white_pieces == ['k'] && minor_piece_only?(black_pieces)) ||
         (black_pieces == ['k'] && minor_piece_only?(white_pieces))
     end
 
     def minor_piece_only?(pieces)
-      pieces == ['b', 'k'] || pieces == ['k', 'n']
+      [%w[b k], %w[k n]].include?(pieces)
     end
 
     def king_bishop_vs_king_bishop_same_color?(pieces)
       white_pieces = pieces[:white].sort
       black_pieces = pieces[:black].sort
-      
-      return false unless white_pieces == ['b', 'k'] && black_pieces == ['b', 'k']
-      
+
+      return false unless white_pieces == %w[b k] && black_pieces == %w[b k]
+
       white_bishop_pos = find_piece_position('B')
       black_bishop_pos = find_piece_position('b')
-      
+
       return false if white_bishop_pos.nil? || black_bishop_pos.nil?
-      
+
       same_color_squares?(white_bishop_pos, black_bishop_pos)
     end
 
