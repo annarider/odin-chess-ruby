@@ -3,7 +3,7 @@
 require_relative '../../../lib/chess'
 
 describe Chess::GameSerializer do
-  subject(:serializer) { described_class.new }
+  subject(:serializer) { described_class }
   
   let(:state) { Chess::GameState.new }
   let(:filename) { 'test_game' }
@@ -138,20 +138,6 @@ describe Chess::GameSerializer do
         expect(result[:success]).to be false
         expect(result[:error]).to eq('Invalid FEN')
       end
-    end
-  end
-
-  describe '.save_game' do
-    it 'delegates to instance method' do
-      expect_any_instance_of(described_class).to receive(:save_game).with(state, filename)
-      described_class.save_game(state, filename)
-    end
-  end
-
-  describe '.load_game' do
-    it 'delegates to instance method' do
-      expect_any_instance_of(described_class).to receive(:load_game).with(filename)
-      described_class.load_game(filename)
     end
   end
 
