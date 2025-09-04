@@ -64,11 +64,10 @@ module Chess
     def build_en_passant(square)
       return '-' if square.nil?
 
-      square
+      square.to_algebraic
     end
 
     def convert_fen_active_color(color)
-      p color
       color == :white ? 'w' : 'b'
     end
   end
