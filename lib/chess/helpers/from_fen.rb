@@ -95,7 +95,7 @@ module Chess
     def en_passant_to_position(square)
       return nil if square == '-'
 
-      square
+      Position.from_algebraic(square)
     end
 
     def convert_fen_active_color(fen_string)

@@ -29,7 +29,7 @@ module Chess
       end
 
       def from_fen(fen_string)
-        parsed_data = FromFEN.to_piece_placement(fen_string)
+        p parsed_data = FromFEN.to_piece_placement(fen_string)
         new(**parsed_data)
       end
 
