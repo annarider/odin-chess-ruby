@@ -33,9 +33,13 @@ module Chess
     end
 
     def build_board_for_display
-      board_data.map.with_index do |rank, rank_index|
-        format_rank(rank, rank_index)
-      end.join("\n")
+      [
+        build_top_border,
+        build_file_labels,
+        *build_board_ranks,
+        build_file_labels,
+        build_bottom_border
+      ].join("\n")
     end
 
     private
@@ -66,6 +70,27 @@ module Chess
       # "white on the right"
       color = index.even? ? :white : :black
       content.output_color(color, ground: 'back')
+    end
+
+    def build_board_ranks
+      board_data.map.with_index do |rank, rank_index|
+        rank_number = Chess::Config::GRID_LENGTH - rank_index
+        formatted_rank = format_rank(rank, rank_index)
+        "#{rank_number} #{formatted_rank} #{rank_number}"
+      end
+    end
+
+    def build_top_border
+      "  ╔#{'═══' * Chess::Config::GRID_LENGTH}╗"
+    end
+
+    def build_bottom_border
+      "  ╚#{'═══' * Chess::Config::GRID_LENGTH}╝"
+    end
+
+    def build_file_labels
+      files = ('a'..'h').first(Chess::Config::GRID_LENGTH)
+      "    #{files.map { |f| f.center(3) }.join}  "
     end
   end
 end

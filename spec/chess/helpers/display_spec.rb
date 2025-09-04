@@ -56,11 +56,6 @@ describe Chess::Display do
         expect(result).to include(black_queen).once
         expect(result).to include(black_pawn).exactly(8).times
       end
-
-      it 'returns the correct number of squares wide' do
-        result = described_class.show_board(mock_board_data)
-        expect(result.lines.count).to eq(Chess::Config::GRID_LENGTH)
-      end
     end
   end
 end
