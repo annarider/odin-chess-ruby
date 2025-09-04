@@ -358,18 +358,15 @@ describe Chess::GameController do
 
   describe 'game outcomes' do
     context 'when game ends in checkmate' do
+      # Use checkmate position
+      let(:game) { Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3') }
       it 'detects checkmate correctly' do
-        # Use real GameState from actual checkmate position
-        game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
         controller = described_class.new(game)
-
         expect(controller.state.game_over?).to be true
       end
       
       it 'identifies the winner correctly' do
-        game = Chess::GameState.from_fen('rnb1kbnr/pppp1ppp/8/4p3/7q/5P2/PPPPP1PP/RNBQKBNR w KQkq - 1 3')
         controller = described_class.new(game)
-
         expect(controller.state.winner).to eq(Chess::ChessNotation::BLACK_PLAYER)
       end
     end
