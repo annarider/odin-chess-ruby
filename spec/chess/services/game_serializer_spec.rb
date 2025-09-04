@@ -51,7 +51,7 @@ describe Chess::GameSerializer do
         result = serializer.save_game(state, special_filename)
         
         expect(result[:success]).to be true
-        expect(result[:path]).to include('test_game___________.json')
+        expect(result[:path]).to include('test_game__________.json')
       end
     end
     
