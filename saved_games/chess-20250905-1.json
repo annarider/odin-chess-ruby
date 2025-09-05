@@ -1,0 +1,12 @@
+{
+  "fen": "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1",
+  "move_history": {
+    "moves": [
+      "#<Chess::Move:0x000000010264b5b0>"
+    ],
+    "past_positions": [
+      "4e0d3cda555e0ee6c5a8402856977e6f"
+    ]
+  },
+  "saved_at": "2025-09-05T12:01:56-06:00"
+}
