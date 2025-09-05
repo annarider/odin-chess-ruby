@@ -20,7 +20,7 @@ module Chess
 
     def play
       start_game
-      game_loop
+      play_turn until state.game_over?
       announce_game_end
     end
 
@@ -29,13 +29,6 @@ module Chess
     def start_game
       Interface.welcome
       Display.show_board(state.board.to_display)
-    end
-
-    def game_loop
-      until state.game_over?
-        play_turn
-        state.switch_turn unless state.game_over?
-      end
     end
 
     def play_turn
