@@ -28,7 +28,7 @@ module Chess
 
     def start_game
       Interface.welcome
-      Display.show_board(state.board.to_display)
+      puts Display.show_board(state.board.to_display)
     end
 
     def play_turn
@@ -78,7 +78,7 @@ module Chess
       if result[:success]
         @state = result[:state]
         puts "Game loaded successfully from '#{result[:filename]}.json'"
-        Display.show_board(state.board.to_display)
+        puts Display.show_board(state.board.to_display)
       else
         puts "Failed to load game: #{result[:error]}"
       end
@@ -90,7 +90,7 @@ module Chess
       move = Move.new(from_position: from, to_position: to, piece: piece,
                       fen: state.to_fen)
       if state.play_move(move)
-        Display.show_board(state.board.to_display)
+        puts Display.show_board(state.board.to_display)
       else
         Interface.announce_invalid_move
         play_turn

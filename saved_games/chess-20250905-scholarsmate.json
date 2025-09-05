@@ -1,0 +1,22 @@
+{
+  "fen": "r1bqkb1r/pppp1ppp/2n2n2/4p2Q/2B1P3/8/PPPP1PPP/RNB1K1NR w KQkq - 0 4",
+  "move_history": {
+    "moves": [
+      "#<Chess::Move:0x00000001005fb5a8>",
+      "#<Chess::Move:0x00000001005dea20>",
+      "#<Chess::Move:0x00000001005fb2d8>",
+      "#<Chess::Move:0x00000001005f6a08>",
+      "#<Chess::Move:0x00000001005f0dd8>",
+      "#<Chess::Move:0x00000001005fb558>"
+    ],
+    "past_positions": [
+      "4e0d3cda555e0ee6c5a8402856977e6f",
+      "9861ad79a29bc6b356f3d2a1dc8cda3d",
+      "0f879562d7679a44968708bba4d13d5e",
+      "25b80d0eecf2ea2b20a49aece9f9d2d7",
+      "1b274eebe457e11824e3bd38148bd308",
+      "e1be2fe82839fa9e56bd05255b4058c2"
+    ]
+  },
+  "saved_at": "2025-09-05T12:13:05-06:00"
+}

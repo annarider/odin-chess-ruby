@@ -81,16 +81,16 @@ module Chess
     end
 
     def build_top_border
-      "  ╔#{'═══' * Chess::Config::GRID_LENGTH}╗"
+      " ╔#{'═══' * Chess::Config::GRID_LENGTH}╗"
     end
 
     def build_bottom_border
-      "  ╚#{'═══' * Chess::Config::GRID_LENGTH}╝"
+      " ╚#{'═══' * Chess::Config::GRID_LENGTH}╝"
     end
 
     def build_file_labels
       files = ('a'..'h').first(Chess::Config::GRID_LENGTH)
-      "    #{files.map { |f| f.center(3) }.join}  "
+      "  #{files.map { |f| f.center(3) }.join}  "
     end
   end
 end
