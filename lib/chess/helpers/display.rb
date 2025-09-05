@@ -36,7 +36,7 @@ module Chess
       [
         build_top_border,
         build_file_labels,
-        *build_board_ranks,
+        build_board_ranks,
         build_file_labels,
         build_bottom_border
       ].join("\n")
